@@ -6,6 +6,7 @@ dependencies {
 	api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
 	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 	api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+	api "io.github.libktx:ktx-ashley:$ktxVersion"
 	api "com.badlogicgames.gdx:gdx:$gdxVersion"
 	api "com.bladecoder.ink:blade-ink:$bladeInkVersion"
 	api "com.crashinvaders.vfx:gdx-vfx-core:$gdxVfxCoreVersion"
@@ -47,4 +48,5 @@ dependencies {
 	api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 	api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 	api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
+	implementation project(':gdx-lava')
 }
