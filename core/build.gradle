@@ -48,5 +48,6 @@ dependencies {
 	api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 	api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 	api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
+	implementation "io.github.quillraven.fleks:Fleks:2.0"
 	implementation project(':gdx-lava')
 }
