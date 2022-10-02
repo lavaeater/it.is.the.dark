@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.github.quillraven.fleks.World
+import com.github.quillraven.fleks.world
+import dark.core.GameSettings
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
-import com.github.quillraven.*
-import com.github.quillraven.fleks.world
+import ktx.box2d.createWorld
 
 object Context : InjectionContext() {
     private val shapeDrawerRegion: TextureRegion by lazy {
@@ -20,12 +22,16 @@ object Context : InjectionContext() {
     }
 
     fun initialize() {
-
+        buildContext {
+            bindSingleton(GameSettings())
+            bindSingleton(getFleksWorld())
+            bindSingleton(createWorld())
+        }
     }
 
-    private fun getFleksWorld() {
-        val world =  world{
-
+    private fun getFleksWorld(): World {
+        return world {
+            
         }
     }
 }
