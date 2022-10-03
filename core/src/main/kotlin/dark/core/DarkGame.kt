@@ -11,7 +11,7 @@ class DarkGame : MainGame() {
 
         addScreen(MenuScreen(this))
         addScreen(GameScreen(this))
-        setScreen<MenuScreen>()
+        setScreen<GameScreen>()
     }
 }
 
