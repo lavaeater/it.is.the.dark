@@ -1,7 +1,7 @@
 package dark.ai
 
 import com.badlogic.ashley.core.Entity
-import eater.ai.AiAction
+import eater.ai.ashley.AiAction
 import eater.ai.AshleyConsideration
 
 class DoINeedEnergyAshleyConsideration:AshleyConsideration("Do I Need Energy?", { entity -> })

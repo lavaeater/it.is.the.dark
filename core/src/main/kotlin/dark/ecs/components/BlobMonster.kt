@@ -3,7 +3,7 @@ package dark.ecs.components
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import eater.ai.AiAction
+import eater.ai.ashley.AiAction
 
 class SomeOneTriesToConnectRightNow : Component<SomeOneTriesToConnectRightNow> {
     override fun type() = SomeOneTriesToConnectRightNow
