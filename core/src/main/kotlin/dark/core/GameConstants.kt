@@ -10,4 +10,8 @@ class GameSettings {
     val spokeHz = 1f
     val spokeDamp = 0.3f
     val segmentLength = 5f
+    val TimeStep = 1 / 60f
+    val VelIters = 16
+    val PosIters = 6
+
 }
