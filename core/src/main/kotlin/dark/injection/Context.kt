@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.world
 import dark.core.GameSettings
+import dark.ecs.components.DarkMonster
 import eater.injection.InjectionContext
 import ktx.assets.DisposableContainer
 import ktx.assets.DisposableRegistry
@@ -38,6 +39,9 @@ object Context : InjectionContext() {
     private fun getFleksWorld(): World {
         return world {
 
+            components {
+                onRemove(DarkMonster, DarkMonster.onRemove)
+            }
         }
     }
 }
