@@ -4,10 +4,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.core.GameSettings
-import dark.ecs.components.Box2dBody
-import dark.ecs.components.CameraFollow
-import dark.ecs.components.DarkMonster
-import dark.ecs.components.Sprite
+import dark.ecs.components.*
 import eater.core.fleks
 import eater.core.world
 import eater.injection.InjectionContext.Companion.inject
@@ -15,6 +12,14 @@ import ktx.box2d.body
 import ktx.box2d.circle
 import ktx.box2d.distanceJointWith
 import ktx.math.vec2
+
+fun createBlob(at:Vector2, settings: GameSettings = inject()) {
+    with(fleks()) {
+        entity {
+            it += Ai()
+        }
+    }
+}
 
 fun createDarkMonster(at: Vector2, radius: Float, numberOfPoints: Int, nodeRadius: Float) {
     val settings = inject<GameSettings>()

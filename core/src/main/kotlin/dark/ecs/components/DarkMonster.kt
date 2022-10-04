@@ -8,6 +8,7 @@ import com.github.quillraven.fleks.ComponentHook
 import com.github.quillraven.fleks.ComponentType
 import eater.core.selectedItemListOf
 
+
 class DarkMonster : Component<DarkMonster> {
     lateinit var centerBody: Body
     val outershell = mutableListOf<Body>()
