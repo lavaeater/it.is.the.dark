@@ -9,6 +9,7 @@ import dark.ecs.components.BlobMonster
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.entity
 import ktx.ashley.mapperFor
@@ -20,7 +21,7 @@ import ktx.math.vec2
 object RandomRanges {
     val positionRange = -10..10
     fun getRandomPosition(): Vector2 {
-        return vec2(positionRange.random()*10f, positionRange.random() * 10f)
+        return vec2(positionRange.random()*2.5f, positionRange.random() * 2.5f)
     }
 }
 
@@ -73,10 +74,11 @@ class Blob: Component, Pool.Poolable {
 fun createBlob(at:Vector2, settings: GameSettings = inject()) {
     engine().entity {
         with<Blob>()
+        with<CameraFollow>()
         with<Box2d> {
             body = world().body {
                 type = BodyDef.BodyType.DynamicBody
-                position.set(RandomRanges.getRandomPosition())
+                position.set(at)
                 circle(1.0f) {
 
                 }
