@@ -9,10 +9,10 @@ import ktx.math.vec2
 
 class BodyControl: Component, Pool.Poolable {
     val direction = vec2()
-    var maxForce = 1000f
+    var maxForce = 100f
     override fun reset() {
         direction.set(Vector2.Zero)
-        maxForce = 1000f
+        maxForce = 100f
     }
 
     companion object {

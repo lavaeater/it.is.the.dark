@@ -41,7 +41,7 @@ class GameScreen(
 
     override fun show() {
         createFood()
-        createLight()
+//        createLight()
         createBlob(vec2())
     }
 

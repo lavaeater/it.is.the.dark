@@ -7,10 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import dark.core.DarkGame
 import dark.core.GameSettings
+import dark.ecs.systems.BodyControlSystem
 import dark.screens.GameScreen
-import eater.ecs.ashley.systems.Box2dDebugRenderSystem
-import eater.ecs.ashley.systems.Box2dUpdateSystem
-import eater.ecs.ashley.systems.CameraFollowSystem
+import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
@@ -54,9 +53,12 @@ object Context : InjectionContext() {
 
     private fun getEngine(gameSettings: GameSettings): Engine {
         return Engine().apply {
-            addSystem(CameraFollowSystem(inject(), 0.25f))
+            addSystem(CameraFollowSystem(inject(), 0.75f))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(Box2dDebugRenderSystem(inject(), inject()))
+            addSystem(BodyControlSystem())
+            addSystem(UpdateActionsSystem())
+            addSystem(AshleyAiSystem())
         }
     }
 }
