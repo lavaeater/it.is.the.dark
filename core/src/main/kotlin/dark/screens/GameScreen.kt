@@ -1,11 +1,10 @@
 package dark.screens
 
+import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import com.badlogic.gdx.utils.viewport.Viewport
-import com.github.quillraven.fleks.World
-import createDarkMonster
+import createBlob
 import dark.core.DarkGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
@@ -13,7 +12,7 @@ import ktx.math.vec2
 
 class GameScreen(
     private val game: DarkGame,
-    private val fleksWorkd: World,
+    private val engine: Engine,
     private val viewPort: ExtendViewport,
     private val batch: PolygonSpriteBatch,
     private val camera: OrthographicCamera): KtxScreen, KtxInputAdapter {
@@ -26,7 +25,7 @@ class GameScreen(
     }
 
     override fun render(delta: Float) {
-        fleksWorkd.update(delta)
+        engine.update(delta)
     }
 
     override fun resize(width: Int, height: Int) {
@@ -39,7 +38,7 @@ class GameScreen(
     }
 
     override fun show() {
-        createDarkMonster(vec2(),10f,20, 5f)
+        createBlob(vec2())
     }
 
 

@@ -1,17 +1,15 @@
 package dark.injection
 
+import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import com.github.quillraven.fleks.World
-import com.github.quillraven.fleks.world
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.components.DarkMonster
-import eater.ecs.fleks.systems.Box2dDebugRenderSystem
-import eater.ecs.fleks.systems.Box2dUpdateSystem
 import dark.screens.GameScreen
+import eater.ecs.ashley.systems.Box2dDebugRenderSystem
+import eater.ecs.ashley.systems.Box2dUpdateSystem
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
@@ -41,7 +39,7 @@ object Context : InjectionContext() {
                 )
             )
             bindSingleton(createWorld())
-            bindSingleton(getFleksWorld(gameSettings))
+            bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
             bindSingleton(GameScreen(
                 inject(),
@@ -53,17 +51,10 @@ object Context : InjectionContext() {
         }
     }
 
-    private fun getFleksWorld(gameSettings: GameSettings): World {
-        return world {
-
-            components {
-                onRemove(DarkMonster, DarkMonster.onRemove)
-            }
-
-            systems {
-                add(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
-                add(Box2dDebugRenderSystem(inject(), inject()))
-            }
+    private fun getEngine(gameSettings: GameSettings): Engine {
+        return Engine().apply {
+            addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
+            addSystem(Box2dDebugRenderSystem(inject(), inject()))
         }
     }
 }

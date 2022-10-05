@@ -1,30 +1,5 @@
 package dark.ecs.components
 
-
-import com.github.quillraven.fleks.Component
-import com.github.quillraven.fleks.ComponentType
-import eater.ai.ashley.AiAction
-
-class SomeOneTriesToConnectRightNow : Component<SomeOneTriesToConnectRightNow> {
-    override fun type() = SomeOneTriesToConnectRightNow
-
-    companion object : ComponentType<SomeOneTriesToConnectRightNow>()
-}
-
-data class Ai(val actions: MutableList<AiAction>) : Component<Ai> {
-    override fun type() = Ai
-
-    companion object : ComponentType<Ai>() {
-
-    }
-}
-
-data class BlobComponent(var energy: Float) : Component<BlobComponent> {
-    override fun type() = BlobComponent
-
-    companion object : ComponentType<BlobComponent>()
-}
-
 class BlobMonster {
     /**
      * The blobmonster is an entity that might be connected to other entities
