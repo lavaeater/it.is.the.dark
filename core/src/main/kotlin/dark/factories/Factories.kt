@@ -22,7 +22,19 @@ import ktx.ashley.mapperFor
 import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.circle
+import ktx.box2d.filter
 import ktx.math.vec2
+import kotlin.experimental.or
+
+object Categories {
+    const val none: Short = 0
+    const val blob: Short = 1
+    const val food: Short = 2
+
+    val whatBlobsCollideWith = blob or food
+    val whatFoodCollidesWith = blob
+
+}
 
 object RandomRanges {
     val positionRange = -10..10
@@ -51,10 +63,13 @@ fun createFood() {
         with<Food>()
         with<Box2d> {
             body = world().body {
-                type = BodyDef.BodyType.DynamicBody
+                type = BodyDef.BodyType.StaticBody
                 position.set(RandomRanges.getRandomPosition())
                 circle(1.0f) {
-
+                    filter {
+                        categoryBits = Categories.food
+                        maskBits = Categories.whatFoodCollidesWith
+                    }
                 }
             }
         }
@@ -78,13 +93,15 @@ class Blob: Component, Pool.Poolable {
 }
 
 
-fun createBlob(at:Vector2, settings: GameSettings = inject()) {
+fun createBlob(at:Vector2, health: Float = 100f, settings: GameSettings = inject()) {
     engine().entity {
         with<Blob>()
         with<PropsAndStuff> {
-            props.add(Prop.Health())
+            props.add(Prop.Health(health))
         }
-        with<BodyControl>()
+        with<BodyControl> {
+            maxForce = 10f
+        }
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
@@ -94,7 +111,10 @@ fun createBlob(at:Vector2, settings: GameSettings = inject()) {
                 type = BodyDef.BodyType.DynamicBody
                 position.set(at)
                 circle(1.0f) {
-
+                    filter {
+                        categoryBits = Categories.blob
+                        maskBits = Categories.whatBlobsCollideWith
+                    }
                 }
             }
         }

@@ -3,18 +3,47 @@ package dark.ai
 import Food
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
+import createBlob
 import dark.ecs.components.BodyControl
 import dark.ecs.components.PropsAndStuff
 import dark.ecs.components.Target
 import dark.ecs.components.TargetState
 import eater.ai.ashley.AiAction
 import eater.ai.ashley.AiActionWithState
+import eater.ai.ashley.AlsoGenericAction
+import eater.ai.ashley.GenericAction
 import eater.core.engine
 import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.Remove
+import eater.physics.addComponent
 import ktx.ashley.allOf
 import ktx.math.minus
+import ktx.math.plus
 
 object BlobActions {
+    val splitInTwo = object : AlsoGenericAction("Split") {
+        override fun scoreFunction(entity: Entity): Float {
+            val props = PropsAndStuff.get(entity)
+            val health = props.getHealth()
+            return if(health.current > health.max)
+                1f
+            else 0f
+        }
+
+        override fun abort(entity: Entity) {
+        }
+
+        override fun act(entity: Entity, deltaTime: Float) {
+            val props = PropsAndStuff.get(entity)
+            val health = props.getHealth()
+            val remainingHealthForNewBlog = health.current / 2f
+            health.current = remainingHealthForNewBlog
+            val direction = Vector2.X.cpy().rotateDeg((0..359).random().toFloat())
+            val at = Box2d.get(entity).body.position + direction.scl(5f)
+            createBlob(at, remainingHealthForNewBlog)
+        }
+
+    }
     val goTowardsFood = object : AiActionWithState<Target>("Towards Some Place", Target::class) {
         override fun scoreFunction(entity: Entity): Float {
             return 0.5f
@@ -37,26 +66,35 @@ object BlobActions {
              */
             when (state.state) {
                 TargetState.HasTarget -> {
-                    val body = Box2d.get(entity).body
-                    val targetPosition = Box2d.get(state.target!!).body.position
-                    val distanceToFood = body.position.dst(targetPosition)
-                    val bodyControl = BodyControl.get(entity)
-                    if (distanceToFood > 10f) {
-                        bodyControl.direction.set((targetPosition - body.position).nor())
-                    } else {
-                        bodyControl.direction.set(Vector2.Zero)
-                        val health = PropsAndStuff.get(entity).getHealth()
-                        val toAdd = deltaTime * 10f
-                        health.current += toAdd
-                        val food = Food.get(state.target!!)
-                        food.foodEnergy -= toAdd
-                        if (health.current > health.max) {
-                            //Split in two
+                    if(Box2d.has(state.target!!)) {
+                        val body = Box2d.get(entity).body
+                        val targetPosition = Box2d.get(state.target!!).body.position
+                        val distanceToFood = body.position.dst(targetPosition)
+                        val bodyControl = BodyControl.get(entity)
+                        if (distanceToFood > 10f) {
+                            bodyControl.direction.set((targetPosition - body.position).nor())
+                        } else {
+                            bodyControl.direction.set(Vector2.Zero)
+                            val health = PropsAndStuff.get(entity).getHealth()
+                            val toAdd = deltaTime * 10f
+                            health.current += toAdd
+                            val food = Food.get(state.target!!)
+                            food.foodEnergy -= toAdd
+                            if (food.foodEnergy < 0f)
+                                state.apply {
+                                    target!!.addComponent<Remove>()
+                                    this.state = TargetState.IsDoneWithTarget
+                                }
                         }
+                    } else {
+                        state.state = TargetState.IsDoneWithTarget
                     }
                 }
 
-                TargetState.IsDoneWithTarget -> {}
+                TargetState.IsDoneWithTarget -> {
+                    state.target = null
+                    state.state = TargetState.NeedsTarget
+                }
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
@@ -71,5 +109,5 @@ object BlobActions {
 
         }
     }
-    val allActions = listOf<AiAction>(goTowardsFood)
+    val allActions = listOf<AiAction>(goTowardsFood, splitInTwo)
 }

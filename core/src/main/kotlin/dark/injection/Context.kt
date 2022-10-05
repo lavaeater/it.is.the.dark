@@ -1,16 +1,19 @@
 package dark.injection
 
+import Food
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
+import createFood
 import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.systems.BodyControlSystem
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
+import ktx.ashley.allOf
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
 
@@ -53,12 +56,14 @@ object Context : InjectionContext() {
 
     private fun getEngine(gameSettings: GameSettings): Engine {
         return Engine().apply {
+            addSystem(RemoveEntitySystem())
             addSystem(CameraFollowSystem(inject(), 0.75f))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(BodyControlSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
+            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 2) { createFood() }))
         }
     }
 }
