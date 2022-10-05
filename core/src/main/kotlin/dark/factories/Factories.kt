@@ -7,6 +7,9 @@ import dark.core.GameSettings
 import dark.ecs.components.*
 import eater.core.fleks
 import eater.core.world
+import eater.ecs.fleks.components.Box2dBody
+import eater.ecs.fleks.components.CameraFollow
+import eater.ecs.fleks.components.Sprite
 import eater.injection.InjectionContext.Companion.inject
 import ktx.box2d.body
 import ktx.box2d.circle

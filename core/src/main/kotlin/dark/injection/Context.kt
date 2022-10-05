@@ -9,8 +9,8 @@ import com.github.quillraven.fleks.world
 import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.DarkMonster
-import dark.ecs.systems.Box2dDebugRenderSystem
-import dark.ecs.systems.Box2dUpdateSystem
+import eater.ecs.fleks.systems.Box2dDebugRenderSystem
+import eater.ecs.fleks.systems.Box2dUpdateSystem
 import dark.screens.GameScreen
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
@@ -41,7 +41,7 @@ object Context : InjectionContext() {
                 )
             )
             bindSingleton(createWorld())
-            bindSingleton(getFleksWorld())
+            bindSingleton(getFleksWorld(gameSettings))
             bindSingleton(Assets())
             bindSingleton(GameScreen(
                 inject(),
@@ -53,7 +53,7 @@ object Context : InjectionContext() {
         }
     }
 
-    private fun getFleksWorld(): World {
+    private fun getFleksWorld(gameSettings: GameSettings): World {
         return world {
 
             components {
@@ -61,7 +61,7 @@ object Context : InjectionContext() {
             }
 
             systems {
-                add(Box2dUpdateSystem(inject()))
+                add(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
                 add(Box2dDebugRenderSystem(inject(), inject()))
             }
         }
