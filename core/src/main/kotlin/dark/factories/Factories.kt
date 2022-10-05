@@ -4,10 +4,16 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.utils.Pool
+import dark.ai.BlobActions
 import dark.core.GameSettings
 import dark.ecs.components.BlobMonster
+import dark.ecs.components.BodyControl
+import dark.ecs.components.Prop
+import dark.ecs.components.PropsAndStuff
+import eater.ai.ashley.AiComponent
 import eater.core.engine
 import eater.core.world
+import eater.ecs.ashley.components.AgentProperties
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
@@ -71,9 +77,17 @@ class Blob: Component, Pool.Poolable {
     }
 }
 
+
 fun createBlob(at:Vector2, settings: GameSettings = inject()) {
     engine().entity {
         with<Blob>()
+        with<PropsAndStuff> {
+            props.add(Prop.Health())
+        }
+        with<BodyControl>()
+        with<AiComponent> {
+            actions.addAll(BlobActions.allActions)
+        }
         with<CameraFollow>()
         with<Box2d> {
             body = world().body {
