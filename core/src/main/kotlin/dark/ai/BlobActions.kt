@@ -2,16 +2,16 @@ package dark.ai
 
 import Food
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.steer.Steerable
+import com.badlogic.gdx.ai.utils.Location
 import com.badlogic.gdx.math.Vector2
 import createBlob
 import dark.ecs.components.BodyControl
 import dark.ecs.components.PropsAndStuff
 import dark.ecs.components.Target
 import dark.ecs.components.TargetState
-import eater.ai.ashley.AiAction
 import eater.ai.ashley.AiActionWithState
 import eater.ai.ashley.AlsoGenericAction
-import eater.ai.ashley.GenericAction
 import eater.core.engine
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.Remove
@@ -19,6 +19,99 @@ import eater.physics.addComponent
 import ktx.ashley.allOf
 import ktx.math.minus
 import ktx.math.plus
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+
+class SteerableEntity(val entity: Entity): Steerable<Vector2> {
+    private val body by lazy { Box2d.get(entity).body }
+    override fun getPosition(): Vector2 {
+        return body.position
+    }
+
+    override fun getOrientation(): Float {
+        return body.angle
+    }
+
+    override fun setOrientation(orientation: Float) {
+        body.setTransform(body.transform.position, orientation)
+    }
+
+    override fun vectorToAngle(vector: Vector2): Float {
+        return atan2(-vector.x, vector.y)
+    }
+
+    override fun angleToVector(outVector: Vector2, angle: Float): Vector2 {
+        outVector.x = -sin(angle.toDouble()).toFloat()
+        outVector.y = cos(angle.toDouble()).toFloat()
+        return outVector
+    }
+
+    override fun newLocation(): Location<Vector2> {
+        return Location<Vector2>()
+    }
+
+    override fun getZeroLinearSpeedThreshold(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun setZeroLinearSpeedThreshold(value: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMaxLinearSpeed(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxLinearSpeed(maxLinearSpeed: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMaxLinearAcceleration(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxLinearAcceleration(maxLinearAcceleration: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMaxAngularSpeed(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxAngularSpeed(maxAngularSpeed: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getMaxAngularAcceleration(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxAngularAcceleration(maxAngularAcceleration: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getLinearVelocity(): Vector2 {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAngularVelocity(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun getBoundingRadius(): Float {
+        TODO("Not yet implemented")
+    }
+
+    override fun isTagged(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun setTagged(tagged: Boolean) {
+        TODO("Not yet implemented")
+    }
+}
+
 
 object BlobActions {
     val splitInTwo = object : AlsoGenericAction("Split") {
@@ -109,5 +202,5 @@ object BlobActions {
 
         }
     }
-    val allActions = listOf<AiAction>(goTowardsFood, splitInTwo)
+    val allActions = listOf(goTowardsFood, splitInTwo)
 }
