@@ -37,9 +37,9 @@ object Categories {
 }
 
 object RandomRanges {
-    val positionRange = -10..10
+    val positionRange = -20..20
     fun getRandomPosition(): Vector2 {
-        return vec2(positionRange.random()*2.5f, positionRange.random() * 2.5f)
+        return vec2(positionRange.random()*5f, positionRange.random() * 5f)
     }
 }
 
@@ -100,7 +100,7 @@ fun createBlob(at:Vector2, health: Float = 100f, settings: GameSettings = inject
             props.add(Prop.Health(health))
         }
         with<BodyControl> {
-            maxForce = 10f
+            maxForce = 50f
         }
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)

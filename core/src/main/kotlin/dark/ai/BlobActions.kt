@@ -23,96 +23,6 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-class SteerableEntity(val entity: Entity): Steerable<Vector2> {
-    private val body by lazy { Box2d.get(entity).body }
-    override fun getPosition(): Vector2 {
-        return body.position
-    }
-
-    override fun getOrientation(): Float {
-        return body.angle
-    }
-
-    override fun setOrientation(orientation: Float) {
-        body.setTransform(body.transform.position, orientation)
-    }
-
-    override fun vectorToAngle(vector: Vector2): Float {
-        return atan2(-vector.x, vector.y)
-    }
-
-    override fun angleToVector(outVector: Vector2, angle: Float): Vector2 {
-        outVector.x = -sin(angle.toDouble()).toFloat()
-        outVector.y = cos(angle.toDouble()).toFloat()
-        return outVector
-    }
-
-    override fun newLocation(): Location<Vector2> {
-        return Location<Vector2>()
-    }
-
-    override fun getZeroLinearSpeedThreshold(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun setZeroLinearSpeedThreshold(value: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMaxLinearSpeed(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaxLinearSpeed(maxLinearSpeed: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMaxLinearAcceleration(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaxLinearAcceleration(maxLinearAcceleration: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMaxAngularSpeed(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaxAngularSpeed(maxAngularSpeed: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMaxAngularAcceleration(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaxAngularAcceleration(maxAngularAcceleration: Float) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getLinearVelocity(): Vector2 {
-        TODO("Not yet implemented")
-    }
-
-    override fun getAngularVelocity(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun getBoundingRadius(): Float {
-        TODO("Not yet implemented")
-    }
-
-    override fun isTagged(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun setTagged(tagged: Boolean) {
-        TODO("Not yet implemented")
-    }
-}
-
-
 object BlobActions {
     val splitInTwo = object : AlsoGenericAction("Split") {
         override fun scoreFunction(entity: Entity): Float {
@@ -159,17 +69,18 @@ object BlobActions {
              */
             when (state.state) {
                 TargetState.HasTarget -> {
+                    val random = (1..100).random()
                     if(Box2d.has(state.target!!)) {
                         val body = Box2d.get(entity).body
                         val targetPosition = Box2d.get(state.target!!).body.position
                         val distanceToFood = body.position.dst(targetPosition)
                         val bodyControl = BodyControl.get(entity)
-                        if (distanceToFood > 10f) {
+                        if (distanceToFood > 5f) {
                             bodyControl.direction.set((targetPosition - body.position).nor())
                         } else {
                             bodyControl.direction.set(Vector2.Zero)
                             val health = PropsAndStuff.get(entity).getHealth()
-                            val toAdd = deltaTime * 10f
+                            val toAdd = deltaTime * 25f
                             health.current += toAdd
                             val food = Food.get(state.target!!)
                             food.foodEnergy -= toAdd
@@ -191,6 +102,7 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
+                        .filter { Food.get(it).foodEnergy > 50f }
                         .minByOrNull { Box2d.get(entity).body.position.dst(body.position) }
                     if(potentialTarget != null) {
                         state.state = TargetState.HasTarget
