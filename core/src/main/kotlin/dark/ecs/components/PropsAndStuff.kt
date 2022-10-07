@@ -9,8 +9,8 @@ import kotlin.reflect.KClass
 class PropsAndStuff: Component, Pool.Poolable {
     val props = mutableListOf<Prop>()
 
-    fun getHealth(): Prop.Health {
-        return props.first { it is Prop.Health } as Prop.Health
+    fun getHealth(): Prop.FloatProp.Health {
+        return props.first { it is Prop.FloatProp.Health } as Prop.FloatProp.Health
     }
 
     override fun reset() {

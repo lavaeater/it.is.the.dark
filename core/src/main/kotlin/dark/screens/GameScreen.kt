@@ -42,7 +42,7 @@ class GameScreen(
     override fun show() {
         createFood()
 //        createLight()
-        createBlob(vec2())
+        createBlob(vec2(), follow = true)
     }
 
 

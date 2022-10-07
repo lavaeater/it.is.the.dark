@@ -1,16 +1,11 @@
 package dark.ecs.systems
 
 import Blob
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalSystem
 import eater.ecs.ashley.components.Box2d
 import ktx.ashley.allOf
 
-object BlobGrouper {
-    val blobGroups = mutableListOf(mutableListOf<Entity>())
-}
-
-class BlobGroupingSystem : IntervalSystem(1f) {
+class BlobGroupingSystem : IntervalSystem(0.1f) {
     val blobFamily = allOf(Blob::class, Box2d::class).get()
     val coherenceDistance = 10f
     override fun updateInterval() {

@@ -5,7 +5,7 @@ precision highp float;
 uniform sampler2D sceneTex; // 0
 uniform vec2 center; // Mouse position
 uniform float time; // effect elapsed time
-//uniform vec3 shockParams; // 10.0, 0.8, 0.1
+uniform vec3 shockParams; //
  
 varying vec2 v_texCoords;
  
@@ -13,8 +13,6 @@ void main()
 {
 	// get pixel coordinates
 	vec2 l_texCoords = v_texCoords;
-	//vec2 center = vec2(0.5, 0.5);
-	vec3 shockParams = vec3(10.0, 0.8, 0.1);
 
     float offset = (time- floor(time))/time;
 	float CurrentTime = (time)*(offset);

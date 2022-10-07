@@ -93,11 +93,11 @@ class Blob: Component, Pool.Poolable {
 }
 
 
-fun createBlob(at:Vector2, health: Float = 100f, settings: GameSettings = inject()) {
+fun createBlob(at:Vector2, health: Float = 100f, settings: GameSettings = inject(), follow: Boolean = false) {
     engine().entity {
         with<Blob>()
         with<PropsAndStuff> {
-            props.add(Prop.Health(health))
+            props.add(Prop.FloatProp.Health(health))
         }
         with<BodyControl> {
             maxForce = 50f
@@ -105,7 +105,8 @@ fun createBlob(at:Vector2, health: Float = 100f, settings: GameSettings = inject
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
-        with<CameraFollow>()
+        if(follow)
+            with<CameraFollow>()
         with<Box2d> {
             body = world().body {
                 type = BodyDef.BodyType.DynamicBody

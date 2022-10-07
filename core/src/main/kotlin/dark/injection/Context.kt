@@ -10,9 +10,8 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createFood
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.systems.BlobGrouper
 import dark.ecs.systems.BlobGroupingSystem
-import dark.ecs.systems.BlobRenderSystem
+import dark.ecs.systems.RenderSystem
 import dark.ecs.systems.BodyControlSystem
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
@@ -71,7 +70,7 @@ object Context : InjectionContext() {
             addSystem(AshleyAiSystem())
             addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 100) { createFood() }))
             addSystem(BlobGroupingSystem())
-            addSystem(BlobRenderSystem(inject(), inject(), inject()))
+            addSystem(RenderSystem(inject(), inject(), inject(), inject()))
         }
     }
 }

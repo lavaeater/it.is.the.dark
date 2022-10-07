@@ -10,6 +10,7 @@ import dark.ecs.components.BodyControl
 import dark.ecs.components.PropsAndStuff
 import dark.ecs.components.Target
 import dark.ecs.components.TargetState
+import dark.ecs.systems.BlobGrouper
 import eater.ai.ashley.AiActionWithState
 import eater.ai.ashley.AlsoGenericAction
 import eater.core.engine
@@ -28,7 +29,7 @@ object BlobActions {
         override fun scoreFunction(entity: Entity): Float {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
-            return if(health.current > health.max)
+            return if(BlobGrouper.canSplit && health.current > health.max)
                 1f
             else 0f
         }
@@ -69,7 +70,7 @@ object BlobActions {
              */
             when (state.state) {
                 TargetState.HasTarget -> {
-                    val random = (1..100).random()
+                    val random = (1..1000).random()
                     if(Box2d.has(state.target!!)) {
                         val body = Box2d.get(entity).body
                         val targetPosition = Box2d.get(state.target!!).body.position
@@ -102,8 +103,10 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
-                        .filter { Food.get(it).foodEnergy > 50f }
-                        .minByOrNull { Box2d.get(entity).body.position.dst(body.position) }
+//                        .filter { Food.get(it).foodEnergy > 50f }
+                        .filter { Box2d.get(it).body.position.dst(body.position) < 30f && Food.get(it).foodEnergy > 10f}
+                        .randomOrNull()
+//                        .minByOrNull { Box2d.get(entity).body.position.dst(body.position) }
                     if(potentialTarget != null) {
                         state.state = TargetState.HasTarget
                         state.target = potentialTarget
