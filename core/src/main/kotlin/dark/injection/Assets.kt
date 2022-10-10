@@ -24,6 +24,8 @@ class Assets: DisposableRegistry by DisposableContainer() {
     }
 
     val mapOne = Texture("maps/_composite.png".toInternalFile())
+
+    val mapOneIntLayer = "maps/level-1/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
     override fun dispose() {
         registeredDisposables.disposeSafely()
     }

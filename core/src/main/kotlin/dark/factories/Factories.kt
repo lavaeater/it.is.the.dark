@@ -103,3 +103,19 @@ fun createMap() {
         }
     }
 }
+
+fun createBounds(intLayer: String, tileSize: Int, mapOffset: Vector2) {
+    /*
+    To make it super easy, we just create a square per int-tile in the layer.
+     */
+    intLayer.lines().forEachIndexed{y, l ->
+        l.forEachIndexed{ x, c ->
+            if(c == '1') {
+                world().body {
+                    type = BodyDef.BodyType.StaticBody
+                    position.set()
+                }
+            }
+        }
+    }
+}
