@@ -1,6 +1,6 @@
 package dark.ecs.systems
 
-import Blob
+import dark.ecs.components.Blob
 import com.badlogic.ashley.systems.IntervalSystem
 import eater.ecs.ashley.components.Box2d
 import ktx.ashley.allOf

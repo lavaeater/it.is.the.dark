@@ -3,10 +3,15 @@ package dark.injection
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import eater.injection.InjectionContext.Companion.inject
 import ktx.assets.DisposableContainer
 import ktx.assets.DisposableRegistry
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+
+fun assets() : Assets {
+    return inject()
+}
 
 class Assets: DisposableRegistry by DisposableContainer() {
     val buddy: Map<AnimDef, Animation<TextureRegion>> by lazy {
@@ -17,6 +22,8 @@ class Assets: DisposableRegistry by DisposableContainer() {
             })
         }
     }
+
+    val mapOne = Texture("maps/_composite.png".toInternalFile())
     override fun dispose() {
         registeredDisposables.disposeSafely()
     }

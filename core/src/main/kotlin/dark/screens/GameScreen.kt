@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createBlob
 import createFood
 import createLight
+import createMap
 import dark.core.DarkGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
@@ -40,9 +41,11 @@ class GameScreen(
     }
 
     override fun show() {
+        createMap()
         createFood()
 //        createLight()
         createBlob(vec2(), follow = true)
+
     }
 
 

@@ -1,6 +1,7 @@
 package dark.ecs.systems
 
 import Food
+import Map
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -13,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
+import dark.ecs.components.Blob
 import dark.ecs.components.PropsAndStuff
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
@@ -36,6 +38,8 @@ class RenderSystem(
         ShaderProgram.pedantic = false
         ShaderProgram(vertexShader, fragmentShader)
     }
+    private val mapFamily = allOf(Map::class).get()
+    private val mapEntity get() = engine.getEntitiesFor(mapFamily).first() //Should always be one
     private val foodFamily = allOf(Food::class, Box2d::class).get()
     private val fbo by lazy { FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.width * 2, Gdx.graphics.height * 2, true) }
     private val blobCenter = vec3()
@@ -50,8 +54,12 @@ class RenderSystem(
         batch.projectionMatrix = camera.combined
         fbo.begin()
         batch.use {
-            Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
-            Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
+            Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+            Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
+            //Render the map. i.e. draw its region
+            val map = Map.get(mapEntity)
+            batch.draw(map.mapTextureRegion,map.mapOrigin.x - map.mapTextureRegion.regionWidth / 2f, map.mapOrigin.y - map.mapTextureRegion.regionHeight / 2f)
+
             for (blobList in BlobGrouper.blobGroups) {
                 for ((index, blobEntity) in blobList.withIndex()) {
                     var nextIndex = index + 1
