@@ -67,9 +67,10 @@ class RenderSystem(
             val map = Map.get(mapEntity)
             batch.draw(
                 map.mapTextureRegion,
-                map.mapOrigin.x - map.mapTextureRegion.regionWidth / 2f,
-                map.mapOrigin.y - map.mapTextureRegion.regionHeight / 2f
+                map.mapOrigin.x - map.mapTextureRegion.regionWidth,
+                map.mapOrigin.y - map.mapTextureRegion.regionHeight
             )
+            shapeDrawer.filledCircle(map.mapOrigin, 5f, Color.YELLOW)
 
             for (blobList in BlobGrouper.blobGroups) {
                 for ((index, blobEntity) in blobList.withIndex()) {

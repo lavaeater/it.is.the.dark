@@ -64,13 +64,13 @@ object Context : InjectionContext() {
             addSystem(RemoveEntitySystem())
             addSystem(CameraFollowSystem(inject(), 0.75f))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
-            addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(BodyControlSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
             addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 100) { createFood() }))
             addSystem(BlobGroupingSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
+            addSystem(Box2dDebugRenderSystem(inject(), inject()))
         }
     }
 }

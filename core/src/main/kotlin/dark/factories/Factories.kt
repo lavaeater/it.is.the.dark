@@ -18,8 +18,10 @@ import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
+import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.math.vec2
 
 fun createLight() {
     engine().entity {
@@ -95,25 +97,29 @@ fun createDarkEntity(at: Vector2, radius: Float): Body {
 }
 
 fun createMap() {
+    val mapOffset = vec2(0f,0f)
+    val textureRegion = TextureRegion(assets().mapOne)
     engine().entity {
         with<Map> {
-            mapTextureRegion = TextureRegion(assets().mapOne)
+            mapTextureRegion = textureRegion
             mapScale = 1.0f
-            mapOrigin.set(-20f, -20f)
+            mapOrigin.set(mapOffset)
         }
     }
+    createBounds(assets().mapOneIntLayer, 8f, vec2())// vec2(-textureRegion.regionWidth.toFloat(), -textureRegion.regionHeight.toFloat()))
 }
 
-fun createBounds(intLayer: String, tileSize: Int, mapOffset: Vector2) {
+fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2) {
     /*
     To make it super easy, we just create a square per int-tile in the layer.
      */
     intLayer.lines().forEachIndexed{y, l ->
-        l.forEachIndexed{ x, c ->
-            if(c == '1') {
+        l.split(',').forEachIndexed{ x, c ->
+            if(c == "1") {
                 world().body {
                     type = BodyDef.BodyType.StaticBody
-                    position.set()
+                    position.set(x * tileSize + mapOffset.x + tileSize, y * tileSize + mapOffset.y + tileSize)
+                    box(tileSize, tileSize)
                 }
             }
         }
