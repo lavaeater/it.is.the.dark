@@ -1,8 +1,8 @@
 package dark.core
 
 class GameSettings {
-    val GameWidth =500f
-    val GameHeight = (16f/9f) * GameWidth
+    val GameWidth = 500f
+    val GameHeight = (16f / 9f) * GameWidth
     val PixelsPerMeter = 16f
     val MetersPerPixel = 1f / PixelsPerMeter
     val outerShellHz = 1f
