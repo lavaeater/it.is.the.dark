@@ -1,4 +1,7 @@
+import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering
+import com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance
 import com.badlogic.gdx.ai.steer.behaviors.Wander
+import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -75,9 +78,9 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
 //        with<BodyControl> {
 //            maxForce = 50f
 //        }
-//        with<AiComponent> {
-//            actions.addAll(BlobActions.allActions)
-//        }
+        with<AiComponent> {
+            actions.addAll(BlobActions.allActions)
+        }
         if (follow)
             with<CameraFollow>()
         val b2Body = world().body {
@@ -102,12 +105,18 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
-            steeringBehavior = Wander(this).apply {
-                wanderRate = .1f
-                wanderOffset = 10f
-                wanderRadius = 250f
-                isFaceEnabled = false
+            steeringBehavior = PrioritySteering(this).apply {
+                add(Wander(this@with).apply {
+                    wanderRate = .1f
+                    wanderOffset = 10f
+                    wanderRadius = 250f
+                    isFaceEnabled = false
+                })
+                add(RaycastObstacleAvoidance(this@with).apply {
+                    rayConfiguration = CentralRayWithWhiskersConfiguration(this@with, 5f, 2.5f, 15f)
+                })
             }
+
         }
     }
 }

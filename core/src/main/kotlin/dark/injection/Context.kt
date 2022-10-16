@@ -70,7 +70,7 @@ object Context : InjectionContext() {
             addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 100) { createFood() }))
             addSystem(BlobGroupingSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
-            addSystem(Box2dDebugRenderSystem(inject(), inject()))
+           // addSystem(Box2dDebugRenderSystem(inject(), inject()))
         }
     }
 }

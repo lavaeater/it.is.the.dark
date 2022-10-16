@@ -5,7 +5,7 @@ import com.badlogic.ashley.systems.IntervalSystem
 import eater.ecs.ashley.components.Box2d
 import ktx.ashley.allOf
 
-class BlobGroupingSystem : IntervalSystem(0.1f) {
+class BlobGroupingSystem : IntervalSystem(0.2f) {
     val blobFamily = allOf(Blob::class, Box2d::class).get()
     val coherenceDistance = 10f
     override fun updateInterval() {
