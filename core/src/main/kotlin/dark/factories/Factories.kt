@@ -9,10 +9,7 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.core.GameSettings
-import dark.ecs.components.Blob
-import dark.ecs.components.BodyControl
-import dark.ecs.components.Prop
-import dark.ecs.components.PropsAndStuff
+import dark.ecs.components.*
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteering
@@ -31,14 +28,20 @@ import ktx.box2d.filter
 import ktx.math.vec2
 
 fun createLight() {
-    engine().entity {
-        with<Light>()
-        with<Box2d> {
-            body = world().body {
-                type = BodyDef.BodyType.DynamicBody
-                position.set(RandomRanges.getRandomPosition())
-                circle(1.0f) {
+    val mapFamily = allOf(Map::class).get()
+    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
+    if (mapEntity != null) {
+        val map = Map.get(mapEntity)
+        engine().entity {
+            with<Light>()
+            with<Box2d> {
+                body = world().body {
+                    type = BodyDef.BodyType.DynamicBody
+                    userData = this@entity.entity
+                    position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
+                    circle(1.0f) {
 
+                    }
                 }
             }
         }
@@ -55,6 +58,7 @@ fun createFood() {
             with<Food>()
             with<Box2d> {
                 body = world().body {
+                    userData = this@entity.entity
                     type = BodyDef.BodyType.StaticBody
                     position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
                     circle(1.0f) {
@@ -64,6 +68,24 @@ fun createFood() {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+fun createRegularHuman(at: Vector2, health: Float = 100f) {
+    engine().entity {
+        with<Human>()
+        with<PropsAndStuff> {
+            props.add(Prop.FloatProp.Health(health))
+        }
+        with<CameraFollow>()
+        val b2Body = world().body {
+            type = BodyDef.BodyType.DynamicBody
+            userData = this@entity.entity
+            position.set(at)
+            circle(1.0f) {
+                filter
             }
         }
     }
@@ -81,8 +103,8 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
-        if (follow)
-            with<CameraFollow>()
+//        if (follow)
+//            with<CameraFollow>()
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity
