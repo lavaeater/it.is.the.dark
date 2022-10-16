@@ -1,3 +1,4 @@
+import com.badlogic.gdx.ai.steer.behaviors.Wander
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -11,6 +12,7 @@ import dark.ecs.components.Prop
 import dark.ecs.components.PropsAndStuff
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
+import eater.ai.steering.box2d.Box2dSteering
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
@@ -70,24 +72,41 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<PropsAndStuff> {
             props.add(Prop.FloatProp.Health(health))
         }
-        with<BodyControl> {
-            maxForce = 50f
-        }
-        with<AiComponent> {
-            actions.addAll(BlobActions.allActions)
-        }
+//        with<BodyControl> {
+//            maxForce = 50f
+//        }
+//        with<AiComponent> {
+//            actions.addAll(BlobActions.allActions)
+//        }
         if (follow)
             with<CameraFollow>()
-        with<Box2d> {
-            body = world().body {
-                type = BodyDef.BodyType.DynamicBody
-                position.set(at)
-                circle(1.0f) {
-                    filter {
-                        categoryBits = Categories.blob
-                        maskBits = Categories.whatBlobsCollideWith
-                    }
+        val b2Body = world().body {
+            type = BodyDef.BodyType.DynamicBody
+            userData = this@entity.entity
+            position.set(at)
+            circle(1.0f) {
+                filter {
+                    categoryBits = Categories.blob
+                    maskBits = Categories.whatBlobsCollideWith
                 }
+            }
+        }
+        with<Box2d> {
+            body = b2Body
+        }
+        with<Box2dSteering> {
+            isIndependentFacing = false
+            body = b2Body
+            maxLinearSpeed = 10f
+            maxLinearAcceleration = 100f
+            maxAngularAcceleration = 100f
+            maxAngularSpeed = 10f
+            boundingRadius = 5f
+            steeringBehavior = Wander(this).apply {
+                wanderRate = .1f
+                wanderOffset = 5f
+                wanderRadius = 25f
+                wanderOrientation = 0.5f
             }
         }
     }

@@ -10,9 +10,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createFood
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.systems.BlobGroupingSystem
-import dark.ecs.systems.RenderSystem
-import dark.ecs.systems.BodyControlSystem
+import dark.ecs.systems.*
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
@@ -65,6 +63,8 @@ object Context : InjectionContext() {
             addSystem(CameraFollowSystem(inject(), 0.75f))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
+            addSystem(SteerSystem())
+            addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
             addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 100) { createFood() }))
