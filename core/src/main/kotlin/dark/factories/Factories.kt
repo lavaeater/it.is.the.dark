@@ -104,9 +104,9 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             boundingRadius = 5f
             steeringBehavior = Wander(this).apply {
                 wanderRate = .1f
-                wanderOffset = 5f
-                wanderRadius = 25f
-                wanderOrientation = 0.5f
+                wanderOffset = 10f
+                wanderRadius = 250f
+                isFaceEnabled = false
             }
         }
     }
