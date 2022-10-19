@@ -15,9 +15,12 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
 import dark.ecs.components.Blob
+import dark.ecs.components.Human
 import dark.ecs.components.PropsAndStuff
+import dark.injection.Assets
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
+import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.assets.toInternalFile
 import ktx.graphics.use
@@ -51,8 +54,13 @@ class RenderSystem(
     }
     private val blobCenter = vec3()
     private val shaderCenter = vec2()
-    private val shockParams = vec3(10.0f, 0.2f, 0.1f)
+    private val shockParams = vec3(1.0f, 0.2f, 0.1f)
     private var shaderTime = 2f
+
+    private val humanFamily = allOf(Human::class).get()
+    private val allHumans get() = engine.getEntitiesFor(humanFamily)
+    private val assets by lazy { inject<Assets>() }
+
     override fun update(deltaTime: Float) {
         shaderTime - deltaTime
         if (shaderTime < 0f)
@@ -72,7 +80,7 @@ class RenderSystem(
             )
             shapeDrawer.filledCircle(map.mapOrigin, 15f, Color.YELLOW)
 
-            for (blobList in BlobGrouper.blobGroups) {
+            for (blobList in BlobGrouper.blobGroups.values) {
                 for ((index, blobEntity) in blobList.withIndex()) {
                     var nextIndex = index + 1
                     if (nextIndex > blobList.lastIndex)
@@ -91,6 +99,9 @@ class RenderSystem(
                             health.normalizedValue
                         )
                     )
+                    shapeDrawer.circle(
+                        blobPosition.x, blobPosition.y,
+                        gameSettings.BlobDetectionRadius)
                     shapeDrawer.setColor(Color.GREEN)
 
                     if (CameraFollow.has(blobEntity))
@@ -107,6 +118,13 @@ class RenderSystem(
                     2.5f * normalizedEnergy,
                     Color(1f - normalizedEnergy, normalizedEnergy, 1f - normalizedEnergy, normalizedEnergy)
                 )
+            }
+
+            val t = assets.buddy.values.first().keyFrames.first()
+            for (human in allHumans) {
+                val position = Box2d.get(human).body.position
+                batch.draw(t, position.x - t.regionWidth / 2f, position.y -t.regionHeight / 2f)
+                shapeDrawer.rectangle(position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f, t.regionWidth.toFloat(), t.regionHeight.toFloat())
             }
         }
         fbo.end()

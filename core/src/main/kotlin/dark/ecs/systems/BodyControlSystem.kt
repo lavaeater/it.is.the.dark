@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import dark.ecs.components.BodyControl
 import eater.ecs.ashley.components.Box2d
-import eater.physics.forwardVelocity
 import ktx.ashley.allOf
 import ktx.math.times
 
@@ -22,3 +21,4 @@ class BodyControlSystem: IteratingSystem(allOf(Box2d::class, BodyControl::class)
         body.applyForce(forward.scl(dragForceMagnitude), body.worldCenter, true)
     }
 }
+
