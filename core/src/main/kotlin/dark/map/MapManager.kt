@@ -13,16 +13,26 @@ class MapManager {
      */
 
     fun createRooms(numberOfRooms: Int) {
-        var currentRooms = 0
+        var noOfRooms = numberOfRooms
+        if(noOfRooms < 2)
+            noOfRooms = 2
         val roomList = mutableListOf<Room>()
         var x = 0
         var y = 0
         var width = 12
         var height = 8
+        /*
+        Every room has at least ONE connection
+         */
+        noOfRooms--
+        val startRoom = createRoom(x,y, width, height, noOfRooms)
     }
 
-    fun createRoom(x: Int, y: Int, width: Int, height: Int) {
+    fun createRoom(x: Int, y: Int, width: Int, height: Int, roomsLeft: Int) {
 
+        if(roomsLeft > 0) {
+            
+        }
     }
 }
 
@@ -38,5 +48,5 @@ class Room(val x: Int, val y: Int, val width: Int, val height: Int) {
     val left get() = x
     val right get() = x + width
     val top get() = y + height
-    val bottom get() = y
+    val bottom get() = ys
 }
