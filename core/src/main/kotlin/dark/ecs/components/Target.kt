@@ -4,14 +4,6 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
-import ktx.math.vec2
-
-sealed class TargetState {
-    object NeedsTarget:TargetState()
-    object HasTarget:TargetState()
-    object IsDoneWithTarget:TargetState()
-
-}
 
 class Target : Component, Pool.Poolable {
     var target: Entity? = null
