@@ -3,9 +3,9 @@ package dark.core
 class GameSettings {
 
     val BlobDetectionRadius = 15f
-    val GameWidth = 256f
+    val GameWidth = 24f
     val GameHeight = (16f / 9f) * GameWidth
-    val PixelsPerMeter = 16f
+    val PixelsPerMeter = 32f
     val MetersPerPixel = 1f / PixelsPerMeter
     val outerShellHz = 1f
     val outerShellDamp = 0.5f

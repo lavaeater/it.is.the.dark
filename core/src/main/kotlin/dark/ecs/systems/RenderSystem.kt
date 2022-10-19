@@ -18,6 +18,7 @@ import dark.ecs.components.Blob
 import dark.ecs.components.Human
 import dark.ecs.components.PropsAndStuff
 import dark.injection.Assets
+import dark.map.MapManager
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
@@ -61,24 +62,29 @@ class RenderSystem(
     private val allHumans get() = engine.getEntitiesFor(humanFamily)
     private val assets by lazy { inject<Assets>() }
 
+    private val mapManager by lazy { inject<MapManager>() }
+
     override fun update(deltaTime: Float) {
         shaderTime - deltaTime
         if (shaderTime < 0f)
             shaderTime = 2f
 
         batch.projectionMatrix = camera.combined
-        fbo.begin()
+        //fbo.begin()
         batch.use {
             Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
             Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
             //Render the map. i.e. draw its region
-            val map = Map.get(mapEntity)
-            batch.draw(
-                map.mapTextureRegion,
-                map.mapOrigin.x,
-                map.mapOrigin.y
-            )
-            shapeDrawer.filledCircle(map.mapOrigin, 15f, Color.YELLOW)
+            for(room in mapManager.roomList) {
+                shapeDrawer.filledRectangle(room.x * 1f, room.y * 1f, room.width * 1f, room.height * 1f)
+             }
+//            val map = Map.get(mapEntity)
+//            batch.draw(
+//                map.mapTextureRegion,
+//                map.mapOrigin.x,
+//                map.mapOrigin.y
+//            )
+//            shapeDrawer.filledCircle(map.mapOrigin, 15f, Color.YELLOW)
 
             for (blobList in BlobGrouper.blobGroups.values) {
                 for ((index, blobEntity) in blobList.withIndex()) {
@@ -127,32 +133,32 @@ class RenderSystem(
                 shapeDrawer.rectangle(position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f, t.regionWidth.toFloat(), t.regionHeight.toFloat())
             }
         }
-        fbo.end()
-        batch.use {
-            batch.shader = shaderProgram
-            /**
-             * We need all the points
-             */
-
-            camera.project(blobCenter)
-
-            shaderCenter.set(blobCenter.x / Gdx.graphics.width, blobCenter.y / Gdx.graphics.height)
-            shaderProgram.setUniformf("time", deltaTime)
-            shaderProgram.setUniformf("center", shaderCenter)
-            shaderProgram.setUniformf("shockParams", shockParams)
-            val texture = fbo.colorBufferTexture
-            val textureRegion = TextureRegion(texture)
-            // and.... FLIP!  V (vertical) only
-            // and.... FLIP!  V (vertical) only
-            textureRegion.flip(false, true)
-            batch.draw(
-                textureRegion,
-                camera.position.x - camera.viewportWidth / 2f,
-                camera.position.y - camera.viewportHeight / 2f,
-                camera.viewportWidth,
-                camera.viewportHeight
-            )
-            batch.shader = null
-        }
+//        fbo.end()
+//        batch.use {
+//            batch.shader = shaderProgram
+//            /**
+//             * We need all the points
+//             */
+//
+//            camera.project(blobCenter)
+//
+//            shaderCenter.set(blobCenter.x / Gdx.graphics.width, blobCenter.y / Gdx.graphics.height)
+//            shaderProgram.setUniformf("time", deltaTime)
+//            shaderProgram.setUniformf("center", shaderCenter)
+//            shaderProgram.setUniformf("shockParams", shockParams)
+//            val texture = fbo.colorBufferTexture
+//            val textureRegion = TextureRegion(texture)
+//            // and.... FLIP!  V (vertical) only
+//            // and.... FLIP!  V (vertical) only
+//            textureRegion.flip(false, true)
+//            batch.draw(
+//                textureRegion,
+//                camera.position.x - camera.viewportWidth / 2f,
+//                camera.position.y - camera.viewportHeight / 2f,
+//                camera.viewportWidth,
+//                camera.viewportHeight
+//            )
+//            batch.shader = null
+//        }
     }
 }

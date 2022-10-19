@@ -11,6 +11,8 @@ import createMap
 import createRegularHuman
 import createSomeHumans
 import dark.core.DarkGame
+import dark.map.MapManager
+import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.math.vec2
@@ -43,12 +45,17 @@ class GameScreen(
     }
 
     override fun show() {
-        createMap()
+        createNewMap()
+//        createMap()
         createFood()
-        createSomeHumans()
-//        createLight()
-        createBlob(vec2(), follow = true)
+//        createSomeHumans()
+////        createLight()
+//        createBlob(vec2(), follow = true)
 
+    }
+
+    private fun createNewMap() {
+        inject<MapManager>().createRooms(5)
     }
 
 

@@ -17,6 +17,7 @@ import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.Blob
 import dark.ecs.systems.*
+import dark.map.MapManager
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.ContactTypeSample
@@ -57,6 +58,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
+            bindSingleton(MapManager())
             bindSingleton(GameScreen(
                 inject(),
                 inject(),

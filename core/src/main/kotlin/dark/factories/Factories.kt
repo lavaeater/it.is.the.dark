@@ -56,23 +56,17 @@ fun createLight() {
 }
 
 fun createFood() {
-    val mapFamily = allOf(Map::class).get()
-    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-
-    if (mapEntity != null) {
-        val map = Map.get(mapEntity)
-        engine().entity {
-            with<Food>()
-            with<Box2d> {
-                body = world().body {
-                    userData = this@entity.entity
-                    type = BodyDef.BodyType.StaticBody
-                    position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
-                    circle(1.0f) {
-                        filter {
-                            categoryBits = Categories.food
-                            maskBits = Categories.whatFoodCollidesWith
-                        }
+    engine().entity {
+        with<Food>()
+        with<Box2d> {
+            body = world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.StaticBody
+                position.set(RandomRanges.getRandomPosition())
+                circle(1.0f) {
+                    filter {
+                        categoryBits = Categories.food
+                        maskBits = Categories.whatFoodCollidesWith
                     }
                 }
             }
@@ -81,14 +75,8 @@ fun createFood() {
 }
 
 fun createSomeHumans() {
-    val mapFamily = allOf(Map::class).get()
-    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-
-    if (mapEntity != null) {
-        val map = Map.get(mapEntity)
-        for (i in 0..10) {
-            createRegularHuman(RandomRanges.getRandomPositionInBounds(map.mapBounds), follow = i == 0)
-        }
+    for (i in 0..10) {
+        createRegularHuman(RandomRanges.getRandomPosition(), follow = i == 0)
     }
 }
 
@@ -113,7 +101,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
         with<Box2d> {
             body = b2Body
         }
-        with<Box2dSteering>{
+        with<Box2dSteering> {
             isIndependentFacing = false
             body = b2Body
             maxLinearSpeed = 10f
