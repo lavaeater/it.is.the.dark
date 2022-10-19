@@ -160,6 +160,13 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
                     maskBits = Categories.whatBlobsCollideWith
                 }
             }
+            circle(10.0f) {
+                isSensor = true
+                filter {
+                    categoryBits = Categories.blob
+                    maskBits = Categories.blob
+                }
+            }
         }
         with<Box2d> {
             body = b2Body

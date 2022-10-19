@@ -80,7 +80,7 @@ class RenderSystem(
             )
             shapeDrawer.filledCircle(map.mapOrigin, 15f, Color.YELLOW)
 
-            for (blobList in BlobGrouper.blobGroups) {
+            for (blobList in BlobGrouper.blobGroups.values) {
                 for ((index, blobEntity) in blobList.withIndex()) {
                     var nextIndex = index + 1
                     if (nextIndex > blobList.lastIndex)
