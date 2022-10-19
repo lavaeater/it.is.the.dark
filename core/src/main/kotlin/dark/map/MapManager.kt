@@ -48,7 +48,10 @@ class MapManager {
                         CardinalDirection.East -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set(room.right * tileSize - tileSize / 4f, room.bottom * tileSize + (room.top - room.verticalMiddle - 1) / 2f * tileSize)
+                                position.set(
+                                    room.right * tileSize - tileSize / 4f,
+                                    room.bottom * tileSize + (room.top - room.verticalMiddle - 1) / 2f * tileSize
+                                )
                                 box(tileSize / 2f, (room.top - room.verticalMiddle - 1) * tileSize - tileSize / 2f) {
                                     filter {
                                         categoryBits = Categories.walls
@@ -58,7 +61,10 @@ class MapManager {
                             })
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set(room.right * tileSize - tileSize / 4f, room.top * tileSize - (room.top - room.verticalMiddle - 1) / 2f * tileSize)
+                                position.set(
+                                    room.right * tileSize - tileSize / 4f,
+                                    room.top * tileSize - (room.top - room.verticalMiddle - 1) / 2f * tileSize
+                                )
                                 box(tileSize / 2f, (room.top - room.verticalMiddle - 1) * tileSize - tileSize / 2f) {
                                     filter {
                                         categoryBits = Categories.walls
@@ -71,8 +77,14 @@ class MapManager {
                         CardinalDirection.North -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set((room.left + (room.right - room.horizontalMiddle -1 ) /2f) * tileSize, room.top * tileSize - tileSize / 2f)
-                                box((room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f, tileSize / 2f) {
+                                position.set(
+                                    (room.left + (room.right - room.horizontalMiddle - 1) / 2f) * tileSize,
+                                    room.top * tileSize - tileSize / 2f
+                                )
+                                box(
+                                    (room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f,
+                                    tileSize / 2f
+                                ) {
                                     filter {
                                         categoryBits = Categories.walls
                                         maskBits = Categories.whatWallsCollideWith
@@ -81,8 +93,14 @@ class MapManager {
                             })
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set((room.right - (room.right - room.horizontalMiddle -1 ) /2f) * tileSize, room.top * tileSize - tileSize / 2f)
-                                box((room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f, tileSize / 2f) {
+                                position.set(
+                                    (room.right - (room.right - room.horizontalMiddle - 1) / 2f) * tileSize,
+                                    room.top * tileSize - tileSize / 2f
+                                )
+                                box(
+                                    (room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f,
+                                    tileSize / 2f
+                                ) {
                                     filter {
                                         categoryBits = Categories.walls
                                         maskBits = Categories.whatWallsCollideWith
@@ -90,11 +108,18 @@ class MapManager {
                                 }
                             })
                         }
+
                         CardinalDirection.South -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set((room.left + (room.right - room.horizontalMiddle -1 ) /2f) * tileSize, room.bottom * tileSize + tileSize / 4f)
-                                box((room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f, tileSize / 2f) {
+                                position.set(
+                                    (room.left + (room.right - room.horizontalMiddle - 1) / 2f) * tileSize,
+                                    room.bottom * tileSize + tileSize / 4f
+                                )
+                                box(
+                                    (room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f,
+                                    tileSize / 2f
+                                ) {
                                     filter {
                                         categoryBits = Categories.walls
                                         maskBits = Categories.whatWallsCollideWith
@@ -103,8 +128,14 @@ class MapManager {
                             })
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set((room.right - (room.right - room.horizontalMiddle -1 ) /2f) * tileSize, room.bottom * tileSize + tileSize / 4f)
-                                box((room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f, tileSize / 2f) {
+                                position.set(
+                                    (room.right - (room.right - room.horizontalMiddle - 1) / 2f) * tileSize,
+                                    room.bottom * tileSize + tileSize / 4f
+                                )
+                                box(
+                                    (room.right - room.horizontalMiddle - 1) * tileSize - tileSize / 2f,
+                                    tileSize / 2f
+                                ) {
                                     filter {
                                         categoryBits = Categories.walls
                                         maskBits = Categories.whatWallsCollideWith
@@ -112,10 +143,14 @@ class MapManager {
                                 }
                             })
                         }
+
                         CardinalDirection.West -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set(room.left * tileSize + tileSize / 4f, room.bottom * tileSize + (room.top - room.verticalMiddle - 1) / 2f * tileSize)
+                                position.set(
+                                    room.left * tileSize + tileSize / 4f,
+                                    room.bottom * tileSize + (room.top - room.verticalMiddle - 1) / 2f * tileSize
+                                )
                                 box(tileSize / 2f, (room.top - room.verticalMiddle - 1) * tileSize - tileSize / 2f) {
                                     filter {
                                         categoryBits = Categories.walls
@@ -125,7 +160,10 @@ class MapManager {
                             })
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
-                                position.set(room.left * tileSize + tileSize / 4f, room.top * tileSize - (room.top - room.verticalMiddle - 1) / 2f * tileSize)
+                                position.set(
+                                    room.left * tileSize + tileSize / 4f,
+                                    room.top * tileSize - (room.top - room.verticalMiddle - 1) / 2f * tileSize
+                                )
                                 box(tileSize / 2f, (room.top - room.verticalMiddle - 1) * tileSize - tileSize / 2f) {
                                     filter {
                                         categoryBits = Categories.walls
@@ -165,6 +203,7 @@ class MapManager {
                                 }
                             })
                         }
+
                         CardinalDirection.South -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
@@ -177,6 +216,7 @@ class MapManager {
                                 }
                             })
                         }
+
                         CardinalDirection.West -> {
                             bodyList.add(world.body {
                                 type = BodyDef.BodyType.StaticBody
