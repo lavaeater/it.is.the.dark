@@ -1,31 +1,53 @@
 package dark.ai
 
 import Food
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.ai.steer.Steerable
-import com.badlogic.gdx.ai.utils.Location
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Pool
 import createBlob
-import dark.ecs.components.BodyControl
 import dark.ecs.components.PropsAndStuff
 import dark.ecs.components.Target
-import dark.ecs.components.TargetState
 import dark.ecs.systems.BlobGrouper
-import eater.ai.ashley.AiActionWithState
+import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.ashley.AlsoGenericAction
-import eater.core.engine
+import eater.ai.steering.box2d.Box2dSteering
 import eater.ecs.ashley.components.Box2d
-import eater.ecs.ashley.components.Remove
-import eater.physics.addComponent
 import ktx.ashley.allOf
 import ktx.log.info
-import ktx.math.minus
 import ktx.math.plus
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+
+sealed class WanderState {
+    object NotStarted: WanderState()
+    object Running: WanderState()
+}
+
+class WanderStateComponent: Component, Pool.Poolable {
+    var state: WanderState = WanderState.NotStarted
+    override fun reset() {
+        state = WanderState.NotStarted
+    }
+
+}
 
 object BlobActions {
+    val wander = object : AiActionWithStateComponent<WanderStateComponent>("Wander with Steering", WanderStateComponent::class) {
+        override fun scoreFunction(entity: Entity): Float {
+            return 0.3f
+        }
+
+        override fun abortFunction(entity: Entity) {
+            Box2dSteering.get(entity).steeringBehavior = null
+        }
+
+        override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float) {
+            when(stateComponent.state) {
+                WanderState.NotStarted -> TODO()
+                WanderState.Running -> TODO()
+            }
+        }
+    }
+    
     val splitInTwo = object : AlsoGenericAction("Split") {
         override fun scoreFunction(entity: Entity): Float {
             val props = PropsAndStuff.get(entity)
@@ -50,7 +72,7 @@ object BlobActions {
         }
 
     }
-    val goTowardsFood = object : AiActionWithState<Target>("Towards Some Place", Target::class) {
+    val goTowardsFood = object : AiActionWithStateComponent<Target>("Towards Some Place", Target::class) {
         override fun scoreFunction(entity: Entity): Float {
             return 0.5f
         }
