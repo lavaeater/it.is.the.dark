@@ -44,7 +44,7 @@ fun createLight() {
                 body = world().body {
                     type = BodyDef.BodyType.DynamicBody
                     userData = this@entity.entity
-                    position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
+                    position.set(map.validPoints.random())
                     circle(1.0f) {
 
                     }
@@ -66,7 +66,7 @@ fun createFood() {
                 body = world().body {
                     userData = this@entity.entity
                     type = BodyDef.BodyType.StaticBody
-                    position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
+                    position.set(map.validPoints.random())
                     circle(1.0f) {
                         filter {
                             categoryBits = Categories.food
@@ -86,7 +86,7 @@ fun createSomeHumans() {
     if (mapEntity != null) {
         val map = Map.get(mapEntity)
         for (i in 0..10) {
-            createRegularHuman(RandomRanges.getRandomPositionInBounds(map.mapBounds), follow = i == 0)
+            createRegularHuman(map.validPoints.random(), follow = i == 0)
         }
     }
 }
@@ -217,34 +217,40 @@ fun createDarkEntity(at: Vector2, radius: Float): Body {
     }
 }
 
-fun createMap(key:String) {
+fun createMap(key:String): List<Vector2> {
+    var scaleFactor = 1f
+    if(key == "two")
+        scaleFactor = 2f
+    var gridSize = 8f * scaleFactor
     val mapOffset = vec2(-50f, -50f)
     val mapAssets = assets().maps[key]!!
     val textureRegion = TextureRegion(mapAssets.first)
+    val returnList = mutableListOf<Vector2>()
     engine().entity {
-        with<Map> {
+         val map = with<Map> {
             mapTextureRegion = textureRegion
-            mapScale = 1.0f
+            mapScale = scaleFactor
             mapOrigin.set(mapOffset)
             mapBounds = Rectangle(
-                mapOffset.x + 8f,
-                mapOffset.y + 8f,
-                textureRegion.regionWidth.toFloat() - 16f,
-                textureRegion.regionHeight.toFloat() - 16f
+                mapOffset.x + gridSize,
+                mapOffset.y + gridSize,
+                textureRegion.regionWidth.toFloat() - 2 * gridSize,
+                textureRegion.regionHeight.toFloat() - 2 * gridSize
             )
         }
+        returnList.addAll(createBounds(mapAssets.second, gridSize, mapOffset, map))
     }
-    createBounds(mapAssets.second, 8f, mapOffset)
+    return returnList
 }
 
-fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2) {
+fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map) : List<Vector2>{
     /*
     To make it super easy, we just create a square per int-tile in the layer.
      */
     intLayer.lines().reversed().forEachIndexed { y, l ->
         l.split(',').forEachIndexed { x, c ->
             if (c == "1") {
-                world().body {
+                map.mapBodies.add(world().body {
                     type = BodyDef.BodyType.StaticBody
                     position.set(x * tileSize + mapOffset.x + tileSize / 2f, y * tileSize + mapOffset.y - tileSize / 2f)
                     box(tileSize, tileSize) {
@@ -253,8 +259,11 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2) {
                             maskBits = Categories.whatWallsCollideWith
                         }
                     }
-                }
+                })
+            } else if(c == "2") {
+                map.validPoints.add(vec2(x * tileSize + mapOffset.x + tileSize / 2f, y * tileSize + mapOffset.y - tileSize / 2f))
             }
         }
     }
+    return map.validPoints
 }

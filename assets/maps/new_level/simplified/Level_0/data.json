@@ -1,8 +1,8 @@
 {
-	"x": -704,
-	"y": -320,
-	"width": 1584,
-	"height": 944,
+	"x": -320,
+	"y": -64,
+	"width": 704,
+	"height": 640,
 	"iid": "17b08470-2a00-11ed-9ec2-e1219b8b16e0",
 	"layers": [
 		"Tiles.png"

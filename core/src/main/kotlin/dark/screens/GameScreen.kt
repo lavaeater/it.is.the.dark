@@ -41,11 +41,11 @@ class GameScreen(
     }
 
     override fun show() {
-        createMap("one")
+        val validPoints = createMap("two")
         createFood()
         createSomeHumans()
 ////        createLight()
-        createBlob(vec2(), follow = true)
+        createBlob(validPoints.random(), follow = true)
 
     }
 }
