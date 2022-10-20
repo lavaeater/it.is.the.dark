@@ -8,7 +8,7 @@ import eater.ecs.ashley.components.Box2d
 import ktx.ashley.allOf
 
 class BlobGroupingSystem(private val gameSettings: GameSettings) :
-    IntervalIteratingSystem(allOf(Blob::class).get(), 0.1f) {
+    IntervalIteratingSystem(allOf(Blob::class).get(), 0.0025f) {
 
     val blobFam = allOf(Blob::class).get()
     val allBlobs get() = engine.getEntitiesFor(blobFam)

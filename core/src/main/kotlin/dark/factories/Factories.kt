@@ -1,10 +1,4 @@
-import com.badlogic.gdx.ai.steer.behaviors.Alignment
-import com.badlogic.gdx.ai.steer.behaviors.BlendedSteering
-import com.badlogic.gdx.ai.steer.behaviors.Cohesion
-import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering
-import com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance
-import com.badlogic.gdx.ai.steer.behaviors.Separation
-import com.badlogic.gdx.ai.steer.behaviors.Wander
+import com.badlogic.gdx.ai.steer.behaviors.*
 import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
@@ -12,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
+import dark.ai.BlobGroupProximity
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
@@ -141,9 +136,6 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<PropsAndStuff> {
             props.add(Prop.FloatProp.Health(health))
         }
-//        with<BodyControl> {
-//            maxForce = 50f
-//        }
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
@@ -171,7 +163,8 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             body = b2Body
         }
         with<Box2dSteering> {
-            val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
+            //val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
+            val blobGroupProximity = BlobGroupProximity(this@entity.entity)
             isIndependentFacing = false
             body = b2Body
             maxLinearSpeed = 10f
@@ -186,16 +179,16 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
                         wanderOffset = 10f
                         wanderRadius = 250f
                         isFaceEnabled = false
-                    })
-                    add(Separation(this@with, radiusProximity).apply {
+                    }, 1f)
+                    add(Separation(this@with, blobGroupProximity).apply {
 
-                    })
-                    add(Cohesion(this@with, radiusProximity).apply {
+                    }, 2.5f)
+                    add(Cohesion(this@with, blobGroupProximity).apply {
 
-                    })
-                    add(Alignment(this@with, radiusProximity).apply {
+                    }, 0.75f)
+                    add(Alignment(this@with, blobGroupProximity).apply {
 
-                    })
+                    }, 0.1f)
                 })
                 add(RaycastObstacleAvoidance(this@with).apply {
                     rayConfiguration = CentralRayWithWhiskersConfiguration(this@with, 5f, 2.5f, 15f)
@@ -267,3 +260,4 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
     }
     return map.validPoints
 }
+

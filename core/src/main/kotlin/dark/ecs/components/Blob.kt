@@ -8,8 +8,8 @@ import ktx.ashley.mapperFor
 import java.util.Vector
 
 
-sealed class BlobMessage(val sender: Entity) {
-    class FoundSomeFood(val at: Vector2, sender: Entity): BlobMessage(sender)
+sealed class BlobMessage(val sender: Entity, val blobGroup: Int) {
+    class FoundSomeFood(val at: Vector2, sender: Entity, blobGroup: Int): BlobMessage(sender, blobGroup)
 }
 
 
