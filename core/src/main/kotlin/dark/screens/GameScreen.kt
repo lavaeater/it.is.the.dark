@@ -43,9 +43,10 @@ class GameScreen(
     override fun show() {
         val validPoints = createMap("two")
         createFood()
-        createSomeHumans()
+        //createSomeHumans()
 ////        createLight()
         createBlob(validPoints.random(), follow = true)
+        createBlob(validPoints.random(), follow = false)
 
     }
 }

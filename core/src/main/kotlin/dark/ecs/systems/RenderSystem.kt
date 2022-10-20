@@ -79,7 +79,8 @@ class RenderSystem(
                 map.mapOrigin.y
             )
 
-            for (blobList in BlobGrouper.blobGroups.values) {
+            for(blobGroup in BlobGrouper.blobGroups.keys) {
+                val blobList = BlobGrouper.getBlobsForGroup(blobGroup)
                 for ((index, blobEntity) in blobList.withIndex()) {
                     var nextIndex = index + 1
                     if (nextIndex > blobList.lastIndex)

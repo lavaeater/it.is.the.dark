@@ -15,7 +15,7 @@ sealed class BlobMessage(val sender: Entity) {
 
 class Blob: Component, Pool.Poolable {
     var blobGroup = -1
-    val neigbours = mutableListOf<Entity>()
+    val neigbours = mutableSetOf<Entity>()
     override fun reset() {
         blobGroup = -1
         neigbours.clear()

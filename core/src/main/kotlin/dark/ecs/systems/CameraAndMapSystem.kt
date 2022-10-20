@@ -12,7 +12,8 @@ import eater.ecs.ashley.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
 import ktx.math.vec3
 
-class CameraAndMapSystem(camera: OrthographicCamera,alpha:Float, val extendViewport: ExtendViewport): CameraFollowSystem(camera, alpha) {
+class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, val extendViewport: ExtendViewport) :
+    CameraFollowSystem(camera, alpha) {
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).firstOrNull()
     private val gameSettings by lazy { inject<GameSettings>() }
@@ -21,20 +22,23 @@ class CameraAndMapSystem(camera: OrthographicCamera,alpha:Float, val extendViewp
 //        super.processEntity(entity, deltaTime)
 
 
-        if(mapEntity != null) {
+        if (mapEntity != null) {
             val map = Map.get(mapEntity!!)
             camera.position.set(map.mapBounds.getCenter(cameraPosition), 0f)
-            extendViewport.minWorldWidth = if(map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * 1.25f else extendViewport.minWorldHeight / gameSettings.AspectRatio
-            extendViewport.minWorldHeight = if(map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * 1.25f else extendViewport.minWorldWidth / gameSettings.AspectRatio
+            extendViewport.minWorldWidth =
+                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width else extendViewport.minWorldHeight / gameSettings.AspectRatio
+            extendViewport.minWorldHeight =
+                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height else extendViewport.minWorldWidth / gameSettings.AspectRatio
             extendViewport.update(Gdx.graphics.width, Gdx.graphics.height)
-        } else {
-            val body = Box2d.get(entity).body
-            cameraPosition.set(body.position)
 
-            camera.position.lerp(
-                vec3(cameraPosition, 0f), alpha
-            )
         }
+        val body = Box2d.get(entity).body
+        cameraPosition.set(body.position)
+
+        camera.position.lerp(
+            vec3(cameraPosition, 0f), alpha
+        )
+
         camera.update(true)
     }
 

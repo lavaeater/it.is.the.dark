@@ -147,8 +147,8 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
-//        if (follow)
-//            with<CameraFollow>()
+        if (follow)
+            with<CameraFollow>()
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity

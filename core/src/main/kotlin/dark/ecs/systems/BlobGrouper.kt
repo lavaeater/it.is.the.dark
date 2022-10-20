@@ -6,7 +6,7 @@ import dark.ecs.components.Blob
 object BlobGrouper {
     fun addBlobsToNewGroup(vararg blobs: Entity) {
         val newGroupId = blobGroupIds
-        blobGroups[newGroupId] = mutableListOf()
+        blobGroups[newGroupId] = mutableSetOf()
         for (blob in blobs) {
             Blob.get(blob).blobGroup = newGroupId
             blobGroups[newGroupId]!!.add(blob)
@@ -14,12 +14,14 @@ object BlobGrouper {
     }
 
     fun removeBlobFromGroup(group:Int, blob: Entity) {
-        if(blobGroups.containsKey(group)) {
+        val b = Blob.get(blob) //Cannot have neighbours no more?
+        if(blobGroups.containsKey(group) && b.blobGroup == group) {
             blobGroups[group]!!.remove(blob)
+            b.blobGroup = -1
             if(blobGroups[group]!!.isEmpty())
                 blobGroups.remove(group)
         }
-        Blob.get(blob).blobGroup = -1 //Cannot have neighbours no more?
+
     }
 
     fun removeBlobGroup(group: Int) {
@@ -41,7 +43,7 @@ object BlobGrouper {
     }
 
     fun getBlobsForGroup(group: Int): List<Entity> {
-        return if(blobGroups.containsKey(group)) blobGroups[group]!! else emptyList()
+        return if(blobGroups.containsKey(group)) blobGroups[group]!!.toList() else emptyList()
     }
 
     var blobGroupIds = 0
@@ -55,6 +57,6 @@ object BlobGrouper {
         get() {
             return blobGroups.values.sumOf { it.count() } < 100
         }
-    val blobGroups = mutableMapOf<Int, MutableList<Entity>>()
+    val blobGroups = mutableMapOf<Int, MutableSet<Entity>>()
 
 }

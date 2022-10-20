@@ -112,32 +112,32 @@ class CollisionManager: ContactListener {
                  *
                  * They also become neighbours automatically
                  */
-                val firstBlob = contactType.firstBlob
-                val secondBlob = contactType.secondBlob
-
-                val firstBlobC = Blob.get(firstBlob)
-                val secondBlobC = Blob.get(secondBlob)
-
-                firstBlobC.neigbours.add(secondBlob)
-                secondBlobC.neigbours.add(firstBlob)
-
-                if(firstBlobC.blobGroup == -1 && secondBlobC.blobGroup == -1) {
-                    /*
-                    No group exists for these blobs, add it!
-                     */
-                    BlobGrouper.addBlobsToNewGroup(firstBlob, secondBlob)
-                } else if(firstBlobC.blobGroup != -1 && secondBlobC.blobGroup != -1) {
-                    /**
-                     * first swallows second
-                     */
-                    val blobsInSecond = BlobGrouper.getBlobsForGroup(secondBlobC.blobGroup)
-                    BlobGrouper.removeBlobGroup(secondBlobC.blobGroup)
-                    BlobGrouper.addBlobsToGroup(firstBlobC.blobGroup, *blobsInSecond.toTypedArray())
-                } else {
-                    val blobGroupThatExists = if(firstBlobC.blobGroup != -1) firstBlobC.blobGroup else secondBlobC.blobGroup
-                    val blobThatShouldBeAdded = if(firstBlobC.blobGroup != -1) firstBlob else secondBlob
-                    BlobGrouper.addBlobsToGroup(blobGroupThatExists, blobThatShouldBeAdded)
-                }
+//                val firstBlob = contactType.firstBlob
+//                val secondBlob = contactType.secondBlob
+//
+//                val firstBlobC = Blob.get(firstBlob)
+//                val secondBlobC = Blob.get(secondBlob)
+//
+//                firstBlobC.neigbours.add(secondBlob)
+//                secondBlobC.neigbours.add(firstBlob)
+//
+//                if(firstBlobC.blobGroup == -1 && secondBlobC.blobGroup == -1) {
+//                    /*
+//                    No group exists for these blobs, add it!
+//                     */
+//                    BlobGrouper.addBlobsToNewGroup(firstBlob, secondBlob)
+//                } else if(firstBlobC.blobGroup != -1 && secondBlobC.blobGroup != -1 && firstBlobC.blobGroup != secondBlobC.blobGroup) {
+//                    /**
+//                     * first swallows second
+//                     */
+//                    val blobsInSecond = BlobGrouper.getBlobsForGroup(secondBlobC.blobGroup)
+//                    BlobGrouper.removeBlobGroup(secondBlobC.blobGroup)
+//                    BlobGrouper.addBlobsToGroup(firstBlobC.blobGroup, *blobsInSecond.toTypedArray())
+//                } else if(firstBlobC.blobGroup == -1 || secondBlobC.blobGroup == -1) {
+//                    val blobGroupThatExists = if(firstBlobC.blobGroup != -1) firstBlobC.blobGroup else secondBlobC.blobGroup
+//                    val blobThatShouldBeAdded = if(firstBlobC.blobGroup != -1) firstBlob else secondBlob
+//                    BlobGrouper.addBlobsToGroup(blobGroupThatExists, blobThatShouldBeAdded)
+//                }
             }
             ContactType.Unknown -> {}
         }
@@ -152,23 +152,23 @@ class CollisionManager: ContactListener {
                  * in the blob swarm. So simply put, if we have NO neigbours, i.e our
                  * blob proximity list is empty, we should leave the group
                  */
-                val firstBlob = contactType.firstBlob
-                val secondBlob = contactType.secondBlob
-
-                val firstBlobC = Blob.get(firstBlob)
-                val secondBlobC = Blob.get(secondBlob)
-
-                firstBlobC.neigbours.remove(secondBlob)
-                secondBlobC.neigbours.remove(firstBlob)
-
-                if(firstBlobC.neigbours.isEmpty()) {
-                    if(firstBlobC.blobGroup != -1)
-                        BlobGrouper.removeBlobFromGroup(firstBlobC.blobGroup, firstBlob)
-                }
-                if(secondBlobC.neigbours.isEmpty()) {
-                    if(secondBlobC.blobGroup != -1)
-                        BlobGrouper.removeBlobFromGroup(secondBlobC.blobGroup, secondBlob)
-                }
+//                val firstBlob = contactType.firstBlob
+//                val secondBlob = contactType.secondBlob
+//
+//                val firstBlobC = Blob.get(firstBlob)
+//                val secondBlobC = Blob.get(secondBlob)
+//
+//                firstBlobC.neigbours.remove(secondBlob)
+//                secondBlobC.neigbours.remove(firstBlob)
+//
+//                if(firstBlobC.neigbours.isEmpty()) {
+//                    if(firstBlobC.blobGroup != -1)
+//                        BlobGrouper.removeBlobFromGroup(firstBlobC.blobGroup, firstBlob)
+//                }
+//                if(secondBlobC.neigbours.isEmpty()) {
+//                    if(secondBlobC.blobGroup != -1)
+//                        BlobGrouper.removeBlobFromGroup(secondBlobC.blobGroup, secondBlob)
+//                }
             }
             ContactType.Unknown -> {}
         }
