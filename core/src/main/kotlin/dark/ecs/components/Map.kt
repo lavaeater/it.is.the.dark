@@ -1,3 +1,5 @@
+package dark.ecs.components
+
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion

@@ -1,10 +1,8 @@
-import com.badlogic.gdx.ai.steer.Proximity
 import com.badlogic.gdx.ai.steer.behaviors.Alignment
 import com.badlogic.gdx.ai.steer.behaviors.BlendedSteering
 import com.badlogic.gdx.ai.steer.behaviors.Cohesion
 import com.badlogic.gdx.ai.steer.behaviors.PrioritySteering
 import com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance
-import com.badlogic.gdx.ai.steer.behaviors.Seek
 import com.badlogic.gdx.ai.steer.behaviors.Separation
 import com.badlogic.gdx.ai.steer.behaviors.Wander
 import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
@@ -16,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.core.GameSettings
 import dark.ecs.components.*
+import dark.ecs.components.Map
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dRadiusProximity
@@ -56,17 +55,23 @@ fun createLight() {
 }
 
 fun createFood() {
-    engine().entity {
-        with<Food>()
-        with<Box2d> {
-            body = world().body {
-                userData = this@entity.entity
-                type = BodyDef.BodyType.StaticBody
-                position.set(RandomRanges.getRandomPosition())
-                circle(1.0f) {
-                    filter {
-                        categoryBits = Categories.food
-                        maskBits = Categories.whatFoodCollidesWith
+    val mapFamily = allOf(Map::class).get()
+    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
+
+    if (mapEntity != null) {
+        val map = Map.get(mapEntity)
+        engine().entity {
+            with<Food>()
+            with<Box2d> {
+                body = world().body {
+                    userData = this@entity.entity
+                    type = BodyDef.BodyType.StaticBody
+                    position.set(RandomRanges.getRandomPositionInBounds(map.mapBounds))
+                    circle(1.0f) {
+                        filter {
+                            categoryBits = Categories.food
+                            maskBits = Categories.whatFoodCollidesWith
+                        }
                     }
                 }
             }
@@ -75,8 +80,14 @@ fun createFood() {
 }
 
 fun createSomeHumans() {
-    for (i in 0..10) {
-        createRegularHuman(RandomRanges.getRandomPosition(), follow = i == 0)
+    val mapFamily = allOf(Map::class).get()
+    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
+
+    if (mapEntity != null) {
+        val map = Map.get(mapEntity)
+        for (i in 0..10) {
+            createRegularHuman(RandomRanges.getRandomPositionInBounds(map.mapBounds), follow = i == 0)
+        }
     }
 }
 
@@ -206,9 +217,10 @@ fun createDarkEntity(at: Vector2, radius: Float): Body {
     }
 }
 
-fun createMap() {
+fun createMap(key:String) {
     val mapOffset = vec2(-50f, -50f)
-    val textureRegion = TextureRegion(assets().mapOne)
+    val mapAssets = assets().maps[key]!!
+    val textureRegion = TextureRegion(mapAssets.first)
     engine().entity {
         with<Map> {
             mapTextureRegion = textureRegion
@@ -222,7 +234,7 @@ fun createMap() {
             )
         }
     }
-    createBounds(assets().mapOneIntLayer, 8f, mapOffset)
+    createBounds(mapAssets.second, 8f, mapOffset)
 }
 
 fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2) {

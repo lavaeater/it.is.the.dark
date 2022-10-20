@@ -23,9 +23,14 @@ class Assets: DisposableRegistry by DisposableContainer() {
         }
     }
 
-    val mapOne = Texture("maps/level-1/simplified/Level_0/_composite.png".toInternalFile())
 
-    val mapOneIntLayer = "maps/level-1/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
+    private val mapOne = Texture("maps/level-1/simplified/Level_0/_composite.png".toInternalFile())
+    private val mapOneIntLayer = "maps/level-1/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
+
+    private val mapTwo = Texture("maps/new_level/simplified/Level_0/_composite.png".toInternalFile())
+    private val mapTwoIntLayer = "maps/new_level/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
+
+    val maps = mapOf("one" to Pair(mapOne, mapOneIntLayer), "two" to Pair(mapTwo, mapTwoIntLayer))
     override fun dispose() {
         registeredDisposables.disposeSafely()
     }

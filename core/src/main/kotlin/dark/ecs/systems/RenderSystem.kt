@@ -1,7 +1,7 @@
 package dark.ecs.systems
 
 import Food
-import Map
+import dark.ecs.components.Map
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
@@ -18,7 +17,6 @@ import dark.ecs.components.Blob
 import dark.ecs.components.Human
 import dark.ecs.components.PropsAndStuff
 import dark.injection.Assets
-import dark.map.MapManager
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
@@ -62,7 +60,6 @@ class RenderSystem(
     private val allHumans get() = engine.getEntitiesFor(humanFamily)
     private val assets by lazy { inject<Assets>() }
 
-    private val mapManager by lazy { inject<MapManager>() }
 
     override fun update(deltaTime: Float) {
         shaderTime - deltaTime
@@ -75,16 +72,12 @@ class RenderSystem(
             Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
             Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
             //Render the map. i.e. draw its region
-            for(room in mapManager.roomList) {
-                shapeDrawer.filledRectangle(room.x * 1f, room.y * 1f, room.width * 1f, room.height * 1f)
-             }
-//            val map = Map.get(mapEntity)
-//            batch.draw(
-//                map.mapTextureRegion,
-//                map.mapOrigin.x,
-//                map.mapOrigin.y
-//            )
-//            shapeDrawer.filledCircle(map.mapOrigin, 15f, Color.YELLOW)
+            val map = Map.get(mapEntity)
+            batch.draw(
+                map.mapTextureRegion,
+                map.mapOrigin.x,
+                map.mapOrigin.y
+            )
 
             for (blobList in BlobGrouper.blobGroups.values) {
                 for ((index, blobEntity) in blobList.withIndex()) {

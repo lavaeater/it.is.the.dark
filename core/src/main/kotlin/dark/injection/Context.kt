@@ -58,7 +58,6 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(MapManager())
             bindSingleton(GameScreen(
                 inject(),
                 inject(),
@@ -72,7 +71,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return Engine().apply {
             addSystem(RemoveEntitySystem())
-            addSystem(CameraFollowSystem(inject(), 0.75f))
+            addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
             addSystem(SteerSystem())

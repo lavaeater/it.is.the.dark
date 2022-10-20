@@ -6,13 +6,9 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createBlob
 import createFood
-import createLight
 import createMap
-import createRegularHuman
 import createSomeHumans
 import dark.core.DarkGame
-import dark.map.MapManager
-import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.math.vec2
@@ -45,18 +41,11 @@ class GameScreen(
     }
 
     override fun show() {
-        createNewMap()
-//        createMap()
+        createMap("one")
         createFood()
-//        createSomeHumans()
+        createSomeHumans()
 ////        createLight()
-//        createBlob(vec2(), follow = true)
+        createBlob(vec2(), follow = true)
 
     }
-
-    private fun createNewMap() {
-        inject<MapManager>().createRooms(5)
-    }
-
-
 }
