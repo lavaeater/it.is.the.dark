@@ -3,6 +3,10 @@ package dark.ai
 import Food
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.steer.Steerable
+import com.badlogic.gdx.ai.steer.SteeringBehavior
+import com.badlogic.gdx.ai.steer.behaviors.*
+import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import createBlob
@@ -27,7 +31,32 @@ class WanderStateComponent: Component, Pool.Poolable {
     override fun reset() {
         state = WanderState.NotStarted
     }
+}
 
+fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>) : SteeringBehavior<Vector2> {
+    val blobGroupProximity = BlobGroupProximity(entity)
+    return PrioritySteering(owner).apply {
+        add(BlendedSteering(owner).apply {
+            add(Wander(owner).apply {
+                wanderRate = .1f
+                wanderOffset = 10f
+                wanderRadius = 250f
+                isFaceEnabled = false
+            }, 1f)
+            add(Separation(owner, blobGroupProximity).apply {
+
+            }, 5f)
+            add(Cohesion(owner, blobGroupProximity).apply {
+
+            }, 2.5f)
+            add(Alignment(owner, blobGroupProximity).apply {
+
+            }, 0.1f)
+        })
+        add(RaycastObstacleAvoidance(owner).apply {
+            rayConfiguration = CentralRayWithWhiskersConfiguration(owner, 5f, 2.5f, 15f)
+        })
+    }
 }
 
 object BlobActions {
@@ -42,8 +71,20 @@ object BlobActions {
 
         override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float) {
             when(stateComponent.state) {
-                WanderState.NotStarted -> TODO()
-                WanderState.Running -> TODO()
+                WanderState.NotStarted -> {
+                    /** Here we add the wander state steering stuff
+                     * to this entities steeringthingie
+                     */
+                    if(Box2dSteering.has(entity)) {
+                        val steerable = Box2dSteering.get(entity)
+                        steerable.steeringBehavior = getWanderSteering(entity, steerable)
+                        stateComponent.state = WanderState.Running
+                    }
+
+                }
+                WanderState.Running -> {
+                    //The steering handles this one.
+                }
             }
         }
     }
@@ -141,5 +182,5 @@ object BlobActions {
 
         }
     }
-    val allActions = listOf(splitInTwo, goTowardsFood)
+    val allActions = listOf(splitInTwo, wander)//, goTowardsFood
 }

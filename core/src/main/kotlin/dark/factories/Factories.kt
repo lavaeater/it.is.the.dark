@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.ai.BlobGroupProximity
+import dark.ai.getWanderSteering
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
@@ -172,29 +173,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
-            steeringBehavior = PrioritySteering(this).apply {
-                add(BlendedSteering(this@with).apply {
-                    add(Wander(this@with).apply {
-                        wanderRate = .1f
-                        wanderOffset = 10f
-                        wanderRadius = 250f
-                        isFaceEnabled = false
-                    }, 1f)
-                    add(Separation(this@with, blobGroupProximity).apply {
-
-                    }, 1f)
-                    add(Cohesion(this@with, blobGroupProximity).apply {
-
-                    }, 0.5f)
-                    add(Alignment(this@with, blobGroupProximity).apply {
-
-                    }, 0.1f)
-                })
-                add(RaycastObstacleAvoidance(this@with).apply {
-                    rayConfiguration = CentralRayWithWhiskersConfiguration(this@with, 5f, 2.5f, 15f)
-                })
-            }
-
+//            steeringBehavior = getWanderSteering(this@entity.entity, this)
         }
     }
 }

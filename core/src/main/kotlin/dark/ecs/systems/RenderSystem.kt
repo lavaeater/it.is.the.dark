@@ -107,17 +107,19 @@ class RenderSystem(
                     if (nextIndex > blobList.lastIndex)
                         nextIndex = 0
                     val blobBody = Box2d.get(blobEntity).body
+                    val blob = Blob.get(blobEntity)
                     val blobPosition = blobBody.position
                     val health = PropsAndStuff.get(blobEntity).getHealth()
                     shapeDrawer.filledCircle(
                         blobPosition,
                         1f,
-                        Color(
-                            1f - health.normalizedValue,
-                            health.normalizedValue,
-                            1f - health.normalizedValue,
-                            health.normalizedValue
-                        )
+                        blob.color
+//                        Color(
+//                            1f - health.normalizedValue,
+//                            health.normalizedValue,
+//                            1f - health.normalizedValue,
+//                            health.normalizedValue
+//                        )
                     )
 
                     if (CameraFollow.has(blobEntity))

@@ -12,7 +12,7 @@ import eater.ecs.ashley.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
 import ktx.math.vec3
 
-class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val extendViewport: ExtendViewport, private val useMapBounds: Boolean = false) :
+class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val extendViewport: ExtendViewport, private val useMapBounds: Boolean = true) :
     CameraFollowSystem(camera, alpha) {
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).firstOrNull()
@@ -25,9 +25,9 @@ class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val e
             val map = Map.get(mapEntity!!)
             camera.position.set(map.mapBounds.getCenter(cameraPosition), 0f)
             extendViewport.minWorldWidth =
-                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width else extendViewport.minWorldHeight / gameSettings.AspectRatio
+                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * .5f else extendViewport.minWorldHeight / gameSettings.AspectRatio
             extendViewport.minWorldHeight =
-                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height else extendViewport.minWorldWidth / gameSettings.AspectRatio
+                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * .5f else extendViewport.minWorldWidth / gameSettings.AspectRatio
             extendViewport.update(Gdx.graphics.width, Gdx.graphics.height)
 
         }
