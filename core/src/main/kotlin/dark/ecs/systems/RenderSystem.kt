@@ -24,6 +24,7 @@ import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.assets.toInternalFile
 import ktx.graphics.use
+import ktx.math.div
 import ktx.math.vec2
 import ktx.math.vec3
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -84,14 +85,23 @@ class RenderSystem(
 
             for (blobGroup in BlobGrouper.blobGroups.keys) {
                 val blobList = BlobGrouper.getBlobsForGroup(blobGroup)
-                val sortedBlobList = blobList.sortedWith { o1, o2 ->
-                    val p1 = Box2d.get(o1).body.position
-                    val p2 = Box2d.get(o2).body.position
-                    when (p1.x.compareTo(p2.x)) {
-                        1 -> p1.y.compareTo(p2.y)
-                        else -> -1 * p1.y.compareTo(p2.y)
-                    }
+                val center = blobList.map { Box2d.get(it).body.position }.reduce { acc, position -> acc.add(position) }
+                    .div(blobList.count())
+
+//                val sortedBlobList = blobList.sortedWith { o1, o2 ->
+//                    val p1 = Box2d.get(o1).body.position
+//                    val p2 = Box2d.get(o2).body.position
+//                    when (p1.x.compareTo(p2.x)) {
+//                        1 -> p1.y.compareTo(p2.y)
+//                        else -> -1 * p1.y.compareTo(p2.y)
+//                    }
+//                }
+                val sortedBlobList = blobList.sortedBy {
+                    val pos = Box2d.get(it).body.position
+                    MathUtils.atan2(center.y - pos.y, center.x - pos.x)
                 }
+
+
                 for ((index, blobEntity) in sortedBlobList.withIndex()) {
                     var nextIndex = index + 1
                     if (nextIndex > blobList.lastIndex)

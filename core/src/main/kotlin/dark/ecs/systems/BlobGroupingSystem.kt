@@ -19,7 +19,7 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
         thisBlobComponent.neigbours.remove(entity) //basically a no-op
         //remove neighbours that are too far away
         val distantNeighbours =
-            thisBlobComponent.neigbours.filter { Box2d.get(it).body.position.dst(position) > gameSettings.BlobDetectionRadius }
+            thisBlobComponent.neigbours.filter { Box2d.get(it).body.position.dst(position) > gameSettings.BlobForgettingRadius }
         thisBlobComponent.neigbours.removeAll(distantNeighbours.toSet())
 
         //Check all blobs except this one and neighbours to see if they are close
