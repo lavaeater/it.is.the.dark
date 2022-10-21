@@ -125,7 +125,7 @@ class RenderSystem(
                 )
             }
             val foodRenderStuff = engine.getEntitiesFor(foodFamily)
-                .associate { Box2d.get(it).body.position to MathUtils.norm(0f, 100f, Food.get(it).foodEnergy) }
+                .associate { Box2d.get(it).body.position to MathUtils.norm(100f, 200f, Food.get(it).foodEnergy) }
             for ((position, normalizedEnergy) in foodRenderStuff) {
                 shapeDrawer.filledCircle(
                     position,

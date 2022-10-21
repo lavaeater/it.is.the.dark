@@ -4,9 +4,9 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class Food: Component, Pool.Poolable {
-    var foodEnergy = (5..10).random() * 10f
+    var foodEnergy = (10..20).random() * 10f
     override fun reset() {
-        foodEnergy = (5..10).random() * 10f
+        foodEnergy = (10..20).random() * 10f
     }
 
     companion object {

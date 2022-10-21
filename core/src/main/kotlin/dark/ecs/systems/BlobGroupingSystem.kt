@@ -8,7 +8,7 @@ import eater.ecs.ashley.components.Box2d
 import ktx.ashley.allOf
 
 class BlobGroupingSystem(private val gameSettings: GameSettings) :
-    IntervalIteratingSystem(allOf(Blob::class).get(), 0.0025f) {
+    IntervalIteratingSystem(allOf(Blob::class).get(), 1f) {
 
     private val blobFam = allOf(Blob::class).get()
     private val allBlobs get() = engine.getEntitiesFor(blobFam)
@@ -54,8 +54,16 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 }
             }
 
-            if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
-                BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+            if(blob.blobGroup % 2 == 0) {
+                if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
+                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+                }
+            } else {
+                if((BlobGrouper.getBlobsForGroup(blob.blobGroup) - entity).count {
+                        Box2d.get(it).body.position.dst(position) < gameSettings.BlobForgettingRadius
+                    } < BlobGrouper.numberOfBlobsInGroup(blob.blobGroup) / 2) {
+                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+                }
             }
         }
     }

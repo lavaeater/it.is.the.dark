@@ -11,12 +11,16 @@ import ktx.math.vec2
 
 object BlobGrouper {
     fun getRandomNumber(): Float {
-        return (0..10).random() / 10f
+        return (5..10).random() / 10f
     }
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {
         val newGroupId = blobGroupIds
         blobGroups[newGroupId] = mutableSetOf()
-        groupColors[newGroupId] = Color(getRandomNumber(), getRandomNumber(), getRandomNumber(), 1f)
+        if(newGroupId % 2 == 0)
+            groupColors[newGroupId] = Color(getRandomNumber(), 0f, 0f, 1f)
+        else
+            groupColors[newGroupId] = Color(0f, getRandomNumber(), 0f, 1f)
+
         for (blob in blobs) {
             Blob.get(blob).blobGroup = newGroupId
             blobGroups[newGroupId]!!.add(blob)
@@ -103,7 +107,7 @@ object BlobGrouper {
         }
     val canSplit: Boolean
         get() {
-            return blobGroups.values.sumOf { it.count() } < 200
+            return blobGroups.values.sumOf { it.count() } < 500
         }
     val blobGroups = mutableMapOf<Int, MutableSet<Entity>>()
     val groupColors = mutableMapOf<Int, Color>()

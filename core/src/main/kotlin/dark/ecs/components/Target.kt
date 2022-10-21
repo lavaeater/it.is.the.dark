@@ -8,7 +8,10 @@ import ktx.ashley.mapperFor
 sealed class Target : Component, Pool.Poolable {
     var target: Entity? = null
     var state: TargetState = TargetState.NeedsTarget
+    var previousDistance = 0f
+
     override fun reset() {
+        previousDistance = 0f
         target = null
         state = TargetState.NeedsTarget
     }
@@ -23,7 +26,9 @@ sealed class Target : Component, Pool.Poolable {
             return mapper.get(entity)
         }
     }
-    class ArriveAtFoodTarget: Target() {
+
+    class ArriveAtFoodTarget : Target() {
+
         companion object {
             val mapper = mapperFor<ArriveAtFoodTarget>()
             fun has(entity: Entity): Boolean {
