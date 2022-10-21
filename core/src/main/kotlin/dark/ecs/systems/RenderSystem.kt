@@ -40,7 +40,7 @@ class RenderSystem(
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).first() //Should always be one
     private val foodFamily = allOf(Food::class, Box2d::class).get()
-    private val lonelyBlobs = allOf(Blob::class, LonelyBlob::class).get()
+    private val lonelyBlobs = allOf(Blob::class).get()
     private val fbo by lazy {
         FrameBuffer(
             Pixmap.Format.RGBA8888,
@@ -116,7 +116,7 @@ class RenderSystem(
                     shapeDrawer.filledCircle(center, .5f, color)
                 }
             }
-            for(lonelyBlob in engine.getEntitiesFor(lonelyBlobs)) {
+            for(lonelyBlob in engine.getEntitiesFor(lonelyBlobs).filter { Blob.get(it).blobGroup == -1 }) {
                 val blobPosition = Box2d.get(lonelyBlob).body.position
                 shapeDrawer.filledCircle(
                     blobPosition,

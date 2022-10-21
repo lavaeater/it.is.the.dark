@@ -62,10 +62,5 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
             }
         }
-        if(blob.blobGroup == -1) {
-            entity.addComponent<LonelyBlob>()
-        } else {
-            entity.remove<LonelyBlob>()
-        }
     }
 }
