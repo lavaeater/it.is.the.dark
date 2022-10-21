@@ -70,6 +70,7 @@ object BlobGrouper {
                     blobGroups[oldGroup]!!.remove(e)
                     if(blobGroups[oldGroup]!!.isEmpty()) {
                         blobGroups.remove(oldGroup)
+                        groupColors.remove(oldGroup)
                     }
                 }
                 if(blobGroups[group]?.add(e) == true) {

@@ -4,11 +4,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
 import dark.core.GameSettings
 import dark.ecs.components.Blob
-import dark.ecs.components.LonelyBlob
 import eater.ecs.ashley.components.Box2d
-import eater.physics.addComponent
 import ktx.ashley.allOf
-import ktx.ashley.remove
 
 class BlobGroupingSystem(private val gameSettings: GameSettings) :
     IntervalIteratingSystem(allOf(Blob::class).get(), 0.0025f) {
@@ -45,7 +42,6 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 }
             }
         } else {
-
             val closeBlobs =
                 (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
             if (closeBlobs.any()) {
