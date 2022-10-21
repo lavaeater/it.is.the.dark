@@ -2,17 +2,31 @@ package dark.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
-import com.badlogic.ashley.systems.IntervalSystem
-import dark.ecs.components.Blob
 import dark.core.GameSettings
+import dark.ecs.components.Blob
+import dark.ecs.components.LonelyBlob
 import eater.ecs.ashley.components.Box2d
+import eater.physics.addComponent
 import ktx.ashley.allOf
+import ktx.ashley.remove
 
 class BlobGroupingSystem(private val gameSettings: GameSettings) :
-    IntervalIteratingSystem(allOf(Blob::class).get(),0.0025f) {
+    IntervalIteratingSystem(allOf(Blob::class).get(), 0.0025f) {
 
     private val blobFam = allOf(Blob::class).get()
     private val allBlobs get() = engine.getEntitiesFor(blobFam)
+
+    val toRemoveList = mutableListOf<Int>()
+    override fun updateInterval() {
+        for ((key, list) in BlobGrouper.blobGroups) {
+            if (list.isEmpty())
+                toRemoveList.add(key)
+        }
+        for (key in toRemoveList)
+            BlobGrouper.removeBlobGroup(key)
+        toRemoveList.clear()
+        super.updateInterval()
+    }
 
     override fun processEntity(entity: Entity) {
         val blob = Blob.get(entity)
@@ -21,24 +35,37 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
             val closeBlobs =
                 (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
             if (closeBlobs.any()) {
-                val groupIds = closeBlobs.map { Blob.get(it).blobGroup }
-                if (groupIds.any { it != -1 }) {
-                    BlobGrouper.addBlobsToGroup(groupIds.first { it != -1 }, entity, *closeBlobs.toTypedArray())
-                } else {
-                    BlobGrouper.addBlobsToNewGroup(entity, *closeBlobs.toTypedArray())
+                val group = BlobGrouper.addBlobsToNewGroup(entity)
+                for((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
+                    if(key == -1) {
+                        BlobGrouper.addBlobsToGroup(group, *blobs.toTypedArray())
+                    } else if(key != group) {
+                        BlobGrouper.addBlobsToGroup(group, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
+                    }
                 }
             }
         } else {
-            val groupBlobs = BlobGrouper.getBlobsForGroup(blob.blobGroup) - entity
-            if(groupBlobs.isEmpty() || groupBlobs.all { Box2d.get(it).body.position.dst(position) > gameSettings.BlobForgettingRadius }) {
-                BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+
+            val closeBlobs =
+                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
+            if (closeBlobs.any()) {
+                for((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
+                    if(key == -1) {
+                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *blobs.toTypedArray())
+                    } else if(key != blob.blobGroup) {
+                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
+                    }
+                }
             }
 
-//            val closeBlobs =
-//                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
-//            if (closeBlobs.any()) {
-//                BlobGrouper.addBlobsToGroup(blob.blobGroup, entity, *closeBlobs.toTypedArray())
-//            }
+            if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
+                BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+            }
+        }
+        if(blob.blobGroup == -1) {
+            entity.addComponent<LonelyBlob>()
+        } else {
+            entity.remove<LonelyBlob>()
         }
     }
 }

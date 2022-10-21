@@ -1,8 +1,6 @@
 package dark.ecs.systems
 
 import Food
-import com.badlogic.ashley.core.Entity
-import dark.ecs.components.Map
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -14,17 +12,14 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
-import dark.ecs.components.Blob
-import dark.ecs.components.Human
-import dark.ecs.components.PropsAndStuff
+import dark.ecs.components.*
+import dark.ecs.components.Map
 import dark.injection.Assets
 import eater.ecs.ashley.components.Box2d
-import eater.ecs.ashley.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.assets.toInternalFile
 import ktx.graphics.use
-import ktx.math.div
 import ktx.math.vec2
 import ktx.math.vec3
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -45,6 +40,7 @@ class RenderSystem(
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).first() //Should always be one
     private val foodFamily = allOf(Food::class, Box2d::class).get()
+    private val lonelyBlobs = allOf(Blob::class, LonelyBlob::class).get()
     private val fbo by lazy {
         FrameBuffer(
             Pixmap.Format.RGBA8888,
@@ -85,8 +81,8 @@ class RenderSystem(
 
             for (blobGroup in BlobGrouper.blobGroups.keys) {
                 val blobList = BlobGrouper.getBlobsForGroup(blobGroup)
-                val center = blobList.map { Box2d.get(it).body.position }.reduce { acc, position -> acc.add(position) }
-                    .div(blobList.count())
+                val center = BlobGrouper.getGroupCenter(blobGroup)
+                val color = BlobGrouper.getGroupColor(blobGroup)
 
 //                val sortedBlobList = blobList.sortedWith { o1, o2 ->
 //                    val p1 = Box2d.get(o1).body.position
@@ -113,20 +109,20 @@ class RenderSystem(
                     shapeDrawer.filledCircle(
                         blobPosition,
                         1f,
-                        blob.color
-//                        Color(
-//                            1f - health.normalizedValue,
-//                            health.normalizedValue,
-//                            1f - health.normalizedValue,
-//                            health.normalizedValue
-//                        )
+                        color
                     )
-
-                    if (CameraFollow.has(blobEntity))
-                        blobCenter.set(blobPosition, 0f)
-                    shapeDrawer.setColor(Color.GREEN)
+                    shapeDrawer.setColor(color)
                     shapeDrawer.line(blobPosition, Box2d.get(sortedBlobList[nextIndex]).body.position)
+                    shapeDrawer.filledCircle(center, .5f, color)
                 }
+            }
+            for(lonelyBlob in engine.getEntitiesFor(lonelyBlobs)) {
+                val blobPosition = Box2d.get(lonelyBlob).body.position
+                shapeDrawer.filledCircle(
+                    blobPosition,
+                    1f,
+                    Color.RED
+                )
             }
             val foodRenderStuff = engine.getEntitiesFor(foodFamily)
                 .associate { Box2d.get(it).body.position to MathUtils.norm(0f, 100f, Food.get(it).foodEnergy) }

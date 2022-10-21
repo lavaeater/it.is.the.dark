@@ -173,7 +173,6 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
-//            steeringBehavior = getWanderSteering(this@entity.entity, this)
         }
     }
 }

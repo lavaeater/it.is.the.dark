@@ -44,17 +44,17 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>) : SteeringBehav
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
             add(Wander(owner).apply {
-                wanderRate = .1f
-                wanderOffset = 10f
+                wanderRate = .25f
+                wanderOffset = 50f
                 wanderRadius = 250f
                 isFaceEnabled = false
-            }, 0.4f)
+            }, 0.5f)
             add(Separation(owner, blobGroupProximity).apply {
 
             }, 0.25f)
             add(Cohesion(owner, blobGroupProximity).apply {
 
-            }, 0.25f)
+            }, 0.15f)
             add(Alignment(owner, blobGroupProximity).apply {
 
             }, 0.1f)
@@ -70,14 +70,8 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
     return BlendedSteering(owner).apply {
         add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
             arrivalTolerance = 2.5f
-        }, 0.4f)
-        add(Separation(owner, blobGroupProximity).apply {
-
-        }, 0.3f)
+        }, 0.8f)
         add(Cohesion(owner, blobGroupProximity).apply {
-
-        }, 0.2f)
-        add(Alignment(owner, blobGroupProximity).apply {
 
         }, 0.1f)
     }
@@ -97,16 +91,27 @@ object BlobActions {
 
         override fun act(entity: Entity, deltaTime: Float) {
             val blob = Blob.get(entity)
-            val message = blob.messageQueue.removeFirst()
-            when(message) {
+            if(blob.messageQueue.isEmpty)
+                return
+
+            when(val message = blob.messageQueue.removeFirst()) {
                 is BlobMessage.FoundAFoodTarget -> {
                     /**
                      * We can simply add the move-towards-food-state here:
+                     * Half of the time...
                      */
-                    entity.addComponent<Target.ArriveAtFoodTarget> {
-                        target = message.target
-                        state = TargetState.NeedsSteering
+                    if((1..2).random() == 1 && !Target.ArriveAtFoodTarget.has(entity)) {
+                        info { "I shall head to my friends target" }
+                        entity.addComponent<Target.ArriveAtFoodTarget> {
+                            target = message.target
+                            state = TargetState.NeedsSteering
+                        }
                     }
+                }
+
+                is BlobMessage.TakeSomeOfMyHealth -> {
+                    info { "Hey, I got ${message.healthToAdd} extra health!" }
+                    PropsAndStuff.get(entity).getHealth().current += message.healthToAdd
                 }
             }
         }
@@ -146,8 +151,8 @@ object BlobActions {
         override fun scoreFunction(entity: Entity): Float {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
-            return if(BlobGrouper.canSplit && health.current > (health.max * 1.5f))
-                1f
+            return if(BlobGrouper.canSplit)
+                health.current / health.max
             else 0f
         }
 
@@ -164,13 +169,16 @@ object BlobActions {
             val at = Box2d.get(entity).body.position + direction.scl(5f)
             createBlob(at, remainingHealthForNewBlog)
         }
-
     }
+
     private val arriveAtFood = object : AiActionWithStateComponent<Target.ArriveAtFoodTarget>("Towards Some Place", Target.ArriveAtFoodTarget::class) {
         override fun scoreFunction(entity: Entity): Float {
             val position = Box2d.get(entity).body.position
-            return if(Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null) 1.0f else if(engine().getEntitiesFor(foodFamily).any { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius})
-                0.5f else 0.0f
+            return if(Target.ArriveAtFoodTarget.has(entity))
+                0.8f
+            else if(engine().getEntitiesFor(foodFamily).any { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius * 2f})
+                0.8f
+            else 0.0f
         }
 
         val foodFamily = allOf(Food::class, Box2d::class).get()
@@ -201,39 +209,56 @@ object BlobActions {
                 }
 
                 TargetState.IsDoneWithTarget -> {
+                    info { "Is Done with Target" }
                     stateComponent.target = null
-                    stateComponent.state = TargetState.NeedsTarget
+                    abort(entity)
                 }
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
-                        .filter { Box2d.get(it).body.position.dst(body.position) < 30f && Food.get(it).foodEnergy > 10f}
+                        .filter { Box2d.get(it).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 2f && Food.get(it).foodEnergy > 10f}
                         .randomOrNull()
                     if(potentialTarget != null) {
+                        //info{ "Found a target, will go towards it now" }
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
                         val blob = Blob.get(entity)
                         BlobGrouper.sendMessageToGroup(blob.blobGroup, BlobMessage.FoundAFoodTarget(potentialTarget, entity))
+                    } else {
+                        info { "Couldn't find a target, let's do something else" }
+                        abort(entity)
                     }
                 }
 
                 TargetState.IsSteering -> {
-                    val steerable = Box2dSteering.get(entity)
-                    val behavior = steerable.steeringBehavior as Arrive
-                    if(behavior.calculateSteering(steerable.steeringOutput).isZero) {
-                        /* we have arrived */
-                        stateComponent.state = TargetState.ArrivedAtTarget
+                    /*
+                    Bah, check distance manually
+                     */
+                    if(state.target != null && Box2d.has(state.target!!)) {
+                        val position = Box2d.get(entity).body.position
+                        val targetPosition = Box2d.get(state.target!!).body.position
+                        if(position.dst(targetPosition) < 2.5f) {
+                            info { "Target is really close, let's eat!"}
+                            val steerable = Box2dSteering.get(entity)
+                            stateComponent.state = TargetState.ArrivedAtTarget
+                            steerable.steeringBehavior = null
+                        }
+                    } else {
+                        val steerable = Box2dSteering.get(entity)
+                        state.state = TargetState.IsDoneWithTarget
                         steerable.steeringBehavior = null
                     }
                 }
 
                 TargetState.ArrivedAtTarget -> {
+                    info { "I am at the target, eating" }
                     val health = PropsAndStuff.get(entity).getHealth()
                     val toAdd = deltaTime * 25f
                     health.current += toAdd
                     val food = Food.get(stateComponent.target!!)
                     food.foodEnergy -= toAdd
                     if (food.foodEnergy < 0f)
+                        info { "Ate all the food, cool" }
                         stateComponent.apply {
                             target!!.addComponent<Remove>()
                             this.state = TargetState.IsDoneWithTarget

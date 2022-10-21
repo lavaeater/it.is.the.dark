@@ -45,8 +45,8 @@ class GameScreen(
         createFood()
         //createSomeHumans()
 ////        createLight()
-        createBlob(validPoints.random(), follow = true)
-        createBlob(validPoints.random(), follow = false)
+        for(i in 0..5)
+            createBlob(validPoints.random(), follow = true)
 
     }
 }

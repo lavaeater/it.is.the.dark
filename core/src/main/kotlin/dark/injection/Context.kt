@@ -78,8 +78,9 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
-            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 100) { createFood() }))
+            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 200) { createFood() }))
             addSystem(BlobGroupingSystem(inject()))
+            addSystem(BlobHealthSharingSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
 //            addSystem(Box2dDebugRenderSystem(inject(), inject()))
         }
