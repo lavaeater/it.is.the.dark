@@ -2,6 +2,7 @@ package dark.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import dark.ecs.components.Blob
+import dark.ecs.components.BlobMessage
 
 object BlobGrouper {
     fun addBlobsToNewGroup(vararg blobs: Entity) {
@@ -44,6 +45,14 @@ object BlobGrouper {
 
     fun getBlobsForGroup(group: Int): List<Entity> {
         return if(blobGroups.containsKey(group)) blobGroups[group]!!.toList() else emptyList()
+    }
+
+    fun sendMessageToGroup(group: Int, message: BlobMessage) {
+        if(blobGroups.containsKey(group)) {
+            for(blob in (getBlobsForGroup(group) - message.sender)) {
+                Blob.get(blob).messageQueue.addLast(message)
+            }
+        }
     }
 
     var blobGroupIds = 0

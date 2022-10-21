@@ -29,16 +29,16 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 }
             }
         } else {
-            val closeBlobs =
-                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
-            if (closeBlobs.any()) {
-                BlobGrouper.addBlobsToGroup(blob.blobGroup, entity, *closeBlobs.toTypedArray())
-            }
-
             val groupBlobs = BlobGrouper.getBlobsForGroup(blob.blobGroup) - entity
             if(groupBlobs.isEmpty() || groupBlobs.all { Box2d.get(it).body.position.dst(position) > gameSettings.BlobForgettingRadius }) {
                 BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
             }
+
+//            val closeBlobs =
+//                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
+//            if (closeBlobs.any()) {
+//                BlobGrouper.addBlobsToGroup(blob.blobGroup, entity, *closeBlobs.toTypedArray())
+//            }
         }
     }
 }

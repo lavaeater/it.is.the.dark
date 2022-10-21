@@ -3,21 +3,22 @@ package dark.ecs.components
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
+import com.badlogic.gdx.utils.Queue
 import ktx.ashley.mapperFor
-import java.util.Vector
 
 
-sealed class BlobMessage(val sender: Entity, val blobGroup: Int) {
-    class FoundSomeFood(val at: Vector2, sender: Entity, blobGroup: Int): BlobMessage(sender, blobGroup)
+sealed class BlobMessage(val sender: Entity) {
+    class FoundAFoodTarget(val target: Entity, sender: Entity): BlobMessage(sender)
 }
 
 
 class Blob: Component, Pool.Poolable {
     var blobGroup = -1
     var color = Color.GREEN
+    val messageQueue = Queue<BlobMessage>()
     override fun reset() {
+        messageQueue.clear()
         blobGroup = -1
     }
 
