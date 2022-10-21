@@ -17,12 +17,20 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
         val position = Box2d.get(entity).body.position
 
         thisBlobComponent.neigbours.remove(entity) //basically a no-op
+        //remove neighbours that are too far away
         val distantNeighbours =
             thisBlobComponent.neigbours.filter { Box2d.get(it).body.position.dst(position) > gameSettings.BlobDetectionRadius }
         thisBlobComponent.neigbours.removeAll(distantNeighbours.toSet())
 
+        //Check all blobs except this one and neighbours to see if they are close
         val nearestBlobs =
-            (allBlobs - entity -thisBlobComponent.neigbours).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
+            (allBlobs - entity - thisBlobComponent.neigbours).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
+        // No neighbours, no new neighbours, this blob is lonely, indicate this
+        if(thisBlobComponent.neigbours.isEmpty() && nearestBlobs.isEmpty() && thisBlobComponent.blobGroup != -1) {
+            BlobGrouper.removeBlobFromGroup(thisBlobComponent.blobGroup, entity)
+            return
+        }
+
         for (nearestBlob in nearestBlobs) {
             val firstBlob = entity
             val secondBlob = nearestBlob
@@ -52,10 +60,5 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 BlobGrouper.addBlobsToGroup(blobGroupThatExists, blobThatShouldBeAdded)
             }
         }
-        if (thisBlobComponent.neigbours.isEmpty() && thisBlobComponent.blobGroup != -1) {
-            BlobGrouper.removeBlobFromGroup(thisBlobComponent.blobGroup, entity)
-        }
-
-
     }
 }

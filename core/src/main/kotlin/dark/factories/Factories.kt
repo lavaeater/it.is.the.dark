@@ -182,10 +182,10 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
                     }, 1f)
                     add(Separation(this@with, blobGroupProximity).apply {
 
-                    }, 2.5f)
+                    }, 1f)
                     add(Cohesion(this@with, blobGroupProximity).apply {
 
-                    }, 0.75f)
+                    }, 0.5f)
                     add(Alignment(this@with, blobGroupProximity).apply {
 
                     }, 0.1f)

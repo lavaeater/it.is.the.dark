@@ -12,17 +12,16 @@ import eater.ecs.ashley.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
 import ktx.math.vec3
 
-class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, val extendViewport: ExtendViewport) :
+class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val extendViewport: ExtendViewport, private val useMapBounds: Boolean = false) :
     CameraFollowSystem(camera, alpha) {
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).firstOrNull()
     private val gameSettings by lazy { inject<GameSettings>() }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-//        super.processEntity(entity, deltaTime)
 
 
-        if (mapEntity != null) {
+        if (useMapBounds && mapEntity != null) {
             val map = Map.get(mapEntity!!)
             camera.position.set(map.mapBounds.getCenter(cameraPosition), 0f)
             extendViewport.minWorldWidth =

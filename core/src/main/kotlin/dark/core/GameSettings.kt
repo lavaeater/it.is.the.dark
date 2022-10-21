@@ -3,7 +3,8 @@ package dark.core
 class GameSettings {
 
     val BlobDetectionRadius = 15f
-    val GameWidth = 128f
+    val BlobForgettingRadius = 20f
+    val GameWidth = 24f
     val AspectRatio = 16f / 9f
     val GameHeight = AspectRatio * GameWidth
     val PixelsPerMeter = 32f
