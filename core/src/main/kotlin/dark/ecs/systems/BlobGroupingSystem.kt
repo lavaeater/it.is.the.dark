@@ -41,7 +41,6 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                     else
                         BlobGrouper.addBlobsToNewGroup(entity)
 
-
                     for ((key, blobs) in groups) {
                         if (key == -1) {
                             BlobGrouper.addBlobsToGroup(combinedGroup, *blobs.toTypedArray())
