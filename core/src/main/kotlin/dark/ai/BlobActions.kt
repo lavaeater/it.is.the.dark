@@ -83,6 +83,9 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 
 object BlobActions {
 
+    /**
+     * This action handles all things
+     */
     private val aMessageForYouSir = object : AlsoGenericAction("There is a message for you, sir!") {
         override fun scoreFunction(entity: Entity): Float {
             val blob = Blob.get(entity)
