@@ -11,15 +11,15 @@ import ktx.math.vec2
 
 object BlobGrouper {
     fun getRandomNumber(): Float {
-        return (5..10).random() / 10f
+        return (3..10).random() / 10f
     }
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {
         val newGroupId = blobGroupIds
         blobGroups[newGroupId] = mutableSetOf()
         if(newGroupId % 2 == 0)
-            groupColors[newGroupId] = Color(getRandomNumber(), 0f, 0f, 1f)
+            groupColors[newGroupId] = Color(getRandomNumber(), 0f, getRandomNumber(), 1f)
         else
-            groupColors[newGroupId] = Color(0f, getRandomNumber(), 0f, 1f)
+            groupColors[newGroupId] = Color(0f, getRandomNumber(), getRandomNumber(), 1f)
 
         for (blob in blobs) {
             Blob.get(blob).blobGroup = newGroupId

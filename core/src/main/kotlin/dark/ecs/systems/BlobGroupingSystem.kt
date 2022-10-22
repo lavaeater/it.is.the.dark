@@ -33,38 +33,40 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
                 (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
             if (closeBlobs.any()) {
                 val group = BlobGrouper.addBlobsToNewGroup(entity)
-                for((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
-                    if(key == -1) {
+                for ((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
+                    if (key == -1) {
                         BlobGrouper.addBlobsToGroup(group, *blobs.toTypedArray())
-                    } else if(key != group) {
+                    } else if (key != group) {
                         BlobGrouper.addBlobsToGroup(group, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
                     }
                 }
             }
         } else {
-            val closeBlobs =
-                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
-            if (closeBlobs.any()) {
-                for((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
-                    if(key == -1) {
-                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *blobs.toTypedArray())
-                    } else if(key != blob.blobGroup) {
-                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
-                    }
-                }
+            if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
+                BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
             }
 
-            if(blob.blobGroup % 2 == 0) {
-                if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
-                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
-                }
-            } else {
-                if((BlobGrouper.getBlobsForGroup(blob.blobGroup) - entity).count {
-                        Box2d.get(it).body.position.dst(position) < gameSettings.BlobForgettingRadius
-                    } < BlobGrouper.numberOfBlobsInGroup(blob.blobGroup) / 2) {
-                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
-                }
-            }
+//            val closeBlobs =
+//                (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
+//            if (closeBlobs.any()) {
+//                for ((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
+//                    if (key == -1) {
+//                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *blobs.toTypedArray())
+//                    } else if (key != blob.blobGroup) {
+//                        BlobGrouper.addBlobsToGroup(blob.blobGroup, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
+//                    }
+//                }
+//            }
+
+//            if(blob.blobGroup % 2 == 0) {
+
+//            } else {
+//                if((BlobGrouper.getBlobsForGroup(blob.blobGroup) - entity).count {
+//                        Box2d.get(it).body.position.dst(position) < gameSettings.BlobForgettingRadius / 5f
+//                    } < BlobGrouper.numberOfBlobsInGroup(blob.blobGroup) / 2) {
+//                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+//                }
+//            }
         }
     }
 }
