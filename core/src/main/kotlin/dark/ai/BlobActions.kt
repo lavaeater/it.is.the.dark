@@ -391,10 +391,11 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
-                        .minByOrNull {
-                            Box2d.get(it).body.position.dst(body.position)
+                        .filter {
+                            Box2d.get(it).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 2f
                         }
-                    if (potentialTarget != null && Box2d.get(potentialTarget).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 2f) {
+                        .randomOrNull()
+                    if (potentialTarget != null) {
                         stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
@@ -420,12 +421,12 @@ object BlobActions {
                         if (distance < 2.5f) {
                             val steerable = Box2dSteering.get(entity)
                             stateComponent.state = TargetState.ArrivedAtTarget
-//                        } else if(progress < -2.5f) {
-//                            info { "Negative, abandon" }
-//                            state.state = TargetState.IsDoneWithTarget
-//                        } else if (progress > 0f && progress < 0.001f) {
-//                            info { "No progress, abandon" }
-//                            state.state = TargetState.IsDoneWithTarget
+                        } else if(progress < -2.5f) {
+                            info { "Negative, abandon" }
+                            state.state = TargetState.IsDoneWithTarget
+                        } else if (progress > 0f && progress < 0.001f) {
+                            info { "No progress, abandon" }
+                            state.state = TargetState.IsDoneWithTarget
                         } else {
                             state.previousDistance = distance
                         }

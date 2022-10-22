@@ -48,7 +48,7 @@ class GameScreen(
         for(i in 0..25)
             createLight()
 
-        for(i in 0..10)
+        for(i in 0..100)
             createBlob(validPoints.random(), follow = false)
 
     }
