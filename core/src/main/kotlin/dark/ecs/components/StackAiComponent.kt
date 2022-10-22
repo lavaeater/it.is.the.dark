@@ -1,14 +1,11 @@
 package dark.ecs.components
 
 import com.badlogic.ashley.core.Component
-import com.badlogic.ashley.core.ComponentMapper
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Queue
-import eater.core.engine
 import ktx.ashley.mapperFor
 import ktx.log.info
-import kotlin.reflect.KClass
 
 abstract class StackAiAction(val name: String) {
     abstract fun abortFunction(entity: Entity)
@@ -29,19 +26,19 @@ abstract class StackedAiAction<T:Any>(name: String, private val state:T):StackAi
     }
 }
 
-class StackAi : Component, Pool.Poolable {
+class StackAiComponent : Component, Pool.Poolable {
     val actionStack = Queue<StackAiAction>()
     override fun reset() {
         actionStack.clear()
     }
 
     companion object {
-        val mapper = mapperFor<StackAi>()
+        val mapper = mapperFor<StackAiComponent>()
         fun has(entity: Entity): Boolean {
             return mapper.has(entity)
         }
 
-        fun get(entity: Entity): StackAi {
+        fun get(entity: Entity): StackAiComponent {
             return mapper.get(entity)
         }
     }
