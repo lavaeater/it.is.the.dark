@@ -63,7 +63,15 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComp
                         owner.steeringBehavior = getArriveAtFoodSteering(entity, owner, target)
                         false
                     }
+
+                    StackFoodState.Paused -> {
+                        false
+                    }
                 }
+            }
+
+            override fun pauseFunction() : StackFoodState {
+                return StackFoodState.Paused
             }
 
             override fun abortFunction(entity: Entity) {
@@ -79,4 +87,5 @@ sealed class StackFoodState {
     object InTransit: StackFoodState()
     object Eating: StackFoodState()
     object Done: StackFoodState()
+    object Paused: StackFoodState()
 }

@@ -11,10 +11,21 @@ abstract class StackAiAction(val name: String) {
     abstract fun abortFunction(entity: Entity)
     abstract fun act(entity: Entity, deltaTime: Float): Boolean
     abstract fun abort(entity: Entity)
+    abstract fun pause()
 }
 
-abstract class StackedAiAction<T:Any>(name: String, private val state:T):StackAiAction(name) {
+abstract class StackedAiAction<T:Any>(name: String, private var state:T):StackAiAction(name) {
     abstract fun actFunction(entity: Entity, state: T, deltaTime: Float): Boolean
+
+    abstract fun pauseFunction(): T
+
+    fun updateState(newState: T) {
+        state = newState
+    }
+
+    override fun pause() {
+        state = pauseFunction()
+    }
 
     override fun abort(entity: Entity) {
         info { "Aborted $name" }
@@ -27,6 +38,13 @@ abstract class StackedAiAction<T:Any>(name: String, private val state:T):StackAi
 }
 
 class StackAiComponent : Component, Pool.Poolable {
+    fun addNewActionToTheTop(action: StackAiAction) {
+        if(actionStack.any()) {
+            actionStack.first().pause()
+        }
+        actionStack.addFirst(action)
+    }
+
     val actionStack = Queue<StackAiAction>()
     override fun reset() {
         actionStack.clear()
