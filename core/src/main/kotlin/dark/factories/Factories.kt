@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.ai.BlobGroupProximity
+import dark.ai.HumanActions
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
@@ -94,7 +95,8 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
         with<PropsAndStuff> {
             props.add(Prop.FloatProp.Health(health))
         }
-        with<CameraFollow>()
+        if (follow)
+            with<CameraFollow>()
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity
@@ -117,17 +119,10 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
-            steeringBehavior = PrioritySteering(this).apply {
-                add(Wander(this@with).apply {
-                    wanderRate = .1f
-                    wanderOffset = 10f
-                    wanderRadius = 250f
-                    isFaceEnabled = false
-                })
-                add(RaycastObstacleAvoidance(this@with).apply {
-                    rayConfiguration = CentralRayWithWhiskersConfiguration(this@with, 5f, 2.5f, 15f)
-                })
-            }
+            steeringBehavior = null
+        }
+        with<AiComponent>{
+            actions.addAll(HumanActions.actions)
         }
     }
 }
@@ -177,9 +172,10 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         }
     }
 }
-fun createMap(key:String): List<Vector2> {
+
+fun createMap(key: String): List<Vector2> {
     var scaleFactor = 1f
-    if(key == "two")
+    if (key == "two")
         scaleFactor = 2f
     var gridSize = 8f * scaleFactor
     val mapOffset = vec2(-50f, -50f)
@@ -187,7 +183,7 @@ fun createMap(key:String): List<Vector2> {
     val textureRegion = TextureRegion(mapAssets.first)
     val returnList = mutableListOf<Vector2>()
     engine().entity {
-         val map = with<Map> {
+        val map = with<Map> {
             mapTextureRegion = textureRegion
             mapScale = scaleFactor
             mapOrigin.set(mapOffset)
@@ -203,7 +199,7 @@ fun createMap(key:String): List<Vector2> {
     return returnList
 }
 
-fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map) : List<Vector2>{
+fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map): List<Vector2> {
     /*
     To make it super easy, we just create a square per int-tile in the layer.
      */
@@ -220,8 +216,13 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
                         }
                     }
                 })
-            } else if(c == "2") {
-                map.validPoints.add(vec2(x * tileSize + mapOffset.x + tileSize / 2f, y * tileSize + mapOffset.y - tileSize / 2f))
+            } else if (c == "2") {
+                map.validPoints.add(
+                    vec2(
+                        x * tileSize + mapOffset.x + tileSize / 2f,
+                        y * tileSize + mapOffset.y - tileSize / 2f
+                    )
+                )
             }
         }
     }

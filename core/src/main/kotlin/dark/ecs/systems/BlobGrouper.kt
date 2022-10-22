@@ -40,15 +40,16 @@ object BlobGrouper {
             0
     }
 
-    fun removeBlobFromGroup(group: Int, blob: Entity) {
-        val b = Blob.get(blob) //Cannot have neighbours no more?
-        if (blobGroups.containsKey(group) && b.blobGroup == group) {
-            blobGroups[group]!!.remove(blob)
-            b.blobGroup = -1
-            if (blobGroups[group]!!.isEmpty())
-                removeBlobGroup(group)
+    fun removeBlobsFromGroup(group: Int, vararg blobs: Entity) {
+        for(blob in blobs) {
+            val b = Blob.get(blob) //Cannot have neighbours no more?
+            if (blobGroups.containsKey(group) && b.blobGroup == group) {
+                blobGroups[group]!!.remove(blob)
+                b.blobGroup = -1
+                if (blobGroups[group]!!.isEmpty())
+                    removeBlobGroup(group)
+            }
         }
-
     }
 
     fun removeBlobGroup(group: Int) {
@@ -65,25 +66,18 @@ object BlobGrouper {
         return if(groupColors.containsKey(group)) groupColors[group]!! else Color.GREEN
     }
 
-    fun addBlobsToGroup(group: Int, vararg blobs: Entity) {
-        if (blobGroups.containsKey(group)) {
-            for (e in blobs) {
-                val blob = Blob.get(e)
-                val oldGroup = blob.blobGroup
-                if(oldGroup != group && blobGroups.containsKey(oldGroup)) {
-                    blobGroups[oldGroup]!!.remove(e)
-                    if(blobGroups[oldGroup]!!.isEmpty()) {
-                        blobGroups.remove(oldGroup)
-                        groupColors.remove(oldGroup)
-                    }
-                }
-                if(blobGroups[group]?.add(e) == true) {
-                    blob.blobGroup = group
-                } else {
-                    blob.blobGroup = -1
-                }
+    fun addBlobsToGroup(group: Int, vararg blobs: Entity) : Int {
+        if (!blobGroups.containsKey(group)) {
+            blobGroups[group] = mutableSetOf()
+        }
+        for (e in blobs) {
+            val blob = Blob.get(e)
+            removeBlobsFromGroup(blob.blobGroup, e)
+            if(blobGroups[group]!!.add(e)) {
+                blob.blobGroup = group
             }
         }
+        return group
     }
 
     fun getBlobsForGroup(group: Int): List<Entity> {

@@ -3,6 +3,7 @@ package dark.injection
 import dark.ecs.components.Food
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -67,7 +68,7 @@ object Context : InjectionContext() {
     }
 
     private fun getEngine(gameSettings: GameSettings): Engine {
-        return Engine().apply {
+        return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
@@ -76,7 +77,7 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
-            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 500) { createFood() }))
+            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 10) { createFood() }))
             addSystem(BlobGroupingSystem(inject()))
             addSystem(BlobHealthSharingSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))

@@ -28,25 +28,34 @@ class BlobGroupingSystem(private val gameSettings: GameSettings) :
     override fun processEntity(entity: Entity) {
         val blob = Blob.get(entity)
         blob.switchGroupCoolDown -= interval
-        if(blob.blobGroup == -1 || blob.switchGroupCoolDown <= 0f) {
+        if (blob.blobGroup == -1 || blob.switchGroupCoolDown <= 0f) {
             blob.switchGroupCoolDown = 2.5f
             val position = Box2d.get(entity).body.position
             if (blob.blobGroup == -1) {
                 val closeBlobs =
                     (allBlobs - entity).filter { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius }
                 if (closeBlobs.any()) {
-                    val group = BlobGrouper.addBlobsToNewGroup(entity)
-                    for ((key, blobs) in closeBlobs.groupBy { Blob.get(it).blobGroup }) {
+                    val groups = closeBlobs.groupBy { Blob.get(it).blobGroup }
+                    val combinedGroup = if (groups.keys.any { it != -1 })
+                        BlobGrouper.addBlobsToGroup(groups.keys.filter { it != -1 }.random(), entity)
+                    else
+                        BlobGrouper.addBlobsToNewGroup(entity)
+
+
+                    for ((key, blobs) in groups) {
                         if (key == -1) {
-                            BlobGrouper.addBlobsToGroup(group, *blobs.toTypedArray())
-                        } else if (key != group) {
-                            BlobGrouper.addBlobsToGroup(group, *BlobGrouper.getBlobsForGroup(key).toTypedArray())
+                            BlobGrouper.addBlobsToGroup(combinedGroup, *blobs.toTypedArray())
+                        } else if(key != combinedGroup) {
+                            BlobGrouper.addBlobsToGroup(
+                                combinedGroup,
+                                *BlobGrouper.getBlobsForGroup(key).toTypedArray()
+                            )
                         }
                     }
                 }
             } else {
                 if (position.dst(BlobGrouper.getGroupCenter(blob.blobGroup)) > gameSettings.BlobForgettingRadius * 2f) {
-                    BlobGrouper.removeBlobFromGroup(blob.blobGroup, entity)
+                    BlobGrouper.removeBlobsFromGroup(blob.blobGroup, entity)
                 }
 
 //            val closeBlobs =

@@ -4,6 +4,9 @@ class GameSettings {
 
     val BlobDetectionRadius = 15f
     val BlobForgettingRadius = 20f
+
+    val HumanLightDetectionRadius = 50f
+
     val GameWidth = 24f
     val AspectRatio = 16f / 9f
     val GameHeight = AspectRatio * GameWidth

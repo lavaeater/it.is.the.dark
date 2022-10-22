@@ -27,6 +27,20 @@ sealed class Target : Component, Pool.Poolable {
         }
     }
 
+    class GenericTarget : Target() {
+
+        companion object {
+            val mapper = mapperFor<GenericTarget>()
+            fun has(entity: Entity): Boolean {
+                return mapper.has(entity)
+            }
+
+            fun get(entity: Entity): GenericTarget {
+                return mapper.get(entity)
+            }
+        }
+    }
+
     class ArriveAtFoodTarget : Target() {
 
         companion object {
