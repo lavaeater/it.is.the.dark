@@ -3,17 +3,14 @@ import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.ai.BlobGroupProximity
-import dark.ai.getWanderSteering
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
-import eater.ai.steering.box2d.Box2dRadiusProximity
 import eater.ai.steering.box2d.Box2dSteering
 import eater.core.engine
 import eater.core.world
@@ -41,8 +38,12 @@ fun createLight() {
                     type = BodyDef.BodyType.DynamicBody
                     userData = this@entity.entity
                     position.set(map.validPoints.random())
-                    circle(1.0f) {
-
+                    circle(10f) {
+                        isSensor = true
+                        filter {
+                            categoryBits = Categories.lights
+                            maskBits = Categories.whatLightsCollideWith
+                        }
                     }
                 }
             }
@@ -176,18 +177,6 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         }
     }
 }
-
-fun createDarkEntity(at: Vector2, radius: Float): Body {
-    return world().body {
-        type = BodyDef.BodyType.DynamicBody
-        position.set(at)
-        fixedRotation = false
-        circle(radius) {
-            density = .1f
-        }
-    }
-}
-
 fun createMap(key:String): List<Vector2> {
     var scaleFactor = 1f
     if(key == "two")

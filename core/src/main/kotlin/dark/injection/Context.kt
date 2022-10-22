@@ -1,6 +1,6 @@
 package dark.injection
 
-import Food
+import dark.ecs.components.Food
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.*
@@ -17,10 +17,8 @@ import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.Blob
 import dark.ecs.systems.*
-import dark.map.MapManager
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
-import eater.injection.ContactTypeSample
 import eater.injection.InjectionContext
 import eater.physics.*
 import ktx.ashley.allOf

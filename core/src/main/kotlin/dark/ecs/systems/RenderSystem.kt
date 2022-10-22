@@ -1,6 +1,7 @@
 package dark.ecs.systems
 
-import Food
+import dark.ecs.components.Food
+import dark.ecs.components.Light
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -18,6 +19,7 @@ import dark.injection.Assets
 import eater.ecs.ashley.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
+import ktx.ashley.get
 import ktx.assets.toInternalFile
 import ktx.graphics.use
 import ktx.math.vec2
@@ -57,6 +59,10 @@ class RenderSystem(
     private val humanFamily = allOf(Human::class).get()
     private val allHumans get() = engine.getEntitiesFor(humanFamily)
     private val assets by lazy { inject<Assets>() }
+
+    private val lightsFamily = allOf(Light::class).get()
+    private val lights get() = engine.getEntitiesFor(lightsFamily)
+    private val lightColor = Color(1f, 1f, 0f, 0.5f)
 
 
     override fun update(deltaTime: Float) {
@@ -144,6 +150,11 @@ class RenderSystem(
                     t.regionWidth.toFloat(),
                     t.regionHeight.toFloat()
                 )
+            }
+
+            for(lightEntity in lights) {
+                val light = Light.get(lightEntity)
+                shapeDrawer.filledCircle(Box2d.get(lightEntity).body.position, light.radius, light.color)
             }
         }
 //        fbo.end()

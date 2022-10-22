@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createBlob
 import createFood
+import createLight
 import createMap
 import createSomeHumans
 import dark.core.DarkGame
@@ -44,8 +45,10 @@ class GameScreen(
         val validPoints = createMap("two")
         createFood()
         //createSomeHumans()
-////        createLight()
-//        for(i in 0..1)
+        for(i in 0..25)
+            createLight()
+
+        for(i in 0..100)
             createBlob(validPoints.random(), follow = true)
 
     }

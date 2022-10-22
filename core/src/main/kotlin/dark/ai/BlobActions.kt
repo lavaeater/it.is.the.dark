@@ -1,6 +1,6 @@
 package dark.ai
 
-import Food
+import dark.ecs.components.Food
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.steer.Steerable
@@ -78,7 +78,7 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
         }, 0.5f)
         add(Cohesion(owner, blobGroupProximity).apply {
 
-        }, 0.5f)
+        }, 1.5f)
         add(Separation(owner, blobGroupProximity).apply {
 
         }, 1.5f)
@@ -120,13 +120,8 @@ object BlobActions {
                      */
                     if (Target.ArriveAtFoodTarget.has(entity)) {
                         val tc = Target.ArriveAtFoodTarget.get(entity)
-                        if (tc.target != null && Food.has(tc.target!!) && tc.target != message.target) {
-                            val currentFoodTarget = Food.get(tc.target!!)
-                            if (currentFoodTarget.foodEnergy < message.energy / 1.5f) {
-                                tc.target = message.target
-                                tc.state = TargetState.NeedsSteering
-                            }
-                        }
+                        tc.target = message.target
+                        tc.state = TargetState.NeedsSteering
                     } else {
                         entity.addComponent<Target.ArriveAtFoodTarget> {
                             target = message.target
@@ -278,7 +273,7 @@ object BlobActions {
                         if (distance < 2.5f) {
                             val steerable = Box2dSteering.get(entity)
                             stateComponent.state = TargetState.ArrivedAtTarget
-                            steerable.steeringBehavior = null
+                            //steerable.steeringBehavior = null
 ////                        } else if(progress < -2.5f) {
 ////                            info { "Negative, abandon" }
 ////                            state.state = TargetState.IsDoneWithTarget
@@ -289,24 +284,26 @@ object BlobActions {
                             state.previousDistance = distance
                         }
                     } else {
-                        val steerable = Box2dSteering.get(entity)
                         state.state = TargetState.IsDoneWithTarget
-                        steerable.steeringBehavior = null
                     }
                 }
 
                 TargetState.ArrivedAtTarget -> {
                     val health = PropsAndStuff.get(entity).getHealth()
                     val toAdd = deltaTime * 50f
-                    health.current += toAdd
-                    val food = Food.get(stateComponent.target!!)
-                    food.foodEnergy -= toAdd
-                    if (food.foodEnergy < 0f) {
-                        info { "Ate all the food, cool" }
-                        stateComponent.apply {
-                            target!!.addComponent<Remove>()
-                            this.state = TargetState.IsDoneWithTarget
+                    if(Food.has(stateComponent.target!!)) {
+                        val food = Food.get(stateComponent.target!!)
+                        food.foodEnergy -= toAdd
+                        health.current += toAdd
+                        if (food.foodEnergy < 0f) {
+                            info { "Ate all the food, cool" }
+                            stateComponent.apply {
+                                target!!.addComponent<Remove>()
+                                state = TargetState.IsDoneWithTarget
+                            }
                         }
+                    } else {
+                        stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
             }
