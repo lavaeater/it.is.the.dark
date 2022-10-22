@@ -120,17 +120,14 @@ object BlobActions {
                      */
                     if (Target.ArriveAtFoodTarget.has(entity)) {
                         val tc = Target.ArriveAtFoodTarget.get(entity)
-                        if (Blob.get(entity).blobGroup % 2 == 0) {
-                            tc.target = message.target
-                            tc.state = TargetState.NeedsSteering
-                        } else if (tc.target != null && Food.has(tc.target!!) && tc.target != message.target) {
-                            val targetFood = Food.get(tc.target!!)
-                            if (targetFood.foodEnergy < message.energy) {
+                        if (tc.target != null && Food.has(tc.target!!) && tc.target != message.target) {
+                            val currentFoodTarget = Food.get(tc.target!!)
+                            if (currentFoodTarget.foodEnergy < message.energy / 1.5f) {
                                 tc.target = message.target
                                 tc.state = TargetState.NeedsSteering
                             }
                         }
-                    } else if (Blob.get(entity).blobGroup % 2 == 0 || (1..2).random() == 1) {
+                    } else {
                         entity.addComponent<Target.ArriveAtFoodTarget> {
                             target = message.target
                             state = TargetState.NeedsSteering
