@@ -28,7 +28,6 @@ abstract class StackedAiAction<T:Any>(name: String, private var state:T):StackAi
     }
 
     override fun abort(entity: Entity) {
-        info { "Aborted $name" }
         abortFunction(entity)
     }
 

@@ -28,18 +28,11 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComp
              */
             when (val message = blob.messageQueue.removeFirst()) {
                 is BlobMessage.FoundAFoodTarget -> {
-                    /*
-                    If the top task is "go for food", it will take
-                    a while for the task "check for food" to suddenly show up.
-
-                    These things can be controlled by something, a system or something, who knows?
-                    We simply ALWAYS add a go-for-food-stack-task when we get this message.
-                     */
                     val aiStack = StackAiComponent.get(entity)
                     aiStack.actionStack.addFirst(moveTowardsFoodAction(entity, Box2dSteering.get(entity), message.target))
                 }
                 is BlobMessage.TakeSomeOfMyHealth -> {
-
+                    PropsAndStuff.get(entity).getHealth().current += message.healthToAdd
                 }
             }
         }

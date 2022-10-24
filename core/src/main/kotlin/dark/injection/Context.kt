@@ -57,13 +57,15 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(GameScreen(
-                inject(),
-                inject(),
-                inject(),
-                inject(),
-                inject()
-            ))
+            bindSingleton(
+                GameScreen(
+                    inject(),
+                    inject(),
+                    inject(),
+                    inject(),
+                    inject()
+                )
+            )
         }
     }
 
@@ -78,17 +80,18 @@ object Context : InjectionContext() {
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
             addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 500) { createFood() }))
-            addSystem(BlobGroupingSystem(inject()))
             addSystem(BlobHealthSharingSystem())
+            addSystem(BlobHealthDiminishingSystem(inject()))
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
-//            addSystem(Box2dDebugRenderSystem(inject(), inject()))
+            addSystem(BlobMessageHandlingSystem())
+            addSystem(BlobNeighbourSystem(inject()))
         }
     }
 }
 
 sealed class ContactType {
-    object Unknown:ContactType()
-    class BlobAndBlobSensors(val firstBlob: Entity, val secondBlob: Entity): ContactType()
+    object Unknown : ContactType()
+    class BlobAndBlobSensors(val firstBlob: Entity, val secondBlob: Entity) : ContactType()
 
     companion object {
         fun getContactType(contact: Contact): ContactType {
@@ -101,9 +104,9 @@ sealed class ContactType {
     }
 }
 
-class CollisionManager: ContactListener {
+class CollisionManager : ContactListener {
     override fun beginContact(contact: Contact) {
-        when(val contactType = ContactType.getContactType(contact)) {
+        when (val contactType = ContactType.getContactType(contact)) {
             is ContactType.BlobAndBlobSensors -> {
                 /**
                  * Check if either one belongs to a blob group.
@@ -139,12 +142,13 @@ class CollisionManager: ContactListener {
 //                    BlobGrouper.addBlobsToGroup(blobGroupThatExists, blobThatShouldBeAdded)
 //                }
             }
+
             ContactType.Unknown -> {}
         }
     }
 
     override fun endContact(contact: Contact) {
-        when(val contactType = ContactType.getContactType(contact)) {
+        when (val contactType = ContactType.getContactType(contact)) {
             is ContactType.BlobAndBlobSensors -> {
                 /**
                  * So, if we are no longer in contact with... A blob, what do we do?
@@ -170,6 +174,7 @@ class CollisionManager: ContactListener {
 //                        BlobGrouper.removeBlobFromGroup(secondBlobC.blobGroup, secondBlob)
 //                }
             }
+
             ContactType.Unknown -> {}
         }
     }

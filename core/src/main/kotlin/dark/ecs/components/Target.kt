@@ -2,6 +2,8 @@ package dark.ecs.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.steer.SteeringBehavior
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
@@ -9,8 +11,10 @@ sealed class Target : Component, Pool.Poolable {
     var target: Entity? = null
     var state: TargetState = TargetState.NeedsTarget
     var previousDistance = 0f
+    var steering: SteeringBehavior<Vector2>? = null
 
     override fun reset() {
+        steering = null
         previousDistance = 0f
         target = null
         state = TargetState.NeedsTarget

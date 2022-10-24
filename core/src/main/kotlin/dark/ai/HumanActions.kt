@@ -112,17 +112,17 @@ object HumanActions {
                     /*
                     Bah, check distance manually
                      */
-                    if (state.target != null && Box2d.has(state.target!!)) {
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
                         val position = Box2d.get(entity).body.position
-                        val targetPosition = Box2d.get(state.target!!).body.position
+                        val targetPosition = Box2d.get(stateComponent.target!!).body.position
                         val distance = position.dst(targetPosition)
                         if (distance < 2.5f) {
                             stateComponent.state = TargetState.ArrivedAtTarget
                         } else {
-                            state.previousDistance = distance
+                            stateComponent.previousDistance = distance
                         }
                     } else {
-                        state.state = TargetState.IsDoneWithTarget
+                        stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
 

@@ -12,10 +12,11 @@ import dark.ecs.components.*
 import dark.ecs.components.Food
 import dark.ecs.components.Target
 import dark.ecs.systems.BlobGrouper
-import eater.ai.ashley.AiAction
+import dark.ecs.systems.sendMessageTo
 import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.ashley.AlsoGenericAction
 import eater.ai.steering.box2d.Box2dLocation
+import eater.ai.steering.box2d.Box2dRadiusProximity
 import eater.ai.steering.box2d.Box2dRaycastCollisionDetector
 import eater.ai.steering.box2d.Box2dSteering
 import eater.core.engine
@@ -29,19 +30,25 @@ import ktx.log.info
 import ktx.math.plus
 
 fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavior<Vector2> {
-    val blobGroupProximity = BlobGroupProximity(entity)
+    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f)
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
-            add(Wander(owner).apply {
-                wanderRate = .25f
-                wanderOffset = 15f
-                wanderRadius = 250f
-                isFaceEnabled = false
-            }, 1.5f)
-            add(Separation(owner, blobGroupProximity).apply {
+            add(
+                Wander(owner).apply {
+                    wanderRate = .25f
+                    wanderOffset = 15f
+                    wanderRadius = 250f
+                    isFaceEnabled = false
+                },
+                5f
+            )
+            add(Separation(owner, box2dProximity).apply {
 
-            }, 11f)
-            add(Cohesion(owner, blobGroupProximity).apply {
+            }, 1f)
+            add(Cohesion(owner, box2dProximity).apply {
+
+            }, 1f)
+            add(Alignment(owner, box2dProximity).apply {
 
             }, 1f)
         })
@@ -55,20 +62,20 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
 }
 
 fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
-    val blobGroupProximity = BlobGroupProximity(entity)
+    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f)
     return BlendedSteering(owner).apply {
         add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
             arrivalTolerance = 2.5f
-        }, 0.5f)
-        add(Cohesion(owner, blobGroupProximity).apply {
+        }, 5f)
+        add(Cohesion(owner, box2dProximity).apply {
 
-        }, 1.5f)
-        add(Separation(owner, blobGroupProximity).apply {
+        }, 1f)
+        add(Separation(owner, box2dProximity).apply {
 
-        }, 1.5f)
-        add(Alignment(owner, blobGroupProximity).apply {
+        }, 1f)
+        add(Alignment(owner, box2dProximity).apply {
 
-        }, 0.5f)
+        }, 1f)
         add(
             RaycastObstacleAvoidance(
                 owner, CentralRayWithWhiskersConfiguration(owner, 2.5f, 1f, 15f),
@@ -79,58 +86,11 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 }
 
 
-
-
 object BlobActions {
-
-    /**
-     * This action handles all things
-     */
-    private val aMessageForYouSir = object : AlsoGenericAction("There is a message for you, sir!") {
-        override fun scoreFunction(entity: Entity): Float {
-            val blob = Blob.get(entity)
-            return if (blob.messageQueue.isEmpty) 0f else 1f
-        }
-
-        override fun abort(entity: Entity) {
-            /*Hmm?*/
-        }
-
-        override fun act(entity: Entity, deltaTime: Float) {
-            val blob = Blob.get(entity)
-            if (blob.messageQueue.isEmpty)
-                return
-
-            when (val message = blob.messageQueue.removeFirst()) {
-                is BlobMessage.FoundAFoodTarget -> {
-                    /**
-                     * We can simply add the move-towards-food-state here:
-                     * Half of the time...
-                     */
-                    if (Target.ArriveAtFoodTarget.has(entity)) {
-//                        val tc = Target.ArriveAtFoodTarget.get(entity)
-//                        tc.target = message.target
-//                        tc.state = TargetState.NeedsSteering
-//                    } else {
-                        entity.addComponent<Target.ArriveAtFoodTarget> {
-                            target = message.target
-                            state = TargetState.NeedsSteering
-                        }
-                    }
-                }
-
-                is BlobMessage.TakeSomeOfMyHealth -> {
-                    PropsAndStuff.get(entity).getHealth().current += message.healthToAdd
-                }
-            }
-        }
-
-    }
-
     private val wander =
         object : AiActionWithStateComponent<WanderStateComponent>("Wander with Steering", WanderStateComponent::class) {
             override fun scoreFunction(entity: Entity): Float {
-                return 0.3f
+                return 0.7f
             }
 
             override fun abortFunction(entity: Entity) {
@@ -148,7 +108,6 @@ object BlobActions {
                             steerable.steeringBehavior = getWanderSteering(entity, steerable)
                             stateComponent.state = WanderState.Running
                         }
-
                     }
 
                     WanderState.Running -> {
@@ -162,11 +121,10 @@ object BlobActions {
         override fun scoreFunction(entity: Entity): Float {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
-            return if (BlobGrouper.canSplit &&
-                health.current > health.max * 1.25f
-            )
-                1f
-            else 0f
+            return if (BlobGrouper.canSplit)
+                health.current / health.max * .75f
+            else
+                0f
         }
 
         override fun abort(entity: Entity) {
@@ -184,17 +142,14 @@ object BlobActions {
         }
     }
 
-    private val arriveAtFood = object :
+    private val searchForAndArriveAtFood = object :
         AiActionWithStateComponent<Target.ArriveAtFoodTarget>("Towards Some Place", Target.ArriveAtFoodTarget::class) {
         override fun scoreFunction(entity: Entity): Float {
-            val position = Box2d.get(entity).body.position
-            return if (Target.ArriveAtFoodTarget.has(entity))
-                0.8f
-            else if (engine().getEntitiesFor(foodFamily)
-                    .any { Box2d.get(it).body.position.dst(position) < gameSettings.BlobDetectionRadius * 2f }
-            )
-                0.8f
-            else 0.0f
+            val health = PropsAndStuff.get(entity).getHealth()
+            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null)
+                1f
+            else
+                1f - health.normalizedValue
         }
 
         override fun abortFunction(entity: Entity) {
@@ -203,7 +158,6 @@ object BlobActions {
 
         val foodFamily = allOf(Food::class, Box2d::class).get()
         val gameSettings by lazy { inject<GameSettings>() }
-
 
         override fun actFunction(entity: Entity, stateComponent: Target.ArriveAtFoodTarget, deltaTime: Float) {
             /**
@@ -231,47 +185,45 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
-                        .filter {
-                            Box2d.get(it).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 2f
+                        .minByOrNull {
+                            Box2d.get(it).body.position.dst(body.position)
                         }
-                        .randomOrNull()
                     if (potentialTarget != null) {
                         stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
                         val blob = Blob.get(entity)
-                        BlobGrouper.sendMessageToGroup(
-                            blob.blobGroup,
-                            BlobMessage.FoundAFoodTarget(potentialTarget, Food.get(potentialTarget).foodEnergy, entity)
+                        blob.neighbours.sendMessageTo(
+                            BlobMessage.FoundAFoodTarget(
+                                potentialTarget,
+                                Food.get(potentialTarget).foodEnergy,
+                                entity
+                            )
                         )
                     } else {
-                        abort(entity)
+                        if (stateComponent.steering == null)
+                            stateComponent.steering = getWanderSteering(entity, Box2dSteering.get(entity))
+
+                        Box2dSteering.get(entity).steeringBehavior = stateComponent.steering
                     }
                 }
 
                 TargetState.IsSteering -> {
-                    /*
-                    Bah, check distance manually
-                     */
-                    if (state.target != null && Box2d.has(state.target!!)) {
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
                         val position = Box2d.get(entity).body.position
-                        val targetPosition = Box2d.get(state.target!!).body.position
+                        val targetPosition = Box2d.get(stateComponent.target!!).body.position
                         val distance = position.dst(targetPosition)
-                        val progress = state.previousDistance - distance
+//                        val progress = stateComponent.previousDistance - distance
                         if (distance < 2.5f) {
-                            val steerable = Box2dSteering.get(entity)
                             stateComponent.state = TargetState.ArrivedAtTarget
-//                        } else if(progress < -2.5f) {
-//                            info { "Negative, abandon" }
-//                            state.state = TargetState.IsDoneWithTarget
-                        } else if (progress > 0f && progress < 0.001f) {
-                            info { "No progress, abandon" }
-                            state.state = TargetState.IsDoneWithTarget
-                        } else {
-                            state.previousDistance = distance
+//                        } else if (progress > 0f && progress < 0.001f) {
+//                            info { "No progress, abandon" }
+//                            stateComponent.state = TargetState.IsDoneWithTarget
+//                        } else {
+//                            stateComponent.previousDistance = distance
                         }
                     } else {
-                        state.state = TargetState.IsDoneWithTarget
+                        stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
 
@@ -279,12 +231,11 @@ object BlobActions {
                     Box2dSteering.get(entity).steeringBehavior = null
                     val health = PropsAndStuff.get(entity).getHealth()
                     val toAdd = deltaTime * 50f
-                    if(Food.has(stateComponent.target!!)) {
+                    if (Food.has(stateComponent.target!!)) {
                         val food = Food.get(stateComponent.target!!)
                         food.foodEnergy -= toAdd
                         health.current += toAdd
                         if (food.foodEnergy < 0f) {
-                            info { "Ate all the food, cool" }
                             stateComponent.apply {
                                 target!!.addComponent<Remove>()
                                 state = TargetState.IsDoneWithTarget
@@ -297,5 +248,5 @@ object BlobActions {
             }
         }
     }
-    val allActions = listOf(splitInTwo, wander, arriveAtFood, aMessageForYouSir)
+    val allActions = listOf(splitInTwo, wander, searchForAndArriveAtFood)
 }
