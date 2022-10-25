@@ -62,7 +62,7 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
 }
 
 fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
-    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f)
+    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f,)
     return BlendedSteering(owner).apply {
         add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
             arrivalTolerance = 2.5f
