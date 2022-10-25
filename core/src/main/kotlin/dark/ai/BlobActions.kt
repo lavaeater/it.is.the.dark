@@ -80,12 +80,8 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 
             }, 1f)
             add(Separation(owner, box2dProximity).apply {
-
+                decayCoefficient = 10f
             }, 4f)
-            add(Alignment(owner, box2dProximity).apply {
-
-            }, 1f)
-
         })
         add(
             RaycastObstacleAvoidance(
@@ -198,10 +194,11 @@ object BlobActions {
                 }
 
                 TargetState.NeedsTarget -> {
+                    val health = PropsAndStuff.get(entity).getHealth()
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
                         .filter {
-                            Box2d.get(it).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 1.5f
+                            Box2d.get(it).body.position.dst(body.position) < health.detectionRadius
                         }.randomOrNull()
                     if (potentialTarget != null) {
                         stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
@@ -239,7 +236,7 @@ object BlobActions {
 //                            stateComponent.previousDistance = distance
                         }
                     } else {
-                        if(stateComponent.timer < 0f)
+                        if (stateComponent.timer < 0f)
                             info { "Ran out of time, trying something new" }
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }

@@ -4,6 +4,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import dark.ai.getArriveAtFoodSteering
 import dark.ecs.components.*
+import dark.ecs.components.Target
+import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteering
 import ktx.ashley.allOf
 
@@ -28,8 +30,15 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComp
              */
             when (val message = blob.messageQueue.removeFirst()) {
                 is BlobMessage.FoundAFoodTarget -> {
-                    val aiStack = StackAiComponent.get(entity)
-                    aiStack.actionStack.addFirst(moveTowardsFoodAction(entity, Box2dSteering.get(entity), message.target))
+                    if(Target.ArriveAtFoodTarget.has(entity)) {
+                        val tc = Target.ArriveAtFoodTarget.get(entity)
+                        if(tc.target != null && Food.has(tc.target!!)) {
+                            val currentTarget = Food.get(tc.target!!)
+                            if(currentTarget.foodEnergy < message.energy) {
+                                tc.target = message.target
+                            }
+                        }
+                    }
                 }
                 is BlobMessage.TakeSomeOfMyHealth -> {
                     PropsAndStuff.get(entity).getHealth().current += message.healthToAdd
