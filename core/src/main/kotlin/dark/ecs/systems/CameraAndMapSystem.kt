@@ -25,9 +25,9 @@ class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val e
             val map = Map.get(mapEntity!!)
             camera.position.set(map.mapBounds.getCenter(cameraPosition), 0f)
             extendViewport.minWorldWidth =
-                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * 2f else extendViewport.minWorldHeight / gameSettings.AspectRatio
+                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * 1f else extendViewport.minWorldHeight / gameSettings.AspectRatio
             extendViewport.minWorldHeight =
-                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * 2f else extendViewport.minWorldWidth / gameSettings.AspectRatio
+                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * 1f else extendViewport.minWorldWidth / gameSettings.AspectRatio
             extendViewport.update(Gdx.graphics.width, Gdx.graphics.height)
 
         }

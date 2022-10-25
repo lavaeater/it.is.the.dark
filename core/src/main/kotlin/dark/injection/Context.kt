@@ -85,6 +85,7 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
             addSystem(BlobMessageHandlingSystem())
             addSystem(BlobNeighbourSystem(inject()))
+            addSystem(LogSystem())
         }
     }
 }

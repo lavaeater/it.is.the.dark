@@ -29,8 +29,15 @@ import ktx.ashley.allOf
 import ktx.log.info
 import ktx.math.plus
 
+fun acceptOnlyBlobs(steerable: Steerable<Vector2>): Boolean {
+    return steerable is Box2dSteering && steerable.body.userData != null && steerable.body.userData is Entity && Blob.has(
+        steerable.body.userData as Entity
+    )
+}
+
 fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavior<Vector2> {
-    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f)
+    val box2dProximity =
+        Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f, ::acceptOnlyBlobs)
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
             add(
@@ -40,11 +47,11 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
                     wanderRadius = 250f
                     isFaceEnabled = false
                 },
-                5f
+                3f
             )
             add(Separation(owner, box2dProximity).apply {
 
-            }, 1f)
+            }, 2f)
             add(Cohesion(owner, box2dProximity).apply {
 
             }, 1f)
@@ -62,25 +69,29 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
 }
 
 fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
-    val box2dProximity = Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f,)
-    return BlendedSteering(owner).apply {
-        add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
-            arrivalTolerance = 2.5f
-        }, 5f)
-        add(Cohesion(owner, box2dProximity).apply {
+    val box2dProximity =
+        Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f, ::acceptOnlyBlobs)
+    return PrioritySteering(owner).apply {
+        add(BlendedSteering(owner).apply {
+            add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
+                arrivalTolerance = 2.5f
+            }, 2f)
+            add(Cohesion(owner, box2dProximity).apply {
 
-        }, 1f)
-        add(Separation(owner, box2dProximity).apply {
+            }, 1f)
+            add(Separation(owner, box2dProximity).apply {
 
-        }, 1f)
-        add(Alignment(owner, box2dProximity).apply {
+            }, 4f)
+            add(Alignment(owner, box2dProximity).apply {
 
-        }, 1f)
+            }, 1f)
+
+        })
         add(
             RaycastObstacleAvoidance(
                 owner, CentralRayWithWhiskersConfiguration(owner, 2.5f, 1f, 15f),
                 Box2dRaycastCollisionDetector(world())
-            ), 0.5f
+            )
         )
     }
 }
@@ -90,7 +101,7 @@ object BlobActions {
     private val wander =
         object : AiActionWithStateComponent<WanderStateComponent>("Wander with Steering", WanderStateComponent::class) {
             override fun scoreFunction(entity: Entity): Float {
-                return 0.7f
+                return PropsAndStuff.get(entity).getHealth().normalizedValue * 0.75f
             }
 
             override fun abortFunction(entity: Entity) {
@@ -122,7 +133,7 @@ object BlobActions {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
             return if (BlobGrouper.canSplit)
-                health.current / health.max * .75f
+                health.current / health.max * .5f
             else
                 0f
         }
@@ -143,10 +154,13 @@ object BlobActions {
     }
 
     private val searchForAndArriveAtFood = object :
-        AiActionWithStateComponent<Target.ArriveAtFoodTarget>("Towards Some Place", Target.ArriveAtFoodTarget::class) {
+        AiActionWithStateComponent<Target.ArriveAtFoodTarget>("Search for Food!", Target.ArriveAtFoodTarget::class) {
         override fun scoreFunction(entity: Entity): Float {
             val health = PropsAndStuff.get(entity).getHealth()
-            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null)
+            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null && Food.has(
+                    Target.ArriveAtFoodTarget.get(entity).target!!
+                ) && Food.get(Target.ArriveAtFoodTarget.get(entity).target!!).foodEnergy > 5f
+            )
                 1f
             else
                 1f - health.normalizedValue
@@ -166,6 +180,7 @@ object BlobActions {
              * We shall not act directly on bodies etc, rather we shall act upon control
              * components of the entity, which is nicer, perhaps?
              */
+            stateComponent.timer -= deltaTime
             when (stateComponent.state) {
                 TargetState.NeedsSteering -> {
                     if (Box2d.has(stateComponent.target!!)) {
@@ -185,9 +200,9 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val body = Box2d.get(entity).body
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
-                        .minByOrNull {
-                            Box2d.get(it).body.position.dst(body.position)
-                        }
+                        .filter {
+                            Box2d.get(it).body.position.dst(body.position) < gameSettings.BlobDetectionRadius * 1.5f
+                        }.randomOrNull()
                     if (potentialTarget != null) {
                         stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
                         stateComponent.state = TargetState.NeedsSteering
@@ -209,7 +224,8 @@ object BlobActions {
                 }
 
                 TargetState.IsSteering -> {
-                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
+
+                    if (stateComponent.timer > 0f && stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
                         val position = Box2d.get(entity).body.position
                         val targetPosition = Box2d.get(stateComponent.target!!).body.position
                         val distance = position.dst(targetPosition)
@@ -223,6 +239,8 @@ object BlobActions {
 //                            stateComponent.previousDistance = distance
                         }
                     } else {
+                        if(stateComponent.timer < 0f)
+                            info { "Ran out of time, trying something new" }
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
@@ -248,5 +266,5 @@ object BlobActions {
             }
         }
     }
-    val allActions = listOf(splitInTwo, wander, searchForAndArriveAtFood)
+    val allActions = listOf(splitInTwo, searchForAndArriveAtFood)
 }

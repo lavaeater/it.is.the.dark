@@ -16,7 +16,6 @@ class BlobHealthDiminishingSystem(private val gameSettings: GameSettings): Inter
     override fun processEntity(entity: Entity) {
         val props = PropsAndStuff.get(entity)
         props.getHealth().current -= gameSettings.BlobHealthReductionPerSecond
-        info { "Current Health: ${props.getHealth().current}" }
     }
 
 }
