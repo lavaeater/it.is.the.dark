@@ -3,12 +3,15 @@ package dark.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import dark.ai.getArriveAtFoodSteering
-import dark.ecs.components.*
+import dark.ecs.components.Blob
+import dark.ecs.components.BlobMessage
+import dark.ecs.components.StackAiComponent
+import dark.ecs.components.StackedAiAction
 import eater.ai.steering.box2d.Box2dSteering
 import ktx.ashley.allOf
 
 
-class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComponent::class, Box2dSteering::class).get()) {
+class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, Box2dSteering::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val blob = Blob.get(entity)
         if (blob.messageQueue.any()) {
@@ -28,15 +31,7 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComp
              */
             when (val message = blob.messageQueue.removeFirst()) {
                 is BlobMessage.FoundAFoodTarget -> {
-                    /*
-                    If the top task is "go for food", it will take
-                    a while for the task "check for food" to suddenly show up.
-
-                    These things can be controlled by something, a system or something, who knows?
-                    We simply ALWAYS add a go-for-food-stack-task when we get this message.
-                     */
-                    val aiStack = StackAiComponent.get(entity)
-                    aiStack.actionStack.addFirst(moveTowardsFoodAction(entity, Box2dSteering.get(entity), message.target))
+                    
                 }
                 is BlobMessage.TakeSomeOfMyHealth -> {
 
@@ -82,10 +77,3 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComp
     }
 }
 
-sealed class StackFoodState {
-    object NeedsSteering: StackFoodState()
-    object InTransit: StackFoodState()
-    object Eating: StackFoodState()
-    object Done: StackFoodState()
-    object Paused: StackFoodState()
-}
