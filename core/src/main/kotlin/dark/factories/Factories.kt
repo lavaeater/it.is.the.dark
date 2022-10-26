@@ -10,6 +10,7 @@ import dark.ai.HumanActions
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
+import dark.ecs.systems.BlobGrouper
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteering
@@ -84,7 +85,7 @@ fun createSomeHumans() {
     if (mapEntity != null) {
         val map = Map.get(mapEntity)
         for (i in 0..10) {
-            createRegularHuman(map.validPoints.random(), follow = i == 0)
+            createRegularHuman(map.validPoints.random(), follow = false)
         }
     }
 }
@@ -128,7 +129,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
 }
 
 fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = inject(), follow: Boolean = false) {
-    engine().entity {
+    BlobGrouper.addNewBlob(engine().entity {
         with<Blob>()
         with<PropsAndStuff> {
             props.add(Prop.FloatProp.Health(health))
@@ -136,8 +137,10 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<AiComponent> {
             actions.addAll(BlobActions.allActions)
         }
-        if (follow)
+        if (follow) {
             with<CameraFollow>()
+            with<LogComponent>()
+        }
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity
@@ -170,7 +173,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             maxAngularSpeed = 10f
             boundingRadius = 5f
         }
-    }
+    })
 }
 
 fun createMap(key: String): List<Vector2> {

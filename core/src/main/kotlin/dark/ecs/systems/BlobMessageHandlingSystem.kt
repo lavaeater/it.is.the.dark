@@ -3,15 +3,14 @@ package dark.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import dark.ai.getArriveAtFoodSteering
-import dark.ecs.components.Blob
-import dark.ecs.components.BlobMessage
-import dark.ecs.components.StackAiComponent
-import dark.ecs.components.StackedAiAction
+import dark.ecs.components.*
+import dark.ecs.components.Target
+import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteering
 import ktx.ashley.allOf
 
 
-class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, Box2dSteering::class).get()) {
+class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, StackAiComponent::class, Box2dSteering::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val blob = Blob.get(entity)
         if (blob.messageQueue.any()) {
@@ -31,10 +30,18 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, Box2dSteeri
              */
             when (val message = blob.messageQueue.removeFirst()) {
                 is BlobMessage.FoundAFoodTarget -> {
-                    
+                    if(Target.ArriveAtFoodTarget.has(entity)) {
+                        val tc = Target.ArriveAtFoodTarget.get(entity)
+                        if(tc.target != null && Food.has(tc.target!!)) {
+                            val currentTarget = Food.get(tc.target!!)
+                            if(currentTarget.foodEnergy < message.energy) {
+                                tc.target = message.target
+                            }
+                        }
+                    }
                 }
                 is BlobMessage.TakeSomeOfMyHealth -> {
-
+                    PropsAndStuff.get(entity).getHealth().current += message.healthToAdd
                 }
             }
         }
@@ -62,6 +69,10 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, Box2dSteeri
                     StackFoodState.Paused -> {
                         false
                     }
+
+                    else -> {
+                        true
+                    }
                 }
             }
 
@@ -76,4 +87,3 @@ class BlobMessageHandlingSystem : IteratingSystem(allOf(Blob::class, Box2dSteeri
         }
     }
 }
-

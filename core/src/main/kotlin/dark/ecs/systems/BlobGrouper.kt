@@ -13,6 +13,21 @@ object BlobGrouper {
     fun getRandomNumber(): Float {
         return (3..10).random() / 10f
     }
+
+    val allBlobs = mutableSetOf<Entity>()
+    fun addNewBlob(blob: Entity) {
+        allBlobs.add(blob)
+    }
+    fun removeBlob(blob:Entity) {
+        allBlobs.remove(blob)
+    }
+
+    val blobCount get() = allBlobs.count()
+    val canSplit: Boolean
+        get() {
+            return blobCount < 200
+        }
+
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {
         val newGroupId = blobGroupIds
         blobGroups[newGroupId] = mutableSetOf()
@@ -99,10 +114,7 @@ object BlobGrouper {
             field++
             return id
         }
-    val canSplit: Boolean
-        get() {
-            return blobGroups.values.sumOf { it.count() } < 500
-        }
+
     val blobGroups = mutableMapOf<Int, MutableSet<Entity>>()
     val groupColors = mutableMapOf<Int, Color>()
 
