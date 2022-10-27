@@ -6,12 +6,13 @@ import dark.core.GameSettings
 import dark.ecs.components.Blob
 import dark.ecs.components.BlobMessage
 import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.Remove
 import ktx.ashley.allOf
 
 class BlobNeighbourSystem(private val gameSettings: GameSettings) :
-    IntervalIteratingSystem(allOf(Blob::class, Box2d::class).get(), 0.015f) {
+    IntervalIteratingSystem(allOf(Blob::class, Box2d::class).exclude(Remove::class.java).get(), 0.015f) {
 
-    private val blobFam = allOf(Blob::class, Box2d::class).get()
+    private val blobFam = allOf(Blob::class, Box2d::class).exclude(Remove::class.java).get()
     private val allBlobs get() = engine.getEntitiesFor(blobFam)
 
     val toRemoveList = mutableListOf<Int>()

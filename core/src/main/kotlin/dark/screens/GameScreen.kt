@@ -49,7 +49,7 @@ class GameScreen(
             createLight()
 
         for(i in 0..0)
-            createBlob(validPoints.random(), (2..6).random() * 10f, follow = true)
+            createBlob(validPoints.random(), (12..16).random() * 10f, follow = true)
 
     }
 }
