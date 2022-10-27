@@ -6,7 +6,6 @@ import dark.core.GameSettings
 import dark.ecs.components.Blob
 import dark.ecs.components.PropsAndStuff
 import ktx.ashley.allOf
-import ktx.log.info
 
 class BlobHealthDiminishingSystem(private val gameSettings: GameSettings): IntervalIteratingSystem(
     allOf(

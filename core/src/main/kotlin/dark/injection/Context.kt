@@ -72,6 +72,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
+            addSystem(BlobDeathSystem())
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())

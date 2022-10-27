@@ -128,17 +128,17 @@ object BlobActions {
         override fun scoreFunction(entity: Entity): Float {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
-            return if (BlobGrouper.canSplit)
+            val s = if (BlobGrouper.canSplit)
                 health.current / health.max * .5f
             else
                 0f
+            return s
         }
 
         override fun abort(entity: Entity) {
         }
 
         override fun act(entity: Entity, deltaTime: Float) {
-            entity.log("We are splitting UP")
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
             val remainingHealthForNewBlog = health.current / 2f
@@ -156,10 +156,12 @@ object BlobActions {
             return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null && Food.has(
                     Target.ArriveAtFoodTarget.get(entity).target!!
                 ) && Food.get(Target.ArriveAtFoodTarget.get(entity).target!!).foodEnergy > 5f
-            )
+            ) {
                 1f
-            else
+            }
+            else {
                 1f - health.normalizedValue
+            }
         }
 
         override fun abortFunction(entity: Entity) {

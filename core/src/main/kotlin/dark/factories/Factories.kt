@@ -123,7 +123,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
             boundingRadius = 5f
             steeringBehavior = null
         }
-        with<AiComponent>{
+        with<AiComponent> {
             actions.addAll(HumanActions.actions)
         }
     }
@@ -143,9 +143,10 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             with<LogComponent> {
                 logFunction = { entity ->
                     val aiComponent = AiComponent.get(entity)
+                    info { "We ${if (BlobGrouper.canSplit) "can" else "cannot"} split" }
+                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
                     info { "Top action: ${aiComponent.topAction(entity)?.name}" }
                     info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
-                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
                 }
             }
         }
