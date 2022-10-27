@@ -12,7 +12,7 @@ class Blob: Component, Pool.Poolable {
     var blobGroup = -1
     var color = Color.GREEN
     val messageQueue = Queue<BlobMessage>()
-    val neighbours = mutableSetOf<Entity>()
+    val neighbours = mutableListOf<Entity>()
     override fun reset() {
         neighbours.clear()
         messageQueue.clear()

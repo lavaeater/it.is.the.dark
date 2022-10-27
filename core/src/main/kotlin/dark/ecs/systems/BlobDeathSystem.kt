@@ -16,6 +16,7 @@ class BlobDeathSystem: IteratingSystem(allOf(Blob::class, PropsAndStuff::class).
             val health = PropsAndStuff.get(entity).getHealth()
             if(health.current <= 0f) {
                 entity.addComponent<Remove>()
+                BlobGrouper.removeBlob(entity)
             }
         }
 

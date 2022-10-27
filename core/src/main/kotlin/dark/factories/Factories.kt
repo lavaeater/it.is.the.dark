@@ -1,11 +1,9 @@
-import com.badlogic.gdx.ai.steer.behaviors.*
-import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
-import dark.ai.BlobGroupProximity
+import dark.ai.NeighbourProximity
 import dark.ai.HumanActions
 import dark.core.GameSettings
 import dark.ecs.components.*
@@ -173,7 +171,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         }
         with<Box2dSteering> {
             //val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
-            val blobGroupProximity = BlobGroupProximity(this@entity.entity)
+            val blobGroupProximity = NeighbourProximity(this@entity.entity)
             isIndependentFacing = false
             body = b2Body
             maxLinearSpeed = 10f

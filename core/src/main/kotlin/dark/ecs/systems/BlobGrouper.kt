@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import dark.ecs.components.Blob
 import dark.ecs.components.BlobMessage
 import eater.ecs.ashley.components.Box2d
+import ktx.log.info
 import ktx.math.div
 import ktx.math.vec2
 
@@ -14,18 +15,20 @@ object BlobGrouper {
         return (3..10).random() / 10f
     }
 
-    val allBlobs = mutableSetOf<Entity>()
+    val allBlobs = mutableListOf<Entity>()
     fun addNewBlob(blob: Entity) {
         allBlobs.add(blob)
+        info { "Added a blob: $blobCount blobbing" }
     }
     fun removeBlob(blob:Entity) {
         allBlobs.remove(blob)
+        info { "Removed a blob: $blobCount remain" }
     }
 
     val blobCount get() = allBlobs.count()
     val canSplit: Boolean
         get() {
-            return blobCount < 200
+            return blobCount < 500
         }
 
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {

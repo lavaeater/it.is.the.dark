@@ -27,7 +27,6 @@ import eater.ecs.ashley.components.Remove
 import eater.injection.InjectionContext.Companion.inject
 import eater.physics.addComponent
 import ktx.ashley.allOf
-import ktx.log.info
 import ktx.math.plus
 
 fun acceptOnlyBlobs(steerable: Steerable<Vector2>): Boolean {
@@ -37,8 +36,7 @@ fun acceptOnlyBlobs(steerable: Steerable<Vector2>): Boolean {
 }
 
 fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavior<Vector2> {
-    val box2dProximity =
-        Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f, ::acceptOnlyBlobs)
+    val neighbourGroupProximity = NeighbourProximity(entity)
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
             add(
@@ -50,13 +48,13 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
                 },
                 3f
             )
-            add(Separation(owner, box2dProximity).apply {
+            add(Separation(owner, neighbourGroupProximity).apply {
 
             }, 2f)
-            add(Cohesion(owner, box2dProximity).apply {
+            add(Cohesion(owner, neighbourGroupProximity).apply {
 
             }, 1f)
-            add(Alignment(owner, box2dProximity).apply {
+            add(Alignment(owner, neighbourGroupProximity).apply {
 
             }, 1f)
         })
@@ -70,8 +68,8 @@ fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavi
 }
 
 fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
-    val box2dProximity =
-        Box2dRadiusProximity(owner, world(), inject<GameSettings>().BlobDetectionRadius * 1.5f, ::acceptOnlyBlobs)
+    val box2dProximity = NeighbourProximity(entity)
+
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
             add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
