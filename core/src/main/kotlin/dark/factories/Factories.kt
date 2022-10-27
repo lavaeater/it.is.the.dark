@@ -141,10 +141,11 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         if (follow) {
             with<CameraFollow>()
             with<LogComponent> {
-                logFunction = {
-                    val aiComponent = AiComponent.get(it)
+                logFunction = { entity ->
+                    val aiComponent = AiComponent.get(entity)
+                    info { "Top action: ${aiComponent.topAction(entity)?.name}" }
                     info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
-                    info { "Health: ${PropsAndStuff.get(it).getHealth().current}" }
+                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
                 }
             }
         }
