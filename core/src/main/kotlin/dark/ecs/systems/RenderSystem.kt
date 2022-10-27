@@ -129,7 +129,7 @@ class RenderSystem(
                     1f,
                     Color(0f, health.normalizedValue, 0.5f, 1f)
                 )
-                if(gameSettings.Debug) {
+                if(gameSettings.Debug && LogComponent.has(lonelyBlob)) {
                     shapeDrawer.setColor(Color.GREEN)
                     shapeDrawer.circle(blobPosition.x, blobPosition.y, gameSettings.BlobDetectionRadius)
                     shapeDrawer.setColor(Color.RED)
