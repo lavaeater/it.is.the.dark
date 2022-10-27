@@ -8,10 +8,14 @@ import eater.ai.ashley.AiComponent
 import ktx.ashley.allOf
 import ktx.log.info
 
-class LogSystem: IntervalIteratingSystem(allOf(LogComponent::class, AiComponent::class).get(), 5f) {
+fun Entity.log(message: String) {
+    if(LogComponent.has(this)) {
+        info { message }
+    }
+}
+
+class LogSystem: IntervalIteratingSystem(allOf(LogComponent::class).get(), 5f) {
     override fun processEntity(entity: Entity) {
-        val aiComponent = AiComponent.get(entity)
-        info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
-        info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
+        LogComponent.get(entity).logFunction(entity)
     }
 }

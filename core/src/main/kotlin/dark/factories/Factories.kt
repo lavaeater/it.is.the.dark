@@ -26,6 +26,7 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.log.info
 import ktx.math.vec2
 
 fun createLight() {
@@ -139,7 +140,13 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         }
         if (follow) {
             with<CameraFollow>()
-            with<LogComponent>()
+            with<LogComponent> {
+                logFunction = {
+                    val aiComponent = AiComponent.get(it)
+                    info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
+                    info { "Health: ${PropsAndStuff.get(it).getHealth().current}" }
+                }
+            }
         }
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody

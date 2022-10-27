@@ -6,8 +6,9 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class LogComponent: Component, Pool.Poolable {
+    var logFunction: (Entity) ->Unit = {}
     override fun reset() {
-
+        logFunction = {}
     }
 
     companion object {

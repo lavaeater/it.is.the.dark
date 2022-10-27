@@ -12,6 +12,7 @@ import dark.ecs.components.*
 import dark.ecs.components.Food
 import dark.ecs.components.Target
 import dark.ecs.systems.BlobGrouper
+import dark.ecs.systems.log
 import dark.ecs.systems.sendMessageTo
 import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.ashley.AlsoGenericAction
@@ -80,8 +81,7 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 
             }, 1f)
             add(Separation(owner, box2dProximity).apply {
-                decayCoefficient = 10f
-            }, 4f)
+            }, 1.5f)
         })
         add(
             RaycastObstacleAvoidance(
@@ -138,7 +138,7 @@ object BlobActions {
         }
 
         override fun act(entity: Entity, deltaTime: Float) {
-            info { "We are splitting UP" }
+            entity.log("We are splitting UP")
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
             val remainingHealthForNewBlog = health.current / 2f
@@ -226,18 +226,12 @@ object BlobActions {
                         val position = Box2d.get(entity).body.position
                         val targetPosition = Box2d.get(stateComponent.target!!).body.position
                         val distance = position.dst(targetPosition)
-//                        val progress = stateComponent.previousDistance - distance
                         if (distance < 2.5f) {
                             stateComponent.state = TargetState.ArrivedAtTarget
-//                        } else if (progress > 0f && progress < 0.001f) {
-//                            info { "No progress, abandon" }
-//                            stateComponent.state = TargetState.IsDoneWithTarget
-//                        } else {
-//                            stateComponent.previousDistance = distance
                         }
                     } else {
                         if (stateComponent.timer < 0f)
-                            info { "Ran out of time, trying something new" }
+                            entity.log("Ran out of time, try something else")
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
