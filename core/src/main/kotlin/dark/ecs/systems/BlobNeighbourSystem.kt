@@ -24,13 +24,22 @@ class BlobNeighbourSystem(private val gameSettings: GameSettings) :
     override fun processEntity(entity: Entity) {
         val blob = Blob.get(entity)
         val position = Box2d.get(entity).body.position
-        val distantNeighbours = blob.neighbours.filter { Box2d.get(it).body.position.dst(position) > gameSettings.BlobForgettingRadius }
+        val distantNeighbours = getDistantNeighbours(blob, position)
         blob.neighbours.removeAll(distantNeighbours)
 
-        val closeBlobs = allBlobs.filter { it.first.dst(position) < gameSettings.BlobDetectionRadius }.map { it.second }
+        val closeBlobs = getCloseBlobs(position)
 
         blob.neighbours.addAll(closeBlobs)
     }
+
+    private fun getCloseBlobs(position: Vector2?) =
+        allBlobs.filter { it.first.dst2(position) < (gameSettings.BlobDetectionRadius * gameSettings.BlobDetectionRadius) }
+
+    private fun getDistantNeighbours(
+        blob: Blob,
+        position: Vector2?
+    ) =
+        blob.neighbours.filter { it.first.dst2(position) > gameSettings.BlobForgettingRadius * gameSettings.BlobForgettingRadius }
 }
 
 fun Set<Entity>.sendMessageTo(message: BlobMessage) {

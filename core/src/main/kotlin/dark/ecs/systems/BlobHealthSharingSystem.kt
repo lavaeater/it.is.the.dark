@@ -15,7 +15,7 @@ class BlobHealthSharingSystem : IteratingSystem(allOf(Blob::class).get()) {
             if (health.current > health.max) {
                 val healthToShare = health.current - health.max
                 health.current -= healthToShare
-                blob.neighbours.sendMessageTo(
+                blob.neighbours.map { it.second }.sendMessageTo(
                     BlobMessage.TakeSomeOfMyHealth(
                         healthToShare / blob.neighbours.count(),
                         entity

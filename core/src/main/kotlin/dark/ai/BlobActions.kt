@@ -205,7 +205,7 @@ object BlobActions {
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
                         val blob = Blob.get(entity)
-                        blob.neighbours.sendMessageTo(
+                        blob.neighbours.map { it.second }.sendMessageTo(
                             BlobMessage.FoundAFoodTarget(
                                 potentialTarget,
                                 Food.get(potentialTarget).foodEnergy,

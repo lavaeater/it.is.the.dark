@@ -28,7 +28,7 @@ object BlobGrouper {
     val blobCount get() = allBlobs.count()
     val canSplit: Boolean
         get() {
-            return blobCount < 500
+            return blobCount < 100
         }
 
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {
