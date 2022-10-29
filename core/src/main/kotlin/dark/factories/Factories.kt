@@ -152,6 +152,13 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
             maxForce = 1000f
         }
         with<KeyboardAndMouseInput>()
+        with<Flashlight> {
+            light = HackLight(inject<Assets>().lights[3],1f,1f,1f,1f).apply {
+                setOriginCenter()
+                setOrigin(originX, 0f)
+            }
+            inject<HackLightEngine>().addLight(light)
+        }
         with<Box2d> {
             body = world().body {
                 type = BodyDef.BodyType.DynamicBody
