@@ -25,6 +25,8 @@ import ktx.ashley.allOf
 import ktx.ashley.exclude
 import ktx.assets.toInternalFile
 import ktx.graphics.use
+import ktx.math.plus
+import ktx.math.times
 import ktx.math.vec2
 import ktx.math.vec3
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -121,6 +123,10 @@ class RenderSystem(
                     t.regionWidth.toFloat(),
                     t.regionHeight.toFloat()
                 )
+                if(BodyControl.has(human)) {
+                    val bc = BodyControl.get(human)
+                    shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
+                }
             }
         }
 
