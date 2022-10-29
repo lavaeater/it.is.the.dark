@@ -9,11 +9,11 @@ import ktx.assets.DisposableRegistry
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 
-fun assets() : Assets {
+fun assets(): Assets {
     return inject()
 }
 
-class Assets: DisposableRegistry by DisposableContainer() {
+class Assets : DisposableRegistry by DisposableContainer() {
     val buddy: Map<AnimDef, Animation<TextureRegion>> by lazy {
         val texture = Texture("player/buddy.png".toInternalFile()).alsoRegister()
         AnimDef.animDefs.associateWith { ad ->
@@ -23,6 +23,10 @@ class Assets: DisposableRegistry by DisposableContainer() {
         }
     }
 
+    private val lightTexture = Texture("lights/light-textures.png".toInternalFile())
+    val lights = Array(6) { i ->
+        TextureRegion(lightTexture, (128 * (i / 3)), 128 * i % 3, 128, 128)
+    }
 
     private val mapOne = Texture("maps/level-1/simplified/Level_0/_composite.png".toInternalFile())
     private val mapOneIntLayer = "maps/level-1/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
