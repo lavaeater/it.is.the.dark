@@ -19,6 +19,7 @@ class Blob: Component, Pool.Poolable {
     val neighbours = mutableMapOf<Entity, Vector2>()
 
     fun sendMessageToNeighbours(message: BlobMessage) {
+        neighbours.filter { !has(it.key) }.forEach { neighbours.remove(it.key) }
         neighbours.forEach { get(it.key).receiveMessage(message) }
     }
 
