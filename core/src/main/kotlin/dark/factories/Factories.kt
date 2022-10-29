@@ -140,6 +140,12 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
     }
 }
 
+fun createPlayer() {
+    engine().entity {
+
+    }
+}
+
 fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = inject(), follow: Boolean = false) {
     BlobGrouper.addNewBlob(engine().entity {
         with<Blob>()
