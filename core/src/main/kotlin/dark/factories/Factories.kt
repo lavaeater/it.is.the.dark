@@ -16,6 +16,7 @@ import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
+import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.ashley.entity
@@ -48,6 +49,7 @@ fun createLight() {
                     }
                 }
             }
+            with<TransformComponent>()
         }
     }
 }
@@ -73,6 +75,7 @@ fun createFood() {
                     }
                 }
             }
+            with<TransformComponent>()
         }
     }
 }
@@ -111,6 +114,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
         with<Box2d> {
             body = b2Body
         }
+        with<TransformComponent>()
         with<Box2dSteering> {
             isIndependentFacing = false
             body = b2Body
@@ -145,6 +149,10 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
                     info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
                     info { "Top action: ${aiComponent.topAction(entity)?.name}" }
                     info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
+                    info { "Messages: ${Blob.get(entity).messageCount}" }
+                    info { "Blob count: ${BlobGrouper.blobCount}" }
+                    info { "Top Message: ${Blob.get(entity).peekOldestMessage()}" }
+                    info { "Neighbours: ${Blob.get(entity).neighbours.size}" }
                 }
             }
         }
@@ -169,6 +177,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         with<Box2d> {
             body = b2Body
         }
+        with<TransformComponent>()
         with<Box2dSteering> {
             //val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
             val blobGroupProximity = NeighbourProximity(this@entity.entity)

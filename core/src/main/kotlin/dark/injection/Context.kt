@@ -63,6 +63,7 @@ object Context : InjectionContext() {
                     inject(),
                     inject(),
                     inject(),
+                    inject(),
                     inject()
                 )
             )
@@ -80,10 +81,11 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
-            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 250) { createFood() }))
+            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 500) { createFood() }))
             addSystem(BlobHealthSharingSystem())
             addSystem(BlobHealthDiminishingSystem(inject()))
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
+//            addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(BlobMessageHandlingSystem())
             addSystem(BlobNeighbourSystem(inject()))
             addSystem(LogSystem())

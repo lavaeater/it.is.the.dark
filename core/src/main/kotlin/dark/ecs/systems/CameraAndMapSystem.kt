@@ -8,7 +8,7 @@ import dark.core.GameSettings
 import eater.ecs.ashley.systems.CameraFollowSystem
 import ktx.ashley.allOf
 import dark.ecs.components.Map
-import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import ktx.math.vec3
 
@@ -25,13 +25,13 @@ class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val e
             val map = Map.get(mapEntity!!)
             camera.position.set(map.mapBounds.getCenter(cameraPosition), 0f)
             extendViewport.minWorldWidth =
-                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * 1.5f else extendViewport.minWorldHeight / gameSettings.AspectRatio
+                if (map.mapBounds.width > map.mapBounds.height) map.mapBounds.width * 1.25f else extendViewport.minWorldHeight / gameSettings.AspectRatio
             extendViewport.minWorldHeight =
-                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * 1.5f else extendViewport.minWorldWidth / gameSettings.AspectRatio
+                if (map.mapBounds.height > map.mapBounds.width) map.mapBounds.height * 1.25f else extendViewport.minWorldWidth / gameSettings.AspectRatio
             extendViewport.update(Gdx.graphics.width, Gdx.graphics.height)
         } else {
-            val body = Box2d.get(entity).body
-            cameraPosition.set(body.position)
+            val position = TransformComponent.get(entity).position
+            cameraPosition.set(position)
         }
 
         camera.position.lerp(

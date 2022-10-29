@@ -23,8 +23,12 @@ class NeighbourProximity(
 
     override fun findNeighbors(behaviorCallback: Proximity.ProximityCallback<Vector2>): Int {
         val ownerBlob = Blob.get(ownerEntity)
+        var count = 0
         for (blobEntity in ownerBlob.neighbours) {
-            behaviorCallback.reportNeighbor(Box2dSteering.get(blobEntity.second))
+            if(Box2dSteering.has(blobEntity.key)) {
+                behaviorCallback.reportNeighbor(Box2dSteering.get(blobEntity.key))
+                count++
+            }
         }
         return ownerBlob.neighbours.count()
     }

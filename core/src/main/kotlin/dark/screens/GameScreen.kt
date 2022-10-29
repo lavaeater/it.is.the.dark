@@ -10,6 +10,8 @@ import createLight
 import createMap
 import createSomeHumans
 import dark.core.DarkGame
+import dark.core.GameSettings
+import dark.ecs.systems.BlobGrouper
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.math.vec2
@@ -19,7 +21,8 @@ class GameScreen(
     private val engine: Engine,
     private val viewPort: ExtendViewport,
     private val batch: PolygonSpriteBatch,
-    private val camera: OrthographicCamera): KtxScreen, KtxInputAdapter {
+    private val camera: OrthographicCamera,
+private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
     override fun hide() {
         super.hide()
     }
@@ -43,13 +46,14 @@ class GameScreen(
 
     override fun show() {
         val validPoints = createMap("two")
+        BlobGrouper.blobPoints = validPoints
         createFood()
         //createSomeHumans()
         for(i in 0..25)
             createLight()
 
-        for(i in 0..25)
-            createBlob(validPoints.random(), (12..16).random() * 10f, follow = i == 0)
+        for(i in 0..gameSettings.MaxBlobs / 100)
+            createBlob(validPoints.random(), (5..16).random() * 10f, follow = i == 0)
 
     }
 }

@@ -13,17 +13,16 @@ import dark.ecs.components.Food
 import dark.ecs.components.Target
 import dark.ecs.systems.BlobGrouper
 import dark.ecs.systems.log
-import dark.ecs.systems.sendMessageTo
 import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.ashley.AlsoGenericAction
 import eater.ai.steering.box2d.Box2dLocation
-import eater.ai.steering.box2d.Box2dRadiusProximity
 import eater.ai.steering.box2d.Box2dRaycastCollisionDetector
 import eater.ai.steering.box2d.Box2dSteering
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.Remove
+import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import eater.physics.addComponent
 import ktx.ashley.allOf
@@ -72,7 +71,7 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 
     return PrioritySteering(owner).apply {
         add(BlendedSteering(owner).apply {
-            add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
+            add(Arrive(owner, Box2dLocation(TransformComponent.get(target).position)).apply {
                 arrivalTolerance = 2.5f
             }, 2f)
             add(Cohesion(owner, box2dProximity).apply {
@@ -142,7 +141,7 @@ object BlobActions {
             val remainingHealthForNewBlog = health.current / 2f
             health.current = remainingHealthForNewBlog
             val direction = Vector2.X.cpy().rotateDeg((0..359).random().toFloat())
-            val at = Box2d.get(entity).body.position + direction.scl(5f)
+            val at = TransformComponent.get(entity).position + direction.scl(5f)
             createBlob(at, remainingHealthForNewBlog)
         }
     }
@@ -195,17 +194,17 @@ object BlobActions {
 
                 TargetState.NeedsTarget -> {
                     val health = PropsAndStuff.get(entity).getHealth()
-                    val body = Box2d.get(entity).body
+                    val position = TransformComponent.get(entity).position
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
                         .filter {
-                            Box2d.get(it).body.position.dst(body.position) < health.detectionRadius
+                            TransformComponent.get(it).position.dst(position) < health.detectionRadius
                         }.randomOrNull()
                     if (potentialTarget != null) {
-                        stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
+                        stateComponent.previousDistance = TransformComponent.get(potentialTarget).position.dst(position)
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
                         val blob = Blob.get(entity)
-                        blob.neighbours.map { it.second }.sendMessageTo(
+                        blob.sendMessageToNeighbours(
                             BlobMessage.FoundAFoodTarget(
                                 potentialTarget,
                                 Food.get(potentialTarget).foodEnergy,
@@ -223,8 +222,8 @@ object BlobActions {
                 TargetState.IsSteering -> {
 
                     if (stateComponent.timer > 0f && stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
-                        val position = Box2d.get(entity).body.position
-                        val targetPosition = Box2d.get(stateComponent.target!!).body.position
+                        val position = TransformComponent.get(entity).position
+                        val targetPosition = TransformComponent.get(stateComponent.target!!).position
                         val distance = position.dst(targetPosition)
                         if (distance < 2.5f) {
                             stateComponent.state = TargetState.ArrivedAtTarget

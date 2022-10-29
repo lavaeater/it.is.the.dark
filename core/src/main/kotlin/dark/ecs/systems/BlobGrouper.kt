@@ -3,9 +3,11 @@ package dark.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
+import dark.core.GameSettings
 import dark.ecs.components.Blob
 import dark.ecs.components.BlobMessage
 import eater.ecs.ashley.components.Box2d
+import eater.injection.InjectionContext.Companion.inject
 import ktx.log.info
 import ktx.math.div
 import ktx.math.vec2
@@ -15,20 +17,20 @@ object BlobGrouper {
         return (3..10).random() / 10f
     }
 
+    lateinit var blobPoints: List<Vector2>
     val allBlobs = mutableListOf<Entity>()
     fun addNewBlob(blob: Entity) {
         allBlobs.add(blob)
-        info { "Added a blob: $blobCount blobbing" }
     }
     fun removeBlob(blob:Entity) {
         allBlobs.remove(blob)
-        info { "Removed a blob: $blobCount remain" }
     }
 
     val blobCount get() = allBlobs.count()
+    private val maxBlobs = inject<GameSettings>().MaxBlobs
     val canSplit: Boolean
         get() {
-            return blobCount < 100
+            return blobCount < maxBlobs
         }
 
     fun addBlobsToNewGroup(vararg blobs: Entity) : Int {
@@ -46,10 +48,10 @@ object BlobGrouper {
         return newGroupId
     }
 
-    fun getGroupCenter(group: Int): Vector2 {
-        val blobs = getBlobsForGroup(group)
-        return if(blobs.isEmpty()) vec2() else blobs.map { Box2d.get(it).body.position }.reduce { acc, p -> acc.add(p) }.div(blobs.count())
-    }
+//    fun getGroupCenter(group: Int): Vector2 {
+//        val blobs = getBlobsForGroup(group)
+//        return if(blobs.isEmpty()) vec2() else blobs.map { Box2d.get(it).body.position }.reduce { acc, p -> acc.add(p) }.div(blobs.count())
+//    }
 
     fun numberOfBlobsInGroup(group: Int): Int {
         return if (blobGroups.containsKey(group))
@@ -105,7 +107,7 @@ object BlobGrouper {
     fun sendMessageToGroup(group: Int, message: BlobMessage) {
         if (blobGroups.containsKey(group)) {
             for (blob in (getBlobsForGroup(group) - message.sender)) {
-                Blob.get(blob).messageQueue.addLast(message)
+                Blob.get(blob).receiveMessage(message)
             }
         }
     }

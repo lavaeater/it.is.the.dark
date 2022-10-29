@@ -18,12 +18,15 @@ import eater.ai.steering.box2d.Box2dSteering
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.Remove
+import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext
 import ktx.ashley.allOf
+import ktx.ashley.exclude
 
 fun getArriveAtLightSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
     return BlendedSteering(owner).apply {
-        add(Arrive(owner, Box2dLocation(Box2d.get(target).body.position)).apply {
+        add(Arrive(owner, Box2dLocation(TransformComponent.get(target).position)).apply {
             arrivalTolerance = 2.5f
         }, 0.8f)
         add(
@@ -53,11 +56,11 @@ object HumanActions {
     private val arriveAtLight = object :
         AiActionWithStateComponent<Target.GenericTarget>("Move towards the light", Target.GenericTarget::class) {
         override fun scoreFunction(entity: Entity): Float {
-            val position = Box2d.get(entity).body.position
+            val position = TransformComponent.get(entity).position
             return if (Target.GenericTarget.has(entity))
                 0.8f
             else if (engine().getEntitiesFor(lightFamily)
-                    .any { Box2d.get(it).body.position.dst(position) < gameSettings.HumanLightDetectionRadius }
+                    .any { TransformComponent.get(it).position.dst(position) < gameSettings.HumanLightDetectionRadius }
             )
                 0.8f
             else 0.0f
@@ -66,7 +69,7 @@ object HumanActions {
         override fun abortFunction(entity: Entity) {
         }
 
-        val lightFamily = allOf(Light::class, Box2d::class).get()
+        val lightFamily = allOf(Light::class, TransformComponent::class).exclude(Remove::class).get()
         val gameSettings by lazy { InjectionContext.inject<GameSettings>() }
 
 
@@ -94,13 +97,13 @@ object HumanActions {
                 }
 
                 TargetState.NeedsTarget -> {
-                    val body = Box2d.get(entity).body
+                    val position = TransformComponent.get(entity).position
                     val potentialTarget = engine().getEntitiesFor(lightFamily)
                         .minByOrNull {
-                            Box2d.get(it).body.position.dst(body.position)
+                            TransformComponent.get(it).position.dst(position)
                         }
-                    if (potentialTarget != null && Box2d.get(potentialTarget).body.position.dst(body.position) < gameSettings.HumanLightDetectionRadius) {
-                        stateComponent.previousDistance = Box2d.get(potentialTarget).body.position.dst(body.position)
+                    if (potentialTarget != null && TransformComponent.get(potentialTarget).position.dst(position) < gameSettings.HumanLightDetectionRadius) {
+                        stateComponent.previousDistance = TransformComponent.get(potentialTarget).position.dst(position)
                         stateComponent.state = TargetState.NeedsSteering
                         stateComponent.target = potentialTarget
                     } else {
@@ -113,8 +116,8 @@ object HumanActions {
                     Bah, check distance manually
                      */
                     if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
-                        val position = Box2d.get(entity).body.position
-                        val targetPosition = Box2d.get(stateComponent.target!!).body.position
+                        val position = TransformComponent.get(entity).position
+                        val targetPosition = TransformComponent.get(stateComponent.target!!).position
                         val distance = position.dst(targetPosition)
                         if (distance < 2.5f) {
                             stateComponent.state = TargetState.ArrivedAtTarget

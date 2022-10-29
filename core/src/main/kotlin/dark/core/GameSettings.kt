@@ -3,13 +3,14 @@ package dark.core
 class GameSettings {
 
     val Debug = true
-    val BlobHealthReductionPerSecond = 0.1f
+    val BlobHealthReductionPerSecond = 5f
     val BlobDetectionRadius = 15f
     val BlobForgettingRadius = 20f
+    val MaxBlobs = 1000
 
     val HumanLightDetectionRadius = 50f
 
-    val GameWidth = 64f
+    val GameWidth = 128f
     val AspectRatio = 16f / 9f
     val GameHeight = AspectRatio * GameWidth
     val PixelsPerMeter = 32f

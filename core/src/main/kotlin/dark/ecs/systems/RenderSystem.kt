@@ -17,8 +17,11 @@ import dark.ecs.components.*
 import dark.ecs.components.Map
 import dark.injection.Assets
 import eater.ecs.ashley.components.Box2d
+import eater.ecs.ashley.components.Remove
+import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
+import ktx.ashley.exclude
 import ktx.assets.toInternalFile
 import ktx.graphics.use
 import ktx.math.vec2
@@ -40,8 +43,8 @@ class RenderSystem(
     }
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).first() //Should always be one
-    private val foodFamily = allOf(Food::class, Box2d::class).get()
-    private val allBlobs = allOf(Blob::class).get()
+    private val foodFamily = allOf(Food::class, TransformComponent::class).get()
+    private val allBlobs = allOf(Blob::class, TransformComponent::class).exclude(Remove::class).get()
     private val fbo by lazy {
         FrameBuffer(
             Pixmap.Format.RGBA8888,
@@ -55,11 +58,11 @@ class RenderSystem(
     private val shockParams = vec3(1.0f, 0.2f, 0.1f)
     private var shaderTime = 2f
 
-    private val humanFamily = allOf(Human::class).get()
+    private val humanFamily = allOf(Human::class, TransformComponent::class).exclude(Remove::class).get()
     private val allHumans get() = engine.getEntitiesFor(humanFamily)
     private val assets by lazy { inject<Assets>() }
 
-    private val lightsFamily = allOf(Light::class).get()
+    private val lightsFamily = allOf(Light::class, TransformComponent::class).exclude(Remove::class).get()
     private val lights get() = engine.getEntitiesFor(lightsFamily)
     private val lightColor = Color(1f, 1f, 0f, 0.5f)
 
@@ -81,49 +84,10 @@ class RenderSystem(
                 map.mapOrigin.x,
                 map.mapOrigin.y
             )
-//                       -1 ->
-//                       0 -> -1 * p1.y.compareTo(p2.y)
 
-//            for (blobGroup in BlobGrouper.blobGroups.keys) {
-//                val blobList = BlobGrouper.getBlobsForGroup(blobGroup)
-//                val center = BlobGrouper.getGroupCenter(blobGroup)
-//                val color = BlobGrouper.getGroupColor(blobGroup)
-//
-////                val sortedBlobList = blobList.sortedWith { o1, o2 ->
-////                    val p1 = Box2d.get(o1).body.position
-////                    val p2 = Box2d.get(o2).body.position
-////                    when (p1.x.compareTo(p2.x)) {
-////                        1 -> p1.y.compareTo(p2.y)
-////                        else -> -1 * p1.y.compareTo(p2.y)
-////                    }
-////                }
-//                val sortedBlobList = blobList.sortedBy {
-//                    val pos = Box2d.get(it).body.position
-//                    MathUtils.atan2(center.y - pos.y, center.x - pos.x)
-//                }
-//
-//
-//                for ((index, blobEntity) in sortedBlobList.withIndex()) {
-//                    var nextIndex = index + 1
-//                    if (nextIndex > blobList.lastIndex)
-//                        nextIndex = 0
-//                    val blobBody = Box2d.get(blobEntity).body
-//                    val blob = Blob.get(blobEntity)
-//                    val blobPosition = blobBody.position
-//                    val health = PropsAndStuff.get(blobEntity).getHealth()
-//                    shapeDrawer.filledCircle(
-//                        blobPosition,
-//                        1f,
-//                        color
-//                    )
-//                    shapeDrawer.setColor(color)
-//                    shapeDrawer.line(blobPosition, Box2d.get(sortedBlobList[nextIndex]).body.position)
-//                    shapeDrawer.filledCircle(center, .5f, color)
-//                }
-//            }
             for(lonelyBlob in engine.getEntitiesFor(allBlobs)) {
                 val health = PropsAndStuff.get(lonelyBlob).getHealth()
-                val blobPosition = Box2d.get(lonelyBlob).body.position
+                val blobPosition = TransformComponent.get(lonelyBlob).position
                 shapeDrawer.filledCircle(
                     blobPosition,
                     1f,
@@ -139,7 +103,7 @@ class RenderSystem(
                 }
             }
             val foodRenderStuff = engine.getEntitiesFor(foodFamily)
-                .associate { Box2d.get(it).body.position to MathUtils.norm(100f, 200f, Food.get(it).foodEnergy) }
+                .associate { TransformComponent.get(it).position to MathUtils.norm(100f, 200f, Food.get(it).foodEnergy) }
             for ((position, normalizedEnergy) in foodRenderStuff) {
                 shapeDrawer.filledCircle(
                     position,
@@ -150,7 +114,7 @@ class RenderSystem(
 
             val t = assets.buddy.values.first().keyFrames.first()
             for (human in allHumans) {
-                val position = Box2d.get(human).body.position
+                val position = TransformComponent.get(human).position
                 batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
                 shapeDrawer.rectangle(
                     position.x - t.regionWidth / 2f,
@@ -162,7 +126,7 @@ class RenderSystem(
 
             for(lightEntity in lights) {
                 val light = Light.get(lightEntity)
-                shapeDrawer.filledCircle(Box2d.get(lightEntity).body.position, light.radius, light.color)
+                shapeDrawer.filledCircle(TransformComponent.get(lightEntity).position, light.radius, light.color)
             }
         }
 //        fbo.end()
