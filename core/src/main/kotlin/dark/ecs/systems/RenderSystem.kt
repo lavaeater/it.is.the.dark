@@ -1,5 +1,6 @@
 package dark.ecs.systems
 
+import com.aliasifkhan.hackLights.HackLightEngine
 import dark.ecs.components.Food
 import dark.ecs.components.Light
 import com.badlogic.ashley.core.EntitySystem
@@ -65,12 +66,10 @@ class RenderSystem(
     private val lightsFamily = allOf(Light::class, TransformComponent::class).exclude(Remove::class).get()
     private val lights get() = engine.getEntitiesFor(lightsFamily)
     private val lightColor = Color(1f, 1f, 0f, 0.5f)
+    private val lightsEngine by lazy { inject<HackLightEngine>() }
 
 
     override fun update(deltaTime: Float) {
-        shaderTime - deltaTime
-        if (shaderTime < 0f)
-            shaderTime = 2f
 
         batch.projectionMatrix = camera.combined
         //fbo.begin()
@@ -123,13 +122,17 @@ class RenderSystem(
                     t.regionHeight.toFloat()
                 )
             }
-
-            for(lightEntity in lights) {
-                val light = Light.get(lightEntity)
-                shapeDrawer.filledCircle(TransformComponent.get(lightEntity).position, light.radius, light.color)
-            }
         }
-//        fbo.end()
+
+        lightsEngine.draw(camera.combined)
+        renderShader(deltaTime)
+    }
+
+    private fun renderShader(deltaTime: Float) {
+        shaderTime - deltaTime
+        if (shaderTime < 0f)
+            shaderTime = 2f
+        //        fbo.end()
 //        batch.use {
 //            batch.shader = shaderProgram
 //            /**

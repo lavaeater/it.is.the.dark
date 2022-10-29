@@ -1,3 +1,5 @@
+import com.aliasifkhan.hackLights.HackLight
+import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -9,6 +11,7 @@ import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
 import dark.ecs.systems.BlobGrouper
+import dark.injection.Assets
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteering
@@ -33,13 +36,19 @@ fun createLight() {
     val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
     if (mapEntity != null) {
         val map = Map.get(mapEntity)
+        val lightPos = map.validPoints.random()
         engine().entity {
-            with<Light>()
+            with<Light> {
+                hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
+                    setOriginBasedPosition(lightPos.x, lightPos.y)
+                }
+                inject<HackLightEngine>().addLight(hackLight)
+            }
             with<Box2d> {
                 body = world().body {
                     type = BodyDef.BodyType.DynamicBody
                     userData = this@entity.entity
-                    position.set(map.validPoints.random())
+                    position.set(lightPos)
                     circle(10f) {
                         isSensor = true
                         filter {

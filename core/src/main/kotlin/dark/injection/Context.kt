@@ -1,5 +1,6 @@
 package dark.injection
 
+import com.aliasifkhan.hackLights.HackLightEngine
 import dark.ecs.components.Food
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -57,6 +58,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
+            bindSingleton(HackLightEngine(0.05f,0.05f,0.05f,0.5f))
             bindSingleton(
                 GameScreen(
                     inject(),

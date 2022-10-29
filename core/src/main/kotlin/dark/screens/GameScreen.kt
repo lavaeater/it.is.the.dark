@@ -1,5 +1,6 @@
 package dark.screens
 
+import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -12,6 +13,7 @@ import createSomeHumans
 import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.systems.BlobGrouper
+import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.math.vec2
@@ -38,6 +40,7 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
     override fun resize(width: Int, height: Int) {
         viewPort.update(width, height)
         batch.projectionMatrix = camera.combined
+        inject<HackLightEngine>().update(width, height)
     }
 
     override fun resume() {
