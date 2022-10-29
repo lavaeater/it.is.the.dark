@@ -57,28 +57,8 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
             createLight()
 
         for(i in 0..gameSettings.MaxBlobs / 100)
-            createBlob(validPoints.random(), (5..16).random() * 10f, follow = i == 0)
+            createBlob(validPoints.random(), (5..16).random() * 10f, follow = false)
 
-        createPlayer()
-    }
-
-    override fun keyDown(keycode: Int): Boolean {
-        return super.keyDown(keycode)
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        return super.keyUp(keycode)
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return super.mouseMoved(screenX, screenY)
-    }
-
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return super.touchDown(screenX, screenY, pointer, button)
-    }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return super.touchUp(screenX, screenY, pointer, button)
+        createPlayer(validPoints.random(),follow = true)
     }
 }

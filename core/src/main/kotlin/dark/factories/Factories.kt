@@ -140,8 +140,30 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
     }
 }
 
-fun createPlayer() {
+fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
     engine().entity {
+        with<Human>()
+        with<PropsAndStuff> {
+            props.add(Prop.FloatProp.Health(health))
+        }
+        if (follow)
+            with<CameraFollow>()
+        with<BodyControl>()
+        with<KeyboardAndMouseInput>()
+        with<Box2d> {
+            body = world().body {
+                type = BodyDef.BodyType.DynamicBody
+                userData = this@entity.entity
+                position.set(at)
+                circle(1.0f) {
+                    filter {
+                        categoryBits = Categories.human
+                        maskBits = Categories.whatHumansCollideWith
+                    }
+                }
+            }
+        }
+        with<TransformComponent>()
 
     }
 }

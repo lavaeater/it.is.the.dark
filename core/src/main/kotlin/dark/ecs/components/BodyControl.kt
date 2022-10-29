@@ -8,11 +8,15 @@ import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class BodyControl: Component, Pool.Poolable {
-    val direction = vec2()
+    val moveDirection = vec2()
+    val aimDirection = vec2()
     var maxForce = 100f
+    var currentForce = 0f
     override fun reset() {
-        direction.set(Vector2.Zero)
+        moveDirection.set(Vector2.Zero)
+        aimDirection.set(Vector2.Zero)
         maxForce = 100f
+        currentForce = 0f
     }
 
     companion object {

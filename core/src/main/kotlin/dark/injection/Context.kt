@@ -79,6 +79,7 @@ object Context : InjectionContext() {
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
+            addSystem(KeyboardInputSystem(inject()))
             addSystem(SteerSystem())
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
