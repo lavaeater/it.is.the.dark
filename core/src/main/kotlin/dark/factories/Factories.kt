@@ -148,7 +148,9 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
         }
         if (follow)
             with<CameraFollow>()
-        with<BodyControl>()
+        with<BodyControl> {
+            maxForce = 1000f
+        }
         with<KeyboardAndMouseInput>()
         with<Box2d> {
             body = world().body {
