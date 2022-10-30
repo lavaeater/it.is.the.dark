@@ -94,29 +94,29 @@ class RenderSystem(
         for (human in allHumans) {
             val position = TransformComponent.get(human).position
             batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
-            shapeDrawer.rectangle(
-                position.x - t.regionWidth / 2f,
-                position.y - t.regionHeight / 2f,
-                t.regionWidth.toFloat(),
-                t.regionHeight.toFloat()
-            )
+//            shapeDrawer.rectangle(
+//                position.x - t.regionWidth / 2f,
+//                position.y - t.regionHeight / 2f,
+//                t.regionWidth.toFloat(),
+//                t.regionHeight.toFloat()
+//            )
             if (BodyControl.has(human)) {
                 val bc = BodyControl.get(human)
                 shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
             }
-            if(Flashlight.has(human)) {
-                shapeDrawer.setColor(Color.RED)
-                val lightStart = position.cpy()
-                val light = Flashlight.get(human)
-                lightStart.add(light.direction * light.offset)
-                val direction = light.direction.cpy()
-                direction.rotateDeg(-15f)
-                for(l in 0..30) {
-                    direction.rotateDeg(1f)
-                    shapeDrawer.line(lightStart, lightStart + direction.cpy().scl(100f))
-                }
-                shapeDrawer.setColor(Color.WHITE)
-            }
+//            if(Flashlight.has(human)) {
+//                shapeDrawer.setColor(Color.RED)
+//                val lightStart = position.cpy()
+//                val light = Flashlight.get(human)
+//                lightStart.add(light.direction * light.offset)
+//                val direction = light.direction.cpy()
+//                direction.rotateDeg(-15f)
+//                for(l in 0..30) {
+//                    direction.rotateDeg(1f)
+//                    shapeDrawer.line(lightStart, lightStart + direction.cpy().scl(100f))
+//                }
+//                shapeDrawer.setColor(Color.WHITE)
+//            }
         }
     }
 
