@@ -79,59 +79,80 @@ class RenderSystem(
             Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
             Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
             //Render the map. i.e. draw its region
-            val map = Map.get(mapEntity)
-            batch.draw(
-                map.mapTextureRegion,
-                map.mapOrigin.x,
-                map.mapOrigin.y
-            )
-
-            for(lonelyBlob in engine.getEntitiesFor(allBlobs)) {
-                val health = PropsAndStuff.get(lonelyBlob).getHealth()
-                val blobPosition = TransformComponent.get(lonelyBlob).position
-                shapeDrawer.filledCircle(
-                    blobPosition,
-                    1f,
-                    Color(0f, health.normalizedValue, 0.5f, 1f)
-                )
-                if(gameSettings.Debug && LogComponent.has(lonelyBlob)) {
-                    shapeDrawer.setColor(Color.GREEN)
-                    shapeDrawer.circle(blobPosition.x, blobPosition.y, gameSettings.BlobDetectionRadius)
-                    shapeDrawer.setColor(Color.RED)
-                    shapeDrawer.circle(blobPosition.x, blobPosition.y, health.detectionRadius)
-                    shapeDrawer.setColor(Color.BLUE)
-                    shapeDrawer.circle(blobPosition.x, blobPosition.y, 2.5f)
-                }
-            }
-            val foodRenderStuff = engine.getEntitiesFor(foodFamily)
-                .associate { TransformComponent.get(it).position to MathUtils.norm(100f, 200f, Food.get(it).foodEnergy) }
-            for ((position, normalizedEnergy) in foodRenderStuff) {
-                shapeDrawer.filledCircle(
-                    position,
-                    2.5f * normalizedEnergy,
-                    Color(1f - normalizedEnergy, normalizedEnergy, 1f - normalizedEnergy, normalizedEnergy)
-                )
-            }
-
-            val t = assets.buddy.values.first().keyFrames.first()
-            for (human in allHumans) {
-                val position = TransformComponent.get(human).position
-                batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
-                shapeDrawer.rectangle(
-                    position.x - t.regionWidth / 2f,
-                    position.y - t.regionHeight / 2f,
-                    t.regionWidth.toFloat(),
-                    t.regionHeight.toFloat()
-                )
-                if(BodyControl.has(human)) {
-                    val bc = BodyControl.get(human)
-                    shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
-                }
-            }
+            renderMap()
+            renderBlobs()
+            renderFood()
+            renderHumans()
         }
 
         lightsEngine.draw(camera.combined)
         renderShader(deltaTime)
+    }
+
+    private fun renderHumans() {
+        val t = assets.buddy.values.first().keyFrames.first()
+        for (human in allHumans) {
+            val position = TransformComponent.get(human).position
+            batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
+            shapeDrawer.rectangle(
+                position.x - t.regionWidth / 2f,
+                position.y - t.regionHeight / 2f,
+                t.regionWidth.toFloat(),
+                t.regionHeight.toFloat()
+            )
+            if (BodyControl.has(human)) {
+                val bc = BodyControl.get(human)
+                shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
+            }
+            if(Flashlight.has(human)) {
+                val lightStart = position.cpy()
+                val light = Flashlight.get(human)
+                lightStart.add(light.direction * light.offset)
+                shapeDrawer.line(lightStart, lightStart + light.direction.cpy().scl(100f))
+            }
+        }
+    }
+
+    private fun renderBlobs() {
+        for (lonelyBlob in engine.getEntitiesFor(allBlobs)) {
+            val health = PropsAndStuff.get(lonelyBlob).getHealth()
+            val radius = Blob.get(lonelyBlob).radius
+            val blobPosition = TransformComponent.get(lonelyBlob).position
+            shapeDrawer.filledCircle(
+                blobPosition,
+                radius,
+                Color(0f, health.normalizedValue, 0.5f, 1f)
+            )
+            if (gameSettings.Debug && LogComponent.has(lonelyBlob)) {
+                shapeDrawer.setColor(Color.GREEN)
+                shapeDrawer.circle(blobPosition.x, blobPosition.y, gameSettings.BlobDetectionRadius)
+                shapeDrawer.setColor(Color.RED)
+                shapeDrawer.circle(blobPosition.x, blobPosition.y, health.detectionRadius)
+                shapeDrawer.setColor(Color.BLUE)
+                shapeDrawer.circle(blobPosition.x, blobPosition.y, 2.5f)
+            }
+        }
+    }
+
+    private fun renderMap() {
+        val map = Map.get(mapEntity)
+        batch.draw(
+            map.mapTextureRegion,
+            map.mapOrigin.x,
+            map.mapOrigin.y
+        )
+    }
+
+    private fun renderFood() {
+        val foodRenderStuff = engine.getEntitiesFor(foodFamily)
+            .associate { TransformComponent.get(it).position to MathUtils.norm(100f, 200f, Food.get(it).foodEnergy) }
+        for ((position, normalizedEnergy) in foodRenderStuff) {
+            shapeDrawer.filledCircle(
+                position,
+                2.5f * normalizedEnergy,
+                Color(1f - normalizedEnergy, normalizedEnergy, 1f - normalizedEnergy, normalizedEnergy)
+            )
+        }
     }
 
     private fun renderShader(deltaTime: Float) {

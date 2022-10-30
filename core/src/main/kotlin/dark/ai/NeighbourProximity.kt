@@ -4,9 +4,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.steer.Proximity
 import com.badlogic.gdx.ai.steer.Steerable
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Fixture
 import dark.ecs.components.Blob
-import eater.ai.steering.box2d.Box2dSteering
+import eater.ai.steering.box2d.Box2dSteerable
 
 class NeighbourProximity(
     private var ownerEntity: Entity,
@@ -14,19 +13,19 @@ class NeighbourProximity(
 ) : Proximity<Vector2> {
     /** Returns the box2d world.  */
     override fun getOwner(): Steerable<Vector2> {
-        return Box2dSteering.get(ownerEntity)
+        return Box2dSteerable.get(ownerEntity)
     }
 
     override fun setOwner(owner: Steerable<Vector2>) {
-        ownerEntity = (owner as Box2dSteering).body.userData as Entity
+        ownerEntity = (owner as Box2dSteerable).body.userData as Entity
     }
 
     override fun findNeighbors(behaviorCallback: Proximity.ProximityCallback<Vector2>): Int {
         val ownerBlob = Blob.get(ownerEntity)
         var count = 0
         for (blobEntity in ownerBlob.neighbours) {
-            if(Box2dSteering.has(blobEntity.key)) {
-                behaviorCallback.reportNeighbor(Box2dSteering.get(blobEntity.key))
+            if(Box2dSteerable.has(blobEntity.key)) {
+                behaviorCallback.reportNeighbor(Box2dSteerable.get(blobEntity.key))
                 count++
             }
         }

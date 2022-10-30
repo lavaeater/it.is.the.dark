@@ -2,11 +2,12 @@ package dark.core
 
 class GameSettings {
 
+    val LightDamage = 10f
     val Debug = true
     val BlobHealthReductionPerSecond = 5f
     val BlobDetectionRadius = 15f
     val BlobForgettingRadius = 20f
-    val MaxBlobs = 1000
+    val MaxBlobs = 100
 
     val HumanLightDetectionRadius = 50f
 

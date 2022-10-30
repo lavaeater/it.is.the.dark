@@ -14,7 +14,7 @@ import eater.ai.ashley.AiAction
 import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.steering.box2d.Box2dLocation
 import eater.ai.steering.box2d.Box2dRaycastCollisionDetector
-import eater.ai.steering.box2d.Box2dSteering
+import eater.ai.steering.box2d.Box2dSteerable
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
@@ -83,7 +83,7 @@ object HumanActions {
             when (stateComponent.state) {
                 TargetState.NeedsSteering -> {
                     if (Box2d.has(stateComponent.target!!)) {
-                        val steerable = Box2dSteering.get(entity)
+                        val steerable = Box2dSteerable.get(entity)
                         steerable.steeringBehavior = getArriveAtLightSteering(entity, steerable, stateComponent.target!!)
                         stateComponent.state = TargetState.IsSteering
                     } else {
@@ -145,7 +145,7 @@ object HumanActions {
             }
 
             override fun abortFunction(entity: Entity) {
-                Box2dSteering.get(entity).steeringBehavior = null
+                Box2dSteerable.get(entity).steeringBehavior = null
             }
 
             override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float) {
@@ -154,8 +154,8 @@ object HumanActions {
                         /** Here we add the wander state steering stuff
                          * to this entities steeringthingie
                          */
-                        if (Box2dSteering.has(entity)) {
-                            val steerable = Box2dSteering.get(entity)
+                        if (Box2dSteerable.has(entity)) {
+                            val steerable = Box2dSteerable.get(entity)
                             steerable.steeringBehavior = getHumanWanderSteering(entity, steerable)
                             stateComponent.state = WanderState.Running
                         }

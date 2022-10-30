@@ -14,6 +14,7 @@ import ktx.log.info
 class Blob: Component, Pool.Poolable {
     var blobGroup = -1
     var color = Color.GREEN
+    var radius = 3f
     private val messageQueue = Queue<BlobMessage>()
     val messageCount get() = messageQueue.size
     val neighbours = mutableMapOf<Entity, Vector2>()

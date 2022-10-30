@@ -14,11 +14,12 @@ import dark.ecs.systems.BlobGrouper
 import dark.injection.Assets
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
-import eater.ai.steering.box2d.Box2dSteering
+import eater.ai.steering.box2d.Box2dSteerable
 import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.CameraFollow
+import eater.ecs.ashley.components.Memory
 import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
@@ -123,7 +124,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
             body = b2Body
         }
         with<TransformComponent>()
-        with<Box2dSteering> {
+        with<Box2dSteerable> {
             isIndependentFacing = false
             body = b2Body
             maxLinearSpeed = 10f
@@ -182,9 +183,11 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
     }
 }
 
-fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = inject(), follow: Boolean = false) {
+fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: GameSettings = inject(), follow: Boolean = false) {
     BlobGrouper.addNewBlob(engine().entity {
-        with<Blob>()
+        with<Blob> {
+            this.radius = radius
+        }
         with<PropsAndStuff> {
             props.add(Prop.FloatProp.Health(health))
         }
@@ -207,9 +210,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
 //                }
 //            }
         }
-        with<TimedMemory> {
-
-        }
+        with<Memory>()
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity
@@ -232,7 +233,7 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
             body = b2Body
         }
         with<TransformComponent>()
-        with<Box2dSteering> {
+        with<Box2dSteerable> {
             //val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
             val blobGroupProximity = NeighbourProximity(this@entity.entity)
             isIndependentFacing = false

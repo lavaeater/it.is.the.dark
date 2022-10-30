@@ -93,6 +93,7 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
 //            addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(BlobMessageHandlingSystem())
+            addSystem(UpdateMemorySystem())
             addSystem(BlobNeighbourSystem(inject()))
             addSystem(LogSystem())
         }
