@@ -11,9 +11,11 @@ class Flashlight: Component, Pool.Poolable {
     lateinit var light: HackLight
     var offset = 1f
     val direction = vec2()
+    var on = true
     override fun reset() {
         offset = 1f
         direction.setZero()
+        on = true
     }
 
     companion object {
