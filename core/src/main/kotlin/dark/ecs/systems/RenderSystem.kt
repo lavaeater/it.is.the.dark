@@ -94,29 +94,10 @@ class RenderSystem(
         for (human in allHumans) {
             val position = TransformComponent.get(human).position
             batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
-//            shapeDrawer.rectangle(
-//                position.x - t.regionWidth / 2f,
-//                position.y - t.regionHeight / 2f,
-//                t.regionWidth.toFloat(),
-//                t.regionHeight.toFloat()
-//            )
             if (BodyControl.has(human)) {
                 val bc = BodyControl.get(human)
                 shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
             }
-//            if(Flashlight.has(human)) {
-//                shapeDrawer.setColor(Color.RED)
-//                val lightStart = position.cpy()
-//                val light = Flashlight.get(human)
-//                lightStart.add(light.direction * light.offset)
-//                val direction = light.direction.cpy()
-//                direction.rotateDeg(-15f)
-//                for(l in 0..30) {
-//                    direction.rotateDeg(1f)
-//                    shapeDrawer.line(lightStart, lightStart + direction.cpy().scl(100f))
-//                }
-//                shapeDrawer.setColor(Color.WHITE)
-//            }
         }
     }
 
@@ -157,7 +138,7 @@ class RenderSystem(
             shapeDrawer.filledCircle(
                 position,
                 2.5f * normalizedEnergy,
-                Color(1f - normalizedEnergy, normalizedEnergy, 1f - normalizedEnergy, normalizedEnergy)
+                Color(1f - normalizedEnergy, normalizedEnergy, 1f - normalizedEnergy, 0.1f)
             )
         }
     }

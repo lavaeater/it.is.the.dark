@@ -47,10 +47,15 @@ fun fleeFromYourMemoriesSteering(
     val aNiceBlendOfSteering = BlendedSteering(owner)
     if (Memory.has(entity)) {
         val memory = Memory.get(entity)
-        if(onlyLatestMemory) {
+        if (onlyLatestMemory) {
             val lightMemes = memory.generalMemory.filter { it.key is MemoryEvent.HitByLight }.maxByOrNull { it.value }
-            if(lightMemes != null)
-                aNiceBlendOfSteering.add(Flee(owner, Box2dLocation((lightMemes.key as MemoryEvent.HitByLight).lightSource, 0f)), 5f)
+            if (lightMemes != null)
+                aNiceBlendOfSteering.add(
+                    Flee(
+                        owner,
+                        Box2dLocation((lightMemes.key as MemoryEvent.HitByLight).lightSource, 0f)
+                    ), 5f
+                )
         } else {
             for (itHurts in memory.generalMemory.keys.filterIsInstance<MemoryEvent.HitByLight>()) {
                 info { "The light at: ${itHurts.lightSource} is scary!" }
@@ -168,7 +173,7 @@ object BlobActions {
             }
 
             override fun abortFunction(entity: Entity) {
-                info { "I shall not flee"}
+                info { "I shall not flee" }
                 val steerable = Box2dSteerable.get(entity)
                 steerable.maxLinearSpeed = inject<GameSettings>().BlobMaxSpeed
                 steerable.maxLinearAcceleration = inject<GameSettings>().BlobMaxAcceleration
@@ -188,7 +193,8 @@ object BlobActions {
                         val steerable = Box2dSteerable.get(entity)
                         steerable.maxLinearSpeed = inject<GameSettings>().BlobMaxSpeed * 5f
                         steerable.maxLinearAcceleration = inject<GameSettings>().BlobMaxAcceleration * 5f
-                        steerable.steeringBehavior = fleeFromYourMemoriesSteering(entity, steerable,
+                        steerable.steeringBehavior = fleeFromYourMemoriesSteering(
+                            entity, steerable,
                             avoidObstacles = false,
                             onlyLatestMemory = true
                         )
@@ -229,9 +235,9 @@ object BlobActions {
         ) {
         override fun scoreFunction(entity: Entity): Float {
             val health = PropsAndStuff.get(entity).getHealth()
-            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null && Food.has(
+            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null && ((Food.has(
                     Target.ArriveAtFoodTarget.get(entity).target!!
-                ) && Food.get(Target.ArriveAtFoodTarget.get(entity).target!!).foodEnergy > 5f
+                ) && Food.get(Target.ArriveAtFoodTarget.get(entity).target!!).foodEnergy > 5f) || (Human.has(Target.ArriveAtFoodTarget.get(entity).target!!)))
             ) {
                 0.7f
             } else {
@@ -244,6 +250,7 @@ object BlobActions {
         }
 
         val foodFamily = allOf(Food::class, Box2d::class).get()
+        val humanFamily = allOf(Human::class, Box2d::class).get()
         val gameSettings by lazy { inject<GameSettings>() }
 
         override fun actFunction(entity: Entity, stateComponent: Target.ArriveAtFoodTarget, deltaTime: Float) {
@@ -274,11 +281,30 @@ object BlobActions {
                 TargetState.NeedsTarget -> {
                     val health = PropsAndStuff.get(entity).getHealth()
                     val position = TransformComponent.get(entity).position
+                    val potentialHumanTarget = engine().getEntitiesFor(humanFamily)
+                        .filter {
+                            TransformComponent.get(it).position.dst(position) < health.detectionRadius
+                        }.randomOrNull()
+
+
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
                         .filter {
                             TransformComponent.get(it).position.dst(position) < health.detectionRadius
                         }.randomOrNull()
-                    if (potentialTarget != null) {
+                    if (potentialHumanTarget != null) {
+                        stateComponent.previousDistance =
+                            TransformComponent.get(potentialHumanTarget).position.dst(position)
+                        stateComponent.state = TargetState.NeedsSteering
+                        stateComponent.target = potentialHumanTarget
+                        val blob = Blob.get(entity)
+                        blob.sendMessageToNeighbours(
+                            BlobMessage.FoundAFoodTarget(
+                                potentialHumanTarget,
+                                PropsAndStuff.get(potentialHumanTarget).getHealth().current,
+                                entity
+                            )
+                        )
+                    } else if (potentialTarget != null) {
                         stateComponent.previousDistance =
                             TransformComponent.get(potentialTarget).position.dst(position)
                         stateComponent.state = TargetState.NeedsSteering
@@ -300,7 +326,7 @@ object BlobActions {
                 }
 
                 TargetState.IsSteering -> {
-                    if (stateComponent.timer > 0f && stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
+                    if (stateComponent.timer > 0f && stateComponent.target != null && TransformComponent.has(stateComponent.target!!)) {
                         val position = TransformComponent.get(entity).position
                         val targetPosition = TransformComponent.get(stateComponent.target!!).position
                         val distance = position.dst(targetPosition)
@@ -315,21 +341,34 @@ object BlobActions {
                 }
 
                 TargetState.ArrivedAtTarget -> {
-                    Box2dSteerable.get(entity).steeringBehavior = null
-                    val health = PropsAndStuff.get(entity).getHealth()
-                    val toAdd = deltaTime * 50f
-                    if (Food.has(stateComponent.target!!)) {
-                        val food = Food.get(stateComponent.target!!)
-                        food.foodEnergy -= toAdd
-                        health.current += toAdd
-                        if (food.foodEnergy < 0f) {
-                            stateComponent.apply {
-                                target!!.addComponent<Remove>()
-                                state = TargetState.IsDoneWithTarget
+                    if(TransformComponent.has(stateComponent.target!!)) {
+                        val position = TransformComponent.get(entity).position
+                        val targetPos = TransformComponent.get(stateComponent.target!!).position
+                        val distance = position.dst(targetPos)
+                        if (distance > gameSettings.BlobDetectionRadius / 3f) {
+                            stateComponent.state = TargetState.IsDoneWithTarget
+                        } else {
+                            Box2dSteerable.get(entity).steeringBehavior = null
+                            val health = PropsAndStuff.get(entity).getHealth()
+                            val toAdd = deltaTime * 50f
+                            if (Human.has(stateComponent.target!!)) {
+                                val humanHealth = PropsAndStuff.get(stateComponent.target!!).getHealth()
+                                humanHealth.current -= toAdd
+                                health.current += toAdd
+                            } else if (Food.has(stateComponent.target!!)) {
+                                val food = Food.get(stateComponent.target!!)
+                                food.foodEnergy -= toAdd
+                                health.current += toAdd
+                                if (food.foodEnergy < 0f) {
+                                    stateComponent.apply {
+                                        target!!.addComponent<Remove>()
+                                        state = TargetState.IsDoneWithTarget
+                                    }
+                                }
+                            } else {
+                                stateComponent.state = TargetState.IsDoneWithTarget
                             }
                         }
-                    } else {
-                        stateComponent.state = TargetState.IsDoneWithTarget
                     }
                 }
             }

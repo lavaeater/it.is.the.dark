@@ -58,7 +58,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(HackLightEngine(0.05f,0.05f,0.05f,0.5f))
+            bindSingleton(HackLightEngine(1f,1f,1f,0.25f))
             bindSingleton(
                 GameScreen(
                     inject(),
@@ -75,7 +75,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
-            addSystem(BlobDeathSystem())
+            addSystem(DeathSystem())
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
@@ -87,7 +87,7 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
-            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 500) { createFood() }))
+            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 50) { createFood() }))
             addSystem(BlobHealthSharingSystem())
             addSystem(BlobHealthDiminishingSystem(inject()))
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))

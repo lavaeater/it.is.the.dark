@@ -10,8 +10,7 @@ sealed class Prop(val name: String) {
         val normalizedValue: Float
             get() = MathUtils.norm(min, max, MathUtils.clamp(current, 0f, max))
         class Health(current: Float = 100f,min: Float = 0f, max: Float = 100f) : FloatProp("Health", current, min, max) {
-            val detectionRadius get() = inject<GameSettings>().BlobDetectionRadius * 1f/ (1f-((normalizedValue + 0.1f) / 2f))
+            val detectionRadius get() = inject<GameSettings>().BlobDetectionRadius / (normalizedValue + 0.1f) / 2f
         }
-
     }
 }
