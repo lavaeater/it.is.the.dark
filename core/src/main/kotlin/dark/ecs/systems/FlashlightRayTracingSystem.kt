@@ -41,7 +41,6 @@ class FlashlightRayTracingSystem(private val world: World) : IteratingSystem(
         lateinit var closestFixture: Fixture
         var hit = false
 
-        for
         world.rayCast(lightStart, lightStart + light.direction.cpy().scl(100f)) { fixture, _, _, fraction ->
             /**
              * If we hit a blob here, that blob should

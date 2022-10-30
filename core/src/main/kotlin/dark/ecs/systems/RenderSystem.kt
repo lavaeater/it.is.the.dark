@@ -112,7 +112,7 @@ class RenderSystem(
                 val direction = light.direction.cpy()
                 direction.rotateDeg(-15f)
                 for(l in 0..30) {
-                    direction.rotateDeg(l.toFloat())
+                    direction.rotateDeg(1f)
                     shapeDrawer.line(lightStart, lightStart + direction.cpy().scl(100f))
                 }
                 shapeDrawer.setColor(Color.WHITE)
