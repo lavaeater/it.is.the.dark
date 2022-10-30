@@ -3,6 +3,7 @@ package dark.ecs.components
 import com.aliasifkhan.hackLights.HackLight
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 import ktx.math.vec2
@@ -10,11 +11,11 @@ import ktx.math.vec2
 class Flashlight: Component, Pool.Poolable {
     lateinit var light: HackLight
     var offset = 0.5f
-    val direction = vec2()
+    val direction = Vector2.X.cpy()
     var on = true
     override fun reset() {
         offset = 1f
-        direction.setZero()
+        direction.set(Vector2.X)
         on = true
     }
 

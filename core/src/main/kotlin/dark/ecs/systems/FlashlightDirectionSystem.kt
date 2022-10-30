@@ -21,7 +21,7 @@ class FlashlightDirectionSystem: IteratingSystem(
         val light = Flashlight.get(entity)
         val bodyControl = BodyControl.get(entity)
         val lightPos = TransformComponent.get(entity).position.cpy()
-        light.direction.set(bodyControl.aimDirection)
+        light.direction.setAngleDeg(bodyControl.aimDirection.angleDeg())
         lightPos.add(light.direction * light.offset)
         light.light.setOriginBasedPosition(lightPos.x, lightPos.y)
         light.light.rotation = light.direction.angleDeg() - 90f

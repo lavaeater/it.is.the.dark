@@ -80,25 +80,23 @@ fun composeSteering(
     avoidObstacles: Boolean
 ): SteeringBehavior<Vector2> {
     val neighbourGroupProximity = NeighbourProximity(entity)
-    val aNiceBlendOfSteering = BlendedSteering(owner)
+    return BlendedSteering(owner)
         .add(mainBehavior, 3f)
         .add(Separation(owner, neighbourGroupProximity), 2f)
         .add(Cohesion(owner, neighbourGroupProximity), 1f)
         .add(Alignment(owner, neighbourGroupProximity), 1f)
 
-
-    return if (avoidObstacles) {
-        PrioritySteering(owner)
-            .add(aNiceBlendOfSteering)
-            .add(
-                RaycastObstacleAvoidance(
-                    owner, CentralRayWithWhiskersConfiguration(owner, 2.5f, 1f, 15f),
-                    Box2dRaycastCollisionDetector(world())
-                )
-            )
-    } else {
-        aNiceBlendOfSteering
-    }
+//    if (avoidObstacles) {
+//        PrioritySteering(owner)
+//            .add(aNiceBlendOfSteering)
+//            .add(
+//                RaycastObstacleAvoidance(
+//                    owner, CentralRayWithWhiskersConfiguration(owner, 2.5f, 1f, 15f),
+//                    Box2dRaycastCollisionDetector(world())
+//                )
+//            )
+//    } else {
+//    }
 }
 
 fun getWanderSteering(entity: Entity, owner: Steerable<Vector2>): SteeringBehavior<Vector2> {
@@ -163,7 +161,6 @@ object BlobActions {
                     if (memory.generalMemory.keys.filterIsInstance<MemoryEvent.HitByLight>()
                             .any()
                     ) {
-                        info { "The Score is 1, I wish to flee" }
                         1f
                     } else
                         0f
@@ -173,11 +170,12 @@ object BlobActions {
             override fun abortFunction(entity: Entity) {
                 info { "I shall not flee"}
                 val steerable = Box2dSteerable.get(entity)
-                steerable.maxLinearSpeed = steerable.maxLinearSpeed / 100f
+                steerable.maxLinearSpeed = inject<GameSettings>().BlobMaxSpeed
+                steerable.maxLinearAcceleration = inject<GameSettings>().BlobMaxAcceleration
+                steerable.steeringBehavior = null
             }
 
             override fun actFunction(entity: Entity, stateComponent: FleeStateComponent, deltaTime: Float) {
-                info { "I shall flee"}
                 when (stateComponent.state) {
                     FleeState.IsFleeing -> {
                         if (Memory.has(entity) && Memory.get(entity).hasGeneralMemoryChanged) {
@@ -188,9 +186,12 @@ object BlobActions {
 
                     FleeState.NeedsSteering -> {
                         val steerable = Box2dSteerable.get(entity)
-                        steerable.maxLinearSpeed = steerable.maxLinearSpeed * 10f
-                        steerable.maxLinearAcceleration = steerable.maxLinearAcceleration * 100f
-                        steerable.steeringBehavior = fleeFromYourMemoriesSteering(entity, steerable, false, true)
+                        steerable.maxLinearSpeed = inject<GameSettings>().BlobMaxSpeed * 5f
+                        steerable.maxLinearAcceleration = inject<GameSettings>().BlobMaxAcceleration * 5f
+                        steerable.steeringBehavior = fleeFromYourMemoriesSteering(entity, steerable,
+                            avoidObstacles = false,
+                            onlyLatestMemory = true
+                        )
                     }
                 }
             }

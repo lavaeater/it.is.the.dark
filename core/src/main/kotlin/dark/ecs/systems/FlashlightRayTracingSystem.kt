@@ -1,6 +1,7 @@
 package dark.ecs.systems
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.systems.IntervalIteratingSystem
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Fixture
@@ -30,19 +31,18 @@ class FlashlightRayTracingSystem(private val world: World) : IteratingSystem(
     allOf(
         Flashlight::class,
         TransformComponent::class
-    ).exclude(Remove::class).get()
-) {
+    ).exclude(Remove::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val lightStart = TransformComponent.get(entity).position.cpy()
         val light = Flashlight.get(entity)
         lightStart.add(light.direction * light.offset)
 
         var closestFraction = 1.0f
-        var closestFixture: Fixture? = null
-        var closestPoint = vec2()
+        lateinit var closestFixture: Fixture
         var hit = false
 
-        world.rayCast(lightStart, lightStart + light.direction.cpy().scl(100f)) { fixture, point, normal, fraction ->
+        for
+        world.rayCast(lightStart, lightStart + light.direction.cpy().scl(100f)) { fixture, _, _, fraction ->
             /**
              * If we hit a blob here, that blob should
              * a) take damage
@@ -55,36 +55,28 @@ class FlashlightRayTracingSystem(private val world: World) : IteratingSystem(
                 hit = true
                 closestFraction = fraction
                 closestFixture = fixture
-                closestPoint.set(point)
             }
-            RayCast.CONTINUE
+            if (fraction < 0.01f)
+                RayCast.TERMINATE
+            else
+                RayCast.CONTINUE
         }
 
         if (hit) {
-            if (closestFixture!!.isEntity()) {
-                val hitEntity = closestFixture!!.getEntity()
+            if (closestFixture.isEntity()) {
+                val hitEntity = closestFixture.getEntity()
                 if (Blob.has(hitEntity) && !Remove.has(hitEntity)) {
-                    val blob = Blob.get(hitEntity)
                     val health = PropsAndStuff.get(hitEntity).getHealth()
                     val memories = Memory.get(hitEntity)
+                    info { "So many memories" }
                     health.current -= deltaTime * inject<GameSettings>().LightDamage
-                    memories.addGeneralMemory(MemoryEvent.HitByLight(lightStart))
+                    memories.addGeneralMemory(MemoryEvent.HitByLight(lightStart.cpy()))
                 }
             }
         }
     }
 }
 
-class FleeLightSystem:IteratingSystem(allOf(
-    Blob::class,
-    Box2dSteerable::class,
-    Memory::class
-).exclude(Remove::class).get()) {
-    override fun processEntity(entity: Entity?, deltaTime: Float) {
-        TODO("Not yet implemented")
-    }
-}
-
-sealed class MemoryEvent: GeneralMemory {
-    class HitByLight(val lightSource: Vector2): MemoryEvent()
+sealed class MemoryEvent : GeneralMemory {
+    class HitByLight(val lightSource: Vector2) : MemoryEvent()
 }

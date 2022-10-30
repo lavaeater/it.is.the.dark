@@ -105,10 +105,17 @@ class RenderSystem(
                 shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
             }
             if(Flashlight.has(human)) {
+                shapeDrawer.setColor(Color.RED)
                 val lightStart = position.cpy()
                 val light = Flashlight.get(human)
                 lightStart.add(light.direction * light.offset)
-                shapeDrawer.line(lightStart, lightStart + light.direction.cpy().scl(100f))
+                val direction = light.direction.cpy()
+                direction.rotateDeg(-15f)
+                for(l in 0..30) {
+                    direction.rotateDeg(l.toFloat())
+                    shapeDrawer.line(lightStart, lightStart + direction.cpy().scl(100f))
+                }
+                shapeDrawer.setColor(Color.WHITE)
             }
         }
     }
