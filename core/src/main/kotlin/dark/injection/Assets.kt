@@ -24,8 +24,11 @@ class Assets : DisposableRegistry by DisposableContainer() {
     }
 
     private val lightTexture = Texture("lights/light-textures.png".toInternalFile())
-    val lights = Array(6) { i ->
-        TextureRegion(lightTexture, (128 * (i / 3)), 128 * i % 3, 128, 128)
+    val lights = Array(6) {
+        val bla = it
+        val x = 128 * (bla % 3)
+        val y = 128 * (bla / 3)
+        TextureRegion(lightTexture, x, y, 128, 128)
     }
 
     private val mapOne = Texture("maps/level-1/simplified/Level_0/_composite.png".toInternalFile())

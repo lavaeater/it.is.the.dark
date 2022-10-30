@@ -53,7 +53,7 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
         BlobGrouper.blobPoints = validPoints
         createFood()
         //createSomeHumans()
-        for(i in 0..5)
+        for(i in 0..3)
             createLight()
 
         for(i in 0..gameSettings.MaxBlobs / 100)

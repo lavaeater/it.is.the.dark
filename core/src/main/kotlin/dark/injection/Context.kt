@@ -81,6 +81,8 @@ object Context : InjectionContext() {
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject()))
             addSystem(FlashlightDirectionSystem())
+            addSystem(FlashlightRayTracingSystem(inject()))
+            addSystem(LightPositionUpdateSystem())
             addSystem(SteerSystem())
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())

@@ -28,7 +28,6 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
-import ktx.log.info
 import ktx.math.vec2
 
 fun createLight() {
@@ -152,8 +151,14 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
             maxForce = 1000f
         }
         with<KeyboardAndMouseInput>()
+        with<Light> {
+            hackLight = HackLight(inject<Assets>().lights[5], 1f, 2f, 1f, 1f).apply {
+                setOriginBasedPosition(at.x, at.y)
+            }
+            inject<HackLightEngine>().addLight(hackLight)
+        }
         with<Flashlight> {
-            light = HackLight(inject<Assets>().lights[3],1f,1f,1f,1f).apply {
+            light = HackLight(inject<Assets>().lights[1],1f,1f,1f,1f).apply {
                 setOriginCenter()
                 setOrigin(originX, 0f)
             }
@@ -188,25 +193,28 @@ fun createBlob(at: Vector2, health: Float = 100f, settings: GameSettings = injec
         }
         if (follow) {
             with<CameraFollow>()
-            with<LogComponent> {
-                logFunction = { entity ->
-                    val aiComponent = AiComponent.get(entity)
-                    info { "We ${if (BlobGrouper.canSplit) "can" else "cannot"} split" }
-                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
-                    info { "Top action: ${aiComponent.topAction(entity)?.name}" }
-                    info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
-                    info { "Messages: ${Blob.get(entity).messageCount}" }
-                    info { "Blob count: ${BlobGrouper.blobCount}" }
-                    info { "Top Message: ${Blob.get(entity).peekOldestMessage()}" }
-                    info { "Neighbours: ${Blob.get(entity).neighbours.size}" }
-                }
-            }
+//            with<LogComponent> {
+//                logFunction = { entity ->
+//                    val aiComponent = AiComponent.get(entity)
+//                    info { "We ${if (BlobGrouper.canSplit) "can" else "cannot"} split" }
+//                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
+//                    info { "Top action: ${aiComponent.topAction(entity)?.name}" }
+//                    info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
+//                    info { "Messages: ${Blob.get(entity).messageCount}" }
+//                    info { "Blob count: ${BlobGrouper.blobCount}" }
+//                    info { "Top Message: ${Blob.get(entity).peekOldestMessage()}" }
+//                    info { "Neighbours: ${Blob.get(entity).neighbours.size}" }
+//                }
+//            }
+        }
+        with<TimedMemory> {
+
         }
         val b2Body = world().body {
             type = BodyDef.BodyType.DynamicBody
             userData = this@entity.entity
             position.set(at)
-            circle(1.0f) {
+            circle(3.0f) {
                 filter {
                     categoryBits = Categories.blob
                     maskBits = Categories.whatBlobsCollideWith

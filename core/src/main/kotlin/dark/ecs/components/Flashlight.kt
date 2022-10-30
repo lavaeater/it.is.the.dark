@@ -9,7 +9,7 @@ import ktx.math.vec2
 
 class Flashlight: Component, Pool.Poolable {
     lateinit var light: HackLight
-    var offset = 1f
+    var offset = 0.5f
     val direction = vec2()
     var on = true
     override fun reset() {
