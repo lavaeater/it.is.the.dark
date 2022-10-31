@@ -231,8 +231,6 @@ fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: 
         }
         with<TransformComponent>()
         with<Box2dSteerable> {
-            //val radiusProximity = Box2dRadiusProximity(this, world(), settings.BlobDetectionRadius)
-//            val blobGroupProximity = NeighbourProximity(this@entity.entity)
             isIndependentFacing = false
             body = b2Body
             maxLinearSpeed = inject<GameSettings>().BlobMaxSpeed
