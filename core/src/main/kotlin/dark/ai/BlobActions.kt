@@ -14,8 +14,7 @@ import dark.ecs.components.Target
 import dark.ecs.systems.BlobGrouper
 import dark.ecs.systems.MemoryEvent
 import dark.ecs.systems.log
-import eater.ai.ashley.AiActionWithStateComponent
-import eater.ai.ashley.AlsoGenericAction
+import eater.ai.ashley.*
 import eater.ai.steering.box2d.Box2dLocation
 import eater.ai.steering.box2d.Box2dRaycastCollisionDetector
 import eater.ai.steering.box2d.Box2dSteerable
@@ -128,7 +127,7 @@ fun getArriveAtFoodSteering(entity: Entity, owner: Steerable<Vector2>, target: E
 
 
 object BlobActions {
-    private val wander =
+    private val aimlesslyWander =
         object :
             AiActionWithStateComponent<WanderStateComponent>("Wander with Steering", WanderStateComponent::class) {
             override fun scoreFunction(entity: Entity): Float {
@@ -158,7 +157,7 @@ object BlobActions {
                 }
             }
         }
-    private val flee =
+    private val fleeTheLight =
         object : AiActionWithStateComponent<FleeStateComponent>("Flee the Light!", FleeStateComponent::class) {
             override fun scoreFunction(entity: Entity): Float {
                 return if (Memory.has(entity)) {
@@ -228,16 +227,26 @@ object BlobActions {
         }
     }
 
+    private val moveTowardsFood = ConsideredActionWithState(
+        "Move towards food - if we have a target!",
+        { entity, stateComponent, deltaTime ->  },
+        Target.HuntingTarget::class,
+        0f..0.8f,
+        DoIHaveThisComponentConsideration(FoundHuntingTarget::class)
+    )
+
+    private val
+
     private val searchForAndArriveAtFood = object :
-        AiActionWithStateComponent<Target.ArriveAtFoodTarget>(
+        AiActionWithStateComponent<Target.HuntingTarget>(
             "Search for Food!",
-            Target.ArriveAtFoodTarget::class
+            Target.HuntingTarget::class
         ) {
         override fun scoreFunction(entity: Entity): Float {
             val health = PropsAndStuff.get(entity).getHealth()
-            return if (Target.ArriveAtFoodTarget.has(entity) && Target.ArriveAtFoodTarget.get(entity).target != null && ((Food.has(
-                    Target.ArriveAtFoodTarget.get(entity).target!!
-                ) && Food.get(Target.ArriveAtFoodTarget.get(entity).target!!).foodEnergy > 5f) || (Human.has(Target.ArriveAtFoodTarget.get(entity).target!!)))
+            return if (Target.HuntingTarget.has(entity) && Target.HuntingTarget.get(entity).target != null && ((Food.has(
+                    Target.HuntingTarget.get(entity).target!!
+                ) && Food.get(Target.HuntingTarget.get(entity).target!!).foodEnergy > 5f) || (Human.has(Target.HuntingTarget.get(entity).target!!)))
             ) {
                 0.7f
             } else {
@@ -253,7 +262,7 @@ object BlobActions {
         val humanFamily = allOf(Human::class, Box2d::class).get()
         val gameSettings by lazy { inject<GameSettings>() }
 
-        override fun actFunction(entity: Entity, stateComponent: Target.ArriveAtFoodTarget, deltaTime: Float) {
+        override fun actFunction(entity: Entity, stateComponent: Target.HuntingTarget, deltaTime: Float) {
             /**
              * So, we should get the box2d and the state and move towards ta
              *
@@ -374,5 +383,5 @@ object BlobActions {
             }
         }
     }
-    val allActions = listOf(splitInTwo, searchForAndArriveAtFood, flee)
+    val allActions = listOf(splitInTwo, searchForAndArriveAtFood, fleeTheLight)
 }

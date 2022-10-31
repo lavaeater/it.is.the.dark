@@ -17,10 +17,7 @@ import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteerable
 import eater.core.engine
 import eater.core.world
-import eater.ecs.ashley.components.Box2d
-import eater.ecs.ashley.components.CameraFollow
-import eater.ecs.ashley.components.Memory
-import eater.ecs.ashley.components.TransformComponent
+import eater.ecs.ashley.components.*
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.ashley.entity
@@ -243,6 +240,10 @@ fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: 
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
+        }
+        with<AgentProperties>() {
+            fieldOfView = 270f
+            viewDistance = 50f
         }
     })
 }

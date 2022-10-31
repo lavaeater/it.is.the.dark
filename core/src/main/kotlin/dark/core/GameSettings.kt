@@ -6,7 +6,7 @@ class GameSettings {
     val BlobMaxSpeed = 10f
     val LightDamage = 10f
     val Debug = true
-    val BlobHealthReductionPerSecond = 5f
+    val BlobHealthReductionPerSecond = 0f
     val BlobDetectionRadius = 15f
     val BlobForgettingRadius = 20f
     val MaxBlobs = 100

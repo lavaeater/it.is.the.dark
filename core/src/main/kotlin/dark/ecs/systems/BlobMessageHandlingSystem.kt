@@ -17,8 +17,8 @@ class BlobMessageHandlingSystem(private val numberOfMessagesPerFrame: Int = 10) 
             if (message != null) {
                 when (message) {
                     is BlobMessage.FoundAFoodTarget -> {
-                        if (Target.ArriveAtFoodTarget.has(entity)) {
-                            val tc = Target.ArriveAtFoodTarget.get(entity)
+                        if (Target.HuntingTarget.has(entity)) {
+                            val tc = Target.HuntingTarget.get(entity)
                             if (tc.target != null && Food.has(tc.target!!)) {
                                 val currentTarget = Food.get(tc.target!!)
                                 if (currentTarget.foodEnergy < message.energy) {

@@ -47,15 +47,15 @@ sealed class Target : Component, Pool.Poolable {
         }
     }
 
-    class ArriveAtFoodTarget : Target() {
+    class HuntingTarget : Target() {
 
         companion object {
-            val mapper = mapperFor<ArriveAtFoodTarget>()
+            val mapper = mapperFor<HuntingTarget>()
             fun has(entity: Entity): Boolean {
                 return mapper.has(entity)
             }
 
-            fun get(entity: Entity): ArriveAtFoodTarget {
+            fun get(entity: Entity): HuntingTarget {
                 return mapper.get(entity)
             }
         }
