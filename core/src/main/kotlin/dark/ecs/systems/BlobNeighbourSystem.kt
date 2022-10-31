@@ -2,16 +2,12 @@ package dark.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
-import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Vector2
 import dark.core.GameSettings
-import dark.ecs.components.Blob
-import dark.ecs.components.BlobMessage
-import eater.ecs.ashley.components.Box2d
+import dark.ecs.components.blobcomponents.Blob
 import eater.ecs.ashley.components.Remove
 import eater.ecs.ashley.components.TransformComponent
 import ktx.ashley.allOf
-import javax.xml.crypto.dsig.Transform
 
 class BlobNeighbourSystem(private val gameSettings: GameSettings) :
     IntervalIteratingSystem(allOf(Blob::class, TransformComponent::class).exclude(Remove::class.java).get(), 0.02f) {

@@ -1,4 +1,4 @@
-package dark.ecs.components
+package dark.ecs.components.blobcomponents
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
@@ -47,8 +47,7 @@ sealed class Target : Component, Pool.Poolable {
         }
     }
 
-    class HuntingTarget : Target() {
-
+    class HuntingTarget: Target() {
         companion object {
             val mapper = mapperFor<HuntingTarget>()
             fun has(entity: Entity): Boolean {
@@ -56,6 +55,18 @@ sealed class Target : Component, Pool.Poolable {
             }
 
             fun get(entity: Entity): HuntingTarget {
+                return mapper.get(entity)
+            }
+        }
+    }
+    class MoveTowardsFoodTarget : Target() {
+        companion object {
+            val mapper = mapperFor<MoveTowardsFoodTarget>()
+            fun has(entity: Entity): Boolean {
+                return mapper.has(entity)
+            }
+
+            fun get(entity: Entity): MoveTowardsFoodTarget {
                 return mapper.get(entity)
             }
         }

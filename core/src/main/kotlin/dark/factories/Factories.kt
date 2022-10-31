@@ -5,11 +5,12 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
-import dark.ai.NeighbourProximity
 import dark.ai.HumanActions
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
+import dark.ecs.components.blobcomponents.Blob
+import dark.ecs.components.blobcomponents.BlobsCanEatThis
 import dark.ecs.systems.BlobGrouper
 import dark.injection.Assets
 import dark.injection.assets
@@ -82,6 +83,7 @@ fun createFood() {
                 }
             }
             with<TransformComponent>()
+            with<BlobsCanEatThis>()
         }
     }
 }
@@ -134,6 +136,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
         with<AiComponent> {
             actions.addAll(HumanActions.actions)
         }
+        with<BlobsCanEatThis>()
     }
 }
 
@@ -176,6 +179,7 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
             }
         }
         with<TransformComponent>()
+        with<BlobsCanEatThis>()
 
     }
 }

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.Joint
 import com.badlogic.gdx.utils.Pool.Poolable
+import dark.ecs.components.blobcomponents.SlimeRope
 import eater.core.selectedItemListOf
 import ktx.ashley.mapperFor
 

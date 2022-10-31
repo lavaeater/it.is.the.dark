@@ -1,4 +1,4 @@
-package dark.ecs.components
+package dark.ecs.components.blobcomponents
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
@@ -6,9 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Queue
-import dark.ecs.systems.log
 import ktx.ashley.mapperFor
-import ktx.log.info
 
 
 class Blob: Component, Pool.Poolable {
@@ -28,11 +26,11 @@ class Blob: Component, Pool.Poolable {
         messageQueue.addLast(message)
     }
 
-    fun getOldestMessage():BlobMessage? {
+    fun getOldestMessage(): BlobMessage? {
         return if(messageQueue.notEmpty()) messageQueue.removeFirst() else null
     }
 
-    fun peekOldestMessage():BlobMessage? {
+    fun peekOldestMessage(): BlobMessage? {
         return messageQueue.firstOrNull()
     }
 

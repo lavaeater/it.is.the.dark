@@ -3,7 +3,7 @@ package dark.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import createBlob
-import dark.ecs.components.Blob
+import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.LogComponent
 import dark.ecs.components.PropsAndStuff
 import eater.ecs.ashley.components.Remove

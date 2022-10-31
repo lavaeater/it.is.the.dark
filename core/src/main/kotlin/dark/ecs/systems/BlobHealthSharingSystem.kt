@@ -2,8 +2,8 @@ package dark.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem
-import dark.ecs.components.Blob
-import dark.ecs.components.BlobMessage
+import dark.ecs.components.blobcomponents.Blob
+import dark.ecs.components.blobcomponents.BlobMessage
 import dark.ecs.components.PropsAndStuff
 import ktx.ashley.allOf
 

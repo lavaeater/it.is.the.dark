@@ -8,8 +8,8 @@ import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.math.Vector2
 import dark.core.GameSettings
 import dark.ecs.components.Light
-import dark.ecs.components.Target
-import dark.ecs.components.TargetState
+import dark.ecs.components.blobcomponents.Target
+import dark.ecs.components.blobcomponents.TargetState
 import eater.ai.ashley.AiAction
 import eater.ai.ashley.AiActionWithStateComponent
 import eater.ai.steering.box2d.Box2dLocation

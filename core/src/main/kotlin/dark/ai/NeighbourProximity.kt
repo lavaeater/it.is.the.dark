@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.steer.Proximity
 import com.badlogic.gdx.ai.steer.Steerable
 import com.badlogic.gdx.math.Vector2
-import dark.ecs.components.Blob
+import dark.ecs.components.blobcomponents.Blob
 import eater.ai.steering.box2d.Box2dSteerable
 
 class NeighbourProximity(

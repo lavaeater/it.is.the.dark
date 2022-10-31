@@ -1,4 +1,4 @@
-package dark.ecs.components
+package dark.ecs.components.blobcomponents
 
 class BlobMonster {
     /**

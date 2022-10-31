@@ -4,13 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import dark.core.GameSettings
-import dark.ecs.components.Blob
-import dark.ecs.components.BlobMessage
-import eater.ecs.ashley.components.Box2d
+import dark.ecs.components.blobcomponents.Blob
+import dark.ecs.components.blobcomponents.BlobMessage
 import eater.injection.InjectionContext.Companion.inject
-import ktx.log.info
-import ktx.math.div
-import ktx.math.vec2
 
 object BlobGrouper {
     fun getRandomNumber(): Float {

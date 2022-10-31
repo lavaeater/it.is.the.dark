@@ -1,4 +1,4 @@
-package dark.ecs.components
+package dark.ecs.components.blobcomponents
 
 import com.badlogic.ashley.core.Entity
 

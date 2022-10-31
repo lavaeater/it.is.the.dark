@@ -16,8 +16,8 @@ import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
+import dark.ecs.components.blobcomponents.Blob
 import dark.injection.Assets
-import eater.ecs.ashley.components.Box2d
 import eater.ecs.ashley.components.Remove
 import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject

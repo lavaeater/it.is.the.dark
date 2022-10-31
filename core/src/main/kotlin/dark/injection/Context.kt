@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createFood
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.components.Blob
+import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.systems.*
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
