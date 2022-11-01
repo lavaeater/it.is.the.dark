@@ -84,6 +84,7 @@ class RenderSystem(
             renderBlobs()
             renderFood()
             renderHumans()
+            renderTopLayerMap()
         }
 
         lightsEngine.draw(camera.combined)
@@ -151,6 +152,16 @@ class RenderSystem(
             map.mapOrigin.x,
             map.mapOrigin.y
         )
+    }
+
+    private fun renderTopLayerMap() {
+        val map = Map.get(mapEntity)
+        batch.draw(
+            map.mapTopLayerRegion,
+            map.mapOrigin.x,
+            map.mapOrigin.y
+        )
+
     }
 
     private fun renderFood() {

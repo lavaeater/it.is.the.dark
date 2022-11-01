@@ -7,17 +7,17 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createBlob
 import createFood
-import createLight
+import createLights
 import createMap
 import createPlayer
-import createSomeHumans
+import createHumans
 import dark.core.DarkGame
 import dark.core.GameSettings
+import dark.ecs.components.PointType
 import dark.ecs.systems.BlobGrouper
 import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
-import ktx.math.vec2
 
 class GameScreen(
     private val game: DarkGame,
@@ -25,7 +25,8 @@ class GameScreen(
     private val viewPort: ExtendViewport,
     private val batch: PolygonSpriteBatch,
     private val camera: OrthographicCamera,
-private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
+    private val gameSettings: GameSettings
+) : KtxScreen, KtxInputAdapter {
     override fun hide() {
         super.hide()
     }
@@ -49,16 +50,15 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
     }
 
     override fun show() {
-        val validPoints = createMap("two")
-        BlobGrouper.blobPoints = validPoints
-//        createFood()
-        //createSomeHumans()
-        for(i in 0..3)
-            createLight()
+        val map = createMap("two")
+        BlobGrouper.blobPoints = map.points[PointType.BlobStart]!!
+        createFood(map.points[PointType.BlobStart]!!)
+        createHumans(map.points[PointType.HumanStart]!!)
+        createLights(map.points[PointType.Lights]!!)
 
-        for(i in 0..gameSettings.MinBlobs)
-            createBlob(validPoints.first(), (5..6).random() * 10f, follow = false)
+        for (i in 0..gameSettings.MinBlobs)
+            createBlob(map.points[PointType.BlobStart]!!.random(), (5..6).random() * 10f, follow = false)
 
-        createPlayer(validPoints.last(),follow = true)
+        createPlayer(map.points[PointType.PlayerStart]!!.random(), follow = true)
     }
 }

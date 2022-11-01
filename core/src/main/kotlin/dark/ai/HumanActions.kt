@@ -73,7 +73,7 @@ object HumanActions {
         val gameSettings by lazy { InjectionContext.inject<GameSettings>() }
 
 
-        override fun actFunction(entity: Entity, stateComponent: Target.GenericTarget, deltaTime: Float) {
+        override fun actFunction(entity: Entity, stateComponent: Target.GenericTarget, deltaTime: Float): Boolean {
             /**
              * So, we should get the box2d and the state and move towards ta
              *
@@ -135,6 +135,7 @@ object HumanActions {
                      */
                 }
             }
+            return false
         }
     }
 
@@ -148,7 +149,7 @@ object HumanActions {
                 Box2dSteerable.get(entity).steeringBehavior = null
             }
 
-            override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float) {
+            override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float): Boolean {
                 when (stateComponent.state) {
                     WanderState.NotStarted -> {
                         /** Here we add the wander state steering stuff
@@ -166,6 +167,7 @@ object HumanActions {
                         //The steering handles this one.
                     }
                 }
+                return false
             }
         }
 

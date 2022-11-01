@@ -31,39 +31,42 @@ import ktx.box2d.filter
 import ktx.log.info
 import ktx.math.vec2
 
-fun createLight() {
+fun createLights(points: List<Vector2>) {
+    for (point in points)
+        createLight(point)
+
+}
+
+fun createLight(lightPos: Vector2) {
     val mapFamily = allOf(Map::class).get()
     val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-    if (mapEntity != null) {
-        val map = Map.get(mapEntity)
-        val lightPos = map.validPoints.random()
-        engine().entity {
-            with<Light> {
-                hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
-                    setOriginBasedPosition(lightPos.x, lightPos.y)
-                }
-                inject<HackLightEngine>().addLight(hackLight)
+
+    engine().entity {
+        with<Light> {
+            hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
+                setOriginBasedPosition(lightPos.x, lightPos.y)
             }
-            with<Box2d> {
-                body = world().body {
-                    type = BodyDef.BodyType.DynamicBody
-                    userData = this@entity.entity
-                    position.set(lightPos)
-                    circle(10f) {
-                        isSensor = true
-                        filter {
-                            categoryBits = Categories.lights
-                            maskBits = Categories.whatLightsCollideWith
-                        }
+            inject<HackLightEngine>().addLight(hackLight)
+        }
+        with<Box2d> {
+            body = world().body {
+                type = BodyDef.BodyType.DynamicBody
+                userData = this@entity.entity
+                position.set(lightPos)
+                circle(10f) {
+                    isSensor = true
+                    filter {
+                        categoryBits = Categories.lights
+                        maskBits = Categories.whatLightsCollideWith
                     }
                 }
             }
-            with<TransformComponent>()
         }
+        with<TransformComponent>()
     }
 }
 
-fun createFood() {
+fun createFood(points: List<Vector2>) {
     val mapFamily = allOf(Map::class).get()
     val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
 
@@ -75,7 +78,7 @@ fun createFood() {
                 body = world().body {
                     userData = this@entity.entity
                     type = BodyDef.BodyType.StaticBody
-                    position.set(map.validPoints.random())
+                    position.set(points.random())
                     circle(1.0f) {
                         filter {
                             categoryBits = Categories.food
@@ -90,15 +93,9 @@ fun createFood() {
     }
 }
 
-fun createSomeHumans() {
-    val mapFamily = allOf(Map::class).get()
-    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-
-    if (mapEntity != null) {
-        val map = Map.get(mapEntity)
-        for (i in 0..10) {
-            createRegularHuman(map.validPoints.random(), follow = false)
-        }
+fun createHumans(points: MutableList<Vector2>) {
+    for (i in 0..10) {
+        createRegularHuman(points.random(), follow = false)
     }
 }
 
@@ -142,7 +139,7 @@ fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = fals
     }
 }
 
-fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
+fun createPlayer(at: Vector2, health: Float = 100f, follow: Boolean = false) {
     engine().entity {
         with<Human>()
         with<PropsAndStuff> {
@@ -161,7 +158,7 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
             inject<HackLightEngine>().addLight(hackLight)
         }
         with<Flashlight> {
-            light = HackLight(inject<Assets>().lights[1],1f,1f,1f,1f).apply {
+            light = HackLight(inject<Assets>().lights[1], 1f, 1f, 1f, 1f).apply {
                 setOriginCenter()
                 setOrigin(originX, 0f)
             }
@@ -186,7 +183,13 @@ fun createPlayer(at: Vector2, health:Float = 100f, follow: Boolean = false) {
     }
 }
 
-fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: GameSettings = inject(), follow: Boolean = false) {
+fun createBlob(
+    at: Vector2,
+    health: Float = 100f,
+    radius: Float = 3f,
+    settings: GameSettings = inject(),
+    follow: Boolean = false
+) {
     BlobGrouper.addNewBlob(engine().entity {
         with<Blob> {
             this.radius = radius
@@ -253,18 +256,21 @@ fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: 
     })
 }
 
-fun createMap(key: String): List<Vector2> {
+fun createMap(key: String): Map {
     var scaleFactor = 1f
     if (key == "two")
         scaleFactor = 2f
-    var gridSize = 8f * scaleFactor
+    val gridSize = 8f * scaleFactor
     val mapOffset = vec2(-50f, -50f)
     val mapAssets = assets().maps[key]!!
     val textureRegion = TextureRegion(mapAssets.first)
+    val topTextureRegion = TextureRegion(mapAssets.third)
     val returnList = mutableListOf<Vector2>()
+    lateinit var map: Map
     engine().entity {
-        val map = with<Map> {
+        map = with {
             mapTextureRegion = textureRegion
+            mapTopLayerRegion = topTextureRegion
             mapScale = scaleFactor
             mapOrigin.set(mapOffset)
             mapBounds = Rectangle(
@@ -274,30 +280,23 @@ fun createMap(key: String): List<Vector2> {
                 textureRegion.regionHeight.toFloat() - 2 * gridSize
             )
         }
-        returnList.addAll(createBounds(mapAssets.second, gridSize, mapOffset, map))
+        createBounds(mapAssets.second, gridSize, mapOffset, map)
     }
-    return returnList
+    return map
 }
 
-fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map): List<Vector2> {
+fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map) {
     /*
     To make it super easy, we just create a square per int-tile in the layer.
      */
     intLayer.lines().reversed().forEachIndexed { y, l ->
         l.split(',').forEachIndexed { x, c ->
-            if (c == "1") {
-                map.mapBodies.add(world().body {
-                    type = BodyDef.BodyType.StaticBody
-                    position.set(x * tileSize + mapOffset.x + tileSize / 2f, y * tileSize + mapOffset.y - tileSize / 2f)
-                    box(tileSize, tileSize) {
-                        filter {
-                            categoryBits = Categories.walls
-                            maskBits = Categories.whatWallsCollideWith
-                        }
-                    }
-                })
-            } else if (c == "2") {
-                map.validPoints.add(
+            if(PointType.allTypes.containsKey(c)) {
+                val pointType = PointType.allTypes[c]!!
+                if (!map.points.containsKey(pointType)) {
+                    map.points[pointType] = mutableListOf()
+                }
+                map.points[pointType]!!.add(
                     vec2(
                         x * tileSize + mapOffset.x + tileSize / 2f,
                         y * tileSize + mapOffset.y - tileSize / 2f
@@ -306,6 +305,21 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
             }
         }
     }
-    return map.validPoints
+
+    for (bound in map.points[PointType.Impassable]!!) {
+        map.mapBodies.add(world().body {
+            type = BodyDef.BodyType.StaticBody
+            position.set(
+                bound.x,
+                bound.y
+            )
+            box(tileSize, tileSize) {
+                filter {
+                    categoryBits = Categories.walls
+                    maskBits = Categories.whatWallsCollideWith
+                }
+            }
+        })
+    }
 }
 

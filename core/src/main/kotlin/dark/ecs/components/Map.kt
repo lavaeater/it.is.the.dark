@@ -11,20 +11,33 @@ import eater.core.world
 import ktx.ashley.mapperFor
 import ktx.math.vec2
 
+sealed class PointType(val character: String) {
+    object BlobStart: PointType("2")
+    object PlayerStart: PointType("3")
+    object HumanStart: PointType("4")
+    object Lights: PointType("5")
+    object Impassable: PointType("1")
+
+    companion object {
+        val allTypes = listOf(BlobStart, PlayerStart, HumanStart, Lights, Impassable).associateBy { it.character }
+    }
+}
+
 class Map: Component, Pool.Poolable {
     lateinit var mapBounds: Rectangle
     val mapOrigin = vec2()
     var mapScale = 1f
     lateinit var mapTextureRegion: TextureRegion
+    lateinit var mapTopLayerRegion: TextureRegion
     val mapBodies = mutableListOf<Body>()
-    val validPoints = mutableListOf<Vector2>()
+    val points = mutableMapOf<PointType, MutableList<Vector2>>()
 
     override fun reset() {
         for(body in mapBodies) {
             world().destroyBody(body)
         }
         mapBodies.clear()
-        validPoints.clear()
+        points.clear()
         mapOrigin.setZero()
         mapScale = 1f
         mapTextureRegion = TextureRegion()
