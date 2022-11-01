@@ -4,9 +4,9 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class InRangeForShootingTarget: Component, Pool.Poolable {
-    lateinit var target: Entity
+    var target: Entity? = null
     override fun reset() {
-
+        target = null
     }
 
     companion object {

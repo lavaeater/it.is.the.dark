@@ -56,7 +56,7 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
         for(i in 0..3)
             createLight()
 
-        //for(i in 0..gameSettings.MaxBlobs / 100)
+        for(i in 0..gameSettings.MinBlobs)
             createBlob(validPoints.first(), (5..6).random() * 10f, follow = false)
 
         createPlayer(validPoints.last(),follow = true)

@@ -1,12 +1,12 @@
 package dark.ai
 
+import Categories
 import InRangeForShootingTarget
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.steer.Steerable
 import com.badlogic.gdx.ai.steer.SteeringBehavior
 import com.badlogic.gdx.ai.steer.behaviors.*
 import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -38,6 +38,7 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.circle
 import ktx.box2d.distanceJointWith
+import ktx.box2d.filter
 import ktx.log.info
 import ktx.math.plus
 import kotlin.math.pow
@@ -252,13 +253,32 @@ object BlobActions {
         }
     }
 
+    private var previousHuntState: TargetState = TargetState.IsDoneWithTarget
+    private var previousShootState: ShootAndEatState = ShootAndEatState.IsEating
+
+    private fun logIfNewHuntState(newState: TargetState) {
+        if (previousHuntState != newState) {
+            info { newState.toString() }
+            previousHuntState = newState
+        }
+    }
+
+    private fun logIfNewShootState(newState: ShootAndEatState) {
+        if (previousShootState != newState) {
+            info { newState.toString() }
+            previousShootState = newState
+        }
+    }
+
+
     private val shootTheFood = ConsideredActionWithState(
         "Shoot the food - then eat it",
         { entity, stateComponent, deltaTime ->
+            logIfNewShootState(stateComponent.state)
             when (stateComponent.state) {
                 ShootAndEatState.HasNotYetShot -> {
-                    if (InRangeForShootingTarget.has(entity)) {
-                        val target = InRangeForShootingTarget.get(entity).target
+                    val target = InRangeForShootingTarget.get(entity).target
+                    if (target != null) {
                         val targetBody = Box2d.get(target).body
                         val blob = Blob.get(entity)
 
@@ -270,7 +290,7 @@ object BlobActions {
 
                         // Create some nice little nodes for this
                         val distance = rope.from.position.dst(rope.to.position)
-                        val segmentLength = 2.5f
+                        val segmentLength = 1f
                         val segments = (distance / segmentLength).toInt()
                         lateinit var currentBody: Body
                         var previousBody = rope.from
@@ -279,8 +299,8 @@ object BlobActions {
                             /**
                              */
                             val newPos = rope.from.position.cpy().add(segmentVector)
-                            currentBody = createSlimeNode(newPos, 0.5f)
-                            val currentEntity = createSlimeEntity(currentBody)
+                            currentBody = createRopeNodeBody(newPos, 0.5f)
+                            val currentEntity = createRopeNodeEntity(currentBody)
                             rope.nodes[currentBody] = currentEntity
                             rope.joints.add(currentBody.distanceJointWith(previousBody) {
                                 length = segmentLength / 4
@@ -292,9 +312,9 @@ object BlobActions {
                             if (segment == segments - 1) {
                                 rope.joints.add(currentBody.distanceJointWith(rope.to) {
                                     //localAnchorB.set(rope.to.getLocalPoint(endPosition))
-                                    length = 0.1f
-                                    frequencyHz = 50f
-                                    dampingRatio = 1f
+                                    length = segmentLength / 4
+                                    frequencyHz = gameSettings.outerShellHz
+                                    dampingRatio = gameSettings.outerShellDamp
                                     collideConnected = false
                                 })
                             }
@@ -311,7 +331,9 @@ object BlobActions {
                      */
                 }
 
-                ShootAndEatState.IsEating -> TODO()
+                ShootAndEatState.IsEating -> {
+                }
+
                 ShootAndEatState.TotallyDone -> {
                     val blob = Blob.get(entity)
                     for (rope in blob.ropes) {
@@ -338,57 +360,8 @@ object BlobActions {
     private val moveTowardsFood = ConsideredActionWithState(
         "Move towards food - if we have a target!",
         { entity, stateComponent, deltaTime ->
-
+            logIfNewHuntState(stateComponent.state)
             when (stateComponent.state) {
-                TargetState.ArrivedAtTarget -> {
-                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
-                        entity.addComponent<InRangeForShootingTarget> {
-                            target = stateComponent.target!!
-                        }
-                    }
-                    stateComponent.state = TargetState.IsDoneWithTarget
-                    true
-                }
-
-                TargetState.IsDoneWithTarget -> {
-                    entity.remove<FoundHuntingTarget>()
-                    true
-                }
-
-                TargetState.IsSteering -> {
-                    if (stateComponent.target == null || !Box2d.has(stateComponent.target!!)) {
-                        stateComponent.state = TargetState.IsDoneWithTarget
-                    }
-                    /** DOH-OH!**/
-                    val targetPosition = TransformComponent.get(stateComponent.target!!).position
-                    val position = TransformComponent.get(entity).position
-                    if (position.dst2(targetPosition) < (gameSettings.BlobDetectionRadius / 2f).pow(2)) {
-                        stateComponent.state = TargetState.ArrivedAtTarget
-                    }
-                    false
-                }
-
-                TargetState.NeedsSteering -> {
-                    // Get into shooting distance of the target
-                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
-                        val steerable = Box2dSteerable.get(entity)
-
-                        steerable.steeringBehavior =
-                            getArriveAtFoodSteering(
-                                entity,
-                                steerable,
-                                stateComponent.target!!,
-                                gameSettings.BlobDetectionRadius / 2f,
-                                true
-                            )
-                        stateComponent.steering = steerable.steeringBehavior
-                        stateComponent.state = TargetState.IsSteering
-                    } else {
-                        stateComponent.state = TargetState.IsDoneWithTarget
-                    }
-                    false
-                }
-
                 TargetState.NeedsTarget -> {
                     /**
                      * We now that we have a target and that we are hungry, so now we
@@ -405,12 +378,59 @@ object BlobActions {
                     }
                     false
                 }
+
+                TargetState.NeedsSteering -> {
+                    // Get into shooting distance of the target
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
+                        val steerable = Box2dSteerable.get(entity)
+
+                        steerable.steeringBehavior =
+                            getArriveAtFoodSteering(
+                                entity,
+                                steerable,
+                                stateComponent.target!!,
+                                gameSettings.BlobDetectionRadius / 2.25f, // Otherwise we stop just outside of range for shooting
+                                true
+                            )
+                        stateComponent.steering = steerable.steeringBehavior
+                        stateComponent.state = TargetState.IsSteering
+                    } else {
+                        stateComponent.state = TargetState.IsDoneWithTarget
+                    }
+                    false
+                }
+
+                TargetState.IsSteering -> {
+                    if (stateComponent.target == null || !Box2d.has(stateComponent.target!!)) {
+                        stateComponent.state = TargetState.IsDoneWithTarget
+                    }
+                    /** DOH-OH!**/
+                    val targetPosition = TransformComponent.get(stateComponent.target!!).position
+                    val position = TransformComponent.get(entity).position
+                    if (position.dst2(targetPosition) < (gameSettings.BlobDetectionRadius / 2f).pow(2)) {
+                        stateComponent.state = TargetState.ArrivedAtTarget
+                    }
+                    false
+                }
+
+                TargetState.ArrivedAtTarget -> {
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
+                        entity.addComponent<InRangeForShootingTarget> {
+                            target = stateComponent.target!!
+                        }
+                    }
+                    stateComponent.state = TargetState.IsDoneWithTarget
+                    true
+                }
+
+                TargetState.IsDoneWithTarget -> {
+                    entity.remove<FoundHuntingTarget>()
+                    true
+                }
             }
-
-
         },
         Target.HuntingTarget::class,
-        0f..0.8f,
+        0f..0.7f,
         DoIRememberThisConsideration(BlobsCanEatThis::class)
     )
 
@@ -589,7 +609,7 @@ object BlobActions {
     val allActions = listOf(senseFood, moveTowardsFood, shootTheFood, fleeTheLight)
 }
 
-fun createSlimeEntity(body: Body): Entity {
+fun createRopeNodeEntity(body: Body): Entity {
     val entity = engine().entity {
         with<Box2d> {
             this.body = body
@@ -600,13 +620,17 @@ fun createSlimeEntity(body: Body): Entity {
     return entity
 }
 
-fun createSlimeNode(at: Vector2, radius: Float): Body {
+fun createRopeNodeBody(at: Vector2, radius: Float): Body {
     return world().body {
         type = BodyDef.BodyType.DynamicBody
         position.set(at)
         fixedRotation = false
         circle(radius) {
             density = .1f
+            filter {
+                categoryBits = Categories.ropes
+                maskBits = Categories.whatRopesCollideWith
+            }
         }
     }
 }

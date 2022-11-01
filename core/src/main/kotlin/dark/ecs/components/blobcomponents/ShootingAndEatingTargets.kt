@@ -5,13 +5,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
-sealed class ShootAndEatState {
-    object HasNotYetShot: ShootAndEatState()
-    object HasShot: ShootAndEatState()
-    object IsEating: ShootAndEatState()
-    object TotallyDone: ShootAndEatState()
-}
-
 class ShootingAndEatingTargets: Component, Pool.Poolable {
     var state: ShootAndEatState = ShootAndEatState.HasNotYetShot
     override fun reset() {

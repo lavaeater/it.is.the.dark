@@ -7,10 +7,10 @@ class GameSettings {
     val LightDamage = 10f
     val Debug = true
     val BlobHealthReductionPerSecond = 1f
-    val BlobDetectionRadius = 40f
-    val BlobForgettingRadius = 60f
-    val MaxBlobs = 1
-    val MinBlobs = 1
+    val BlobDetectionRadius = 60f
+    val BlobForgettingRadius = 80f
+    val MaxBlobs = 100
+    val MinBlobs = 10
 
     val HumanLightDetectionRadius = 50f
 
@@ -19,7 +19,7 @@ class GameSettings {
     val GameHeight = AspectRatio * GameWidth
     val PixelsPerMeter = 32f
     val MetersPerPixel = 1f / PixelsPerMeter
-    val outerShellHz = 1f
+    val outerShellHz = 25f
     val outerShellDamp = 0.5f
     val spokeHz = 1f
     val spokeDamp = 0.3f
