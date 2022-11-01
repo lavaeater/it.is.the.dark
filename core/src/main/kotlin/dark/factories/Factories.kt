@@ -64,29 +64,23 @@ fun createLight(lightPos: Vector2) {
 }
 
 fun createFood(points: List<Vector2>) {
-    val mapFamily = allOf(Map::class).get()
-    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-
-    if (mapEntity != null) {
-        val map = Map.get(mapEntity)
-        engine().entity {
-            with<Food>()
-            with<Box2d> {
-                body = world().body {
-                    userData = this@entity.entity
-                    type = BodyDef.BodyType.StaticBody
-                    position.set(points.random())
-                    circle(1.0f) {
-                        filter {
-                            categoryBits = Categories.food
-                            maskBits = Categories.whatFoodCollidesWith
-                        }
+    engine().entity {
+        with<Food>()
+        with<Box2d> {
+            body = world().body {
+                userData = this@entity.entity
+                type = BodyDef.BodyType.StaticBody
+                position.set(points.random())
+                circle(1.0f) {
+                    filter {
+                        categoryBits = Categories.food
+                        maskBits = Categories.whatFoodCollidesWith
                     }
                 }
             }
-            with<TransformComponent>()
-            with<BlobsCanEatThis>()
         }
+        with<TransformComponent>()
+        with<BlobsCanEatThis>()
     }
 }
 
@@ -288,7 +282,7 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
      */
     intLayer.lines().reversed().forEachIndexed { y, l ->
         l.split(',').forEachIndexed { x, c ->
-            if(PointType.allTypes.containsKey(c)) {
+            if (PointType.allTypes.containsKey(c)) {
                 val pointType = PointType.allTypes[c]!!
                 if (!map.points.containsKey(pointType)) {
                     map.points[pointType] = mutableListOf()
