@@ -51,14 +51,14 @@ private val gameSettings: GameSettings): KtxScreen, KtxInputAdapter {
     override fun show() {
         val validPoints = createMap("two")
         BlobGrouper.blobPoints = validPoints
-        createFood()
+//        createFood()
         //createSomeHumans()
         for(i in 0..3)
             createLight()
 
-        for(i in 0..gameSettings.MaxBlobs / 100)
-            createBlob(validPoints.random(), (5..16).random() * 10f, follow = false)
+        //for(i in 0..gameSettings.MaxBlobs / 100)
+            createBlob(validPoints.first(), (5..6).random() * 10f, follow = false)
 
-        createPlayer(validPoints.random(),follow = true)
+        createPlayer(validPoints.last(),follow = true)
     }
 }

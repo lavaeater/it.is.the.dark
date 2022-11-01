@@ -6,7 +6,10 @@ import com.badlogic.gdx.ai.steer.Steerable
 import com.badlogic.gdx.ai.steer.SteeringBehavior
 import com.badlogic.gdx.ai.steer.behaviors.*
 import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
 import createBlob
 import dark.core.GameSettings
 import dark.ecs.components.*
@@ -29,9 +32,15 @@ import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import eater.physics.addComponent
 import ktx.ashley.allOf
+import ktx.ashley.entity
 import ktx.ashley.remove
+import ktx.ashley.with
+import ktx.box2d.body
+import ktx.box2d.circle
+import ktx.box2d.distanceJointWith
 import ktx.log.info
 import ktx.math.plus
+import kotlin.math.pow
 import kotlin.reflect.typeOf
 
 fun acceptOnlyBlobs(steerable: Steerable<Vector2>): Boolean {
@@ -138,6 +147,8 @@ fun getArriveAtFoodSteering(
 
 
 object BlobActions {
+    private val gameSettings by lazy { inject<GameSettings>() }
+
     private val aimlesslyWander =
         object :
             AiActionWithStateComponent<WanderStateComponent>("Wander with Steering", WanderStateComponent::class) {
@@ -149,7 +160,7 @@ object BlobActions {
                 Box2dSteerable.get(entity).steeringBehavior = null
             }
 
-            override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float) {
+            override fun actFunction(entity: Entity, stateComponent: WanderStateComponent, deltaTime: Float): Boolean {
                 when (stateComponent.state) {
                     WanderState.NotStarted -> {
                         /** Here we add the wander state steering stuff
@@ -166,6 +177,7 @@ object BlobActions {
                         //The steering handles this one.
                     }
                 }
+                return false
             }
         }
     private val fleeTheLight =
@@ -190,7 +202,7 @@ object BlobActions {
                 steerable.steeringBehavior = null
             }
 
-            override fun actFunction(entity: Entity, stateComponent: FleeStateComponent, deltaTime: Float) {
+            override fun actFunction(entity: Entity, stateComponent: FleeStateComponent, deltaTime: Float): Boolean {
                 when (stateComponent.state) {
                     FleeState.IsFleeing -> {
                         if (Memory.has(entity) && Memory.get(entity).hasGeneralMemoryChanged) {
@@ -210,6 +222,7 @@ object BlobActions {
                         )
                     }
                 }
+                return false
             }
 
         }
@@ -227,7 +240,7 @@ object BlobActions {
         override fun abort(entity: Entity) {
         }
 
-        override fun act(entity: Entity, deltaTime: Float) {
+        override fun act(entity: Entity, deltaTime: Float): Boolean {
             val props = PropsAndStuff.get(entity)
             val health = props.getHealth()
             val remainingHealthForNewBlog = health.current / 2f
@@ -235,65 +248,92 @@ object BlobActions {
             val direction = Vector2.X.cpy().rotateDeg((0..359).random().toFloat())
             val at = TransformComponent.get(entity).position + direction.scl(5f)
             createBlob(at, remainingHealthForNewBlog)
+            return false
         }
     }
 
-    private val shootTheFood = ConsideredAction("Shoot the food - then eat it", 0f..0.8f, { entity, deltaTime ->
-        if(InRangeForShootingTarget.has(entity)) {
-            val target = InRangeForShootingTarget.get(entity).target
-            val targetBody = Box2d.get(target)
+    private val shootTheFood = ConsideredActionWithState(
+        "Shoot the food - then eat it",
+        { entity, stateComponent, deltaTime ->
+            when (stateComponent.state) {
+                ShootAndEatState.HasNotYetShot -> {
+                    if (InRangeForShootingTarget.has(entity)) {
+                        val target = InRangeForShootingTarget.get(entity).target
+                        val targetBody = Box2d.get(target).body
+                        val blob = Blob.get(entity)
 
                         val rope = SlimeRope(mutableMapOf(), mutableListOf())
-            slimer.ropeySlimey.add(rope)
-            val firstBody = createSlimeNode(endVec, .5f)
-            val entity = createSlimeEntity(firstBody)
-            rope.nodes[firstBody] = entity
-            for (b in anchorPair.toList()) {
-                rope.joints.add(b.distanceJointWith(firstBody) {
-                    this.length = b.position.dst(firstBody.position)
-                    this.frequencyHz = GameConstants.outerShellHz
-                    this.dampingRatio = GameConstants.outerShellDamp
-                })
-            }
-            rope.triangle = Triple(firstBody, anchorPair.first, anchorPair.second)
-            rope.anchorBodies = anchorPair
+                        blob.ropes.add(rope)
 
-            if (lastFraction < 1f) {
-                val endPosition = lastHitPoint.cpy()
-                val distance = firstBody.position.dst(endPosition)
-                val numberOfSegments = (distance / segmentLength).toInt()
+                        rope.from = Box2d.get(entity).body
+                        rope.to = targetBody
 
-                val segmentVector = endPosition.cpy().sub(firstBody.position).nor().scl(segmentLength)
+                        // Create some nice little nodes for this
+                        val distance = rope.from.position.dst(rope.to.position)
+                        val segmentLength = 2.5f
+                        val segments = (distance / segmentLength).toInt()
+                        lateinit var currentBody: Body
+                        var previousBody = rope.from
+                        val segmentVector = rope.to.position.cpy().sub(rope.from.position).nor().scl(segmentLength)
+                        for (segment in 0 until segments) {
+                            /**
+                             */
+                            val newPos = rope.from.position.cpy().add(segmentVector)
+                            currentBody = createSlimeNode(newPos, 0.5f)
+                            val currentEntity = createSlimeEntity(currentBody)
+                            rope.nodes[currentBody] = currentEntity
+                            rope.joints.add(currentBody.distanceJointWith(previousBody) {
+                                length = segmentLength / 4
+                                frequencyHz = gameSettings.outerShellHz
+                                dampingRatio = gameSettings.outerShellDamp
+                                collideConnected = false
+                            })
+                            previousBody = currentBody
+                            if (segment == segments - 1) {
+                                rope.joints.add(currentBody.distanceJointWith(rope.to) {
+                                    //localAnchorB.set(rope.to.getLocalPoint(endPosition))
+                                    length = 0.1f
+                                    frequencyHz = 50f
+                                    dampingRatio = 1f
+                                    collideConnected = false
+                                })
+                            }
+                        }
+                        stateComponent.state = ShootAndEatState.HasShot
+                    } else
+                        stateComponent.state = ShootAndEatState.TotallyDone
+                }
 
-                lateinit var currentBody: Body
-                var previousBody = firstBody
-                for (segment in 0 until numberOfSegments) {
-                    val newPos = firstBody.position.cpy().add(segmentVector)
-                    currentBody = createSlimeNode(newPos, .5f)
-                    val currentEntity = createSlimeEntity(currentBody)
-                    rope.nodes[currentBody] = currentEntity
-                    rope.joints.add(currentBody.distanceJointWith(previousBody) {
-                        length = segmentLength / 4
-                        frequencyHz = outerShellHz
-                        dampingRatio = outerShellDamp
-                        collideConnected = false
-                    })
-                    previousBody = currentBody
-                    if (segment == numberOfSegments - 1) {
-                        rope.joints.add(currentBody.distanceJointWith(lastFixture.body) {
-                            localAnchorB.set(lastFixture.body.getLocalPoint(endPosition))
-                            length = 0.1f
-                            frequencyHz = 50f
-                            dampingRatio = 1f
-                            collideConnected = false
-                        })
+                ShootAndEatState.HasShot -> {
+                    /**
+                     * Aww, man, what do we do?
+                     * We should pull the rope, and pull fast, somehow.
+                     */
+                }
+
+                ShootAndEatState.IsEating -> TODO()
+                ShootAndEatState.TotallyDone -> {
+                    val blob = Blob.get(entity)
+                    for (rope in blob.ropes) {
+                        for (joint in rope.joints) {
+                            world().destroyJoint(joint)
+                        }
+                        for (node in rope.nodes) {
+                            world().destroyBody(node.key)
+                            engine().removeEntity(node.value)
+                        }
                     }
+                    blob.ropes.clear()
+                    entity.remove<InRangeForShootingTarget>()
                 }
             }
-        }
-        }
 
-    }, DoIHaveThisComponentConsideration(InRangeForShootingTarget::class))
+            false
+        },
+        ShootingAndEatingTargets::class,
+        0f..0.8f,
+        DoIHaveThisComponentConsideration(InRangeForShootingTarget::class)
+    )
 
     private val moveTowardsFood = ConsideredActionWithState(
         "Move towards food - if we have a target!",
@@ -301,40 +341,52 @@ object BlobActions {
 
             when (stateComponent.state) {
                 TargetState.ArrivedAtTarget -> {
-                    if (Box2d.has(stateComponent.target!!)) {
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
                         entity.addComponent<InRangeForShootingTarget> {
                             target = stateComponent.target!!
                         }
                     }
                     stateComponent.state = TargetState.IsDoneWithTarget
+                    true
                 }
 
                 TargetState.IsDoneWithTarget -> {
                     entity.remove<FoundHuntingTarget>()
+                    true
                 }
 
                 TargetState.IsSteering -> {
-                    if (!Box2d.has(stateComponent.target!!)) {
+                    if (stateComponent.target == null || !Box2d.has(stateComponent.target!!)) {
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
+                    /** DOH-OH!**/
+                    val targetPosition = TransformComponent.get(stateComponent.target!!).position
+                    val position = TransformComponent.get(entity).position
+                    if (position.dst2(targetPosition) < (gameSettings.BlobDetectionRadius / 2f).pow(2)) {
+                        stateComponent.state = TargetState.ArrivedAtTarget
+                    }
+                    false
                 }
 
                 TargetState.NeedsSteering -> {
                     // Get into shooting distance of the target
-                    if (Box2d.has(stateComponent.target!!)) {
+                    if (stateComponent.target != null && Box2d.has(stateComponent.target!!)) {
                         val steerable = Box2dSteerable.get(entity)
+
                         steerable.steeringBehavior =
                             getArriveAtFoodSteering(
                                 entity,
                                 steerable,
                                 stateComponent.target!!,
-                                inject<GameSettings>().BlobDetectionRadius / 2f,
+                                gameSettings.BlobDetectionRadius / 2f,
                                 true
                             )
+                        stateComponent.steering = steerable.steeringBehavior
                         stateComponent.state = TargetState.IsSteering
                     } else {
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
+                    false
                 }
 
                 TargetState.NeedsTarget -> {
@@ -346,10 +398,12 @@ object BlobActions {
                     val entities = memory.seenEntities[typeOf<BlobsCanEatThis>()]
                     val potentialTarget = entities?.keys?.randomOrNull()
                     if (potentialTarget != null) {
+                        stateComponent.target = potentialTarget //DOH!
                         stateComponent.state = TargetState.NeedsSteering
                     } else {
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
+                    false
                 }
             }
 
@@ -357,14 +411,20 @@ object BlobActions {
         },
         Target.HuntingTarget::class,
         0f..0.8f,
-        DoIHaveThisComponentConsideration(FoundHuntingTarget::class)
+        DoIRememberThisConsideration(BlobsCanEatThis::class)
     )
 
-    private val searchForFood = AddComponentIfConsiderationIsTrueAction(
-        "If Hungry, find food, you know", 0f..0.8f, FoundHuntingTarget::class,
-        Consideration("Am I hungry?") {
-            1f - PropsAndStuff.get(it).getHealth().normalizedValue
-        },
+    /**
+     * This action doesn't need any score or anything else - it stores stuff into memories
+     * So if we are hungry AND have, in our memory, something we can eat, we should move
+     * towards that thing.
+     *
+     * The list of things remembered will be updated always...
+     */
+    private val senseFood = ConsideredAction(
+        "If Hungry, find food, you know",
+        0.0f..0.0f,
+        { _, _ -> false },
         CanISeeThisConsideration(BlobsCanEatThis::class)
     )
 
@@ -397,7 +457,11 @@ object BlobActions {
         val humanFamily = allOf(Human::class, Box2d::class).get()
         val gameSettings by lazy { inject<GameSettings>() }
 
-        override fun actFunction(entity: Entity, stateComponent: Target.MoveTowardsFoodTarget, deltaTime: Float) {
+        override fun actFunction(
+            entity: Entity,
+            stateComponent: Target.MoveTowardsFoodTarget,
+            deltaTime: Float
+        ): Boolean {
             /**
              * So, we should get the box2d and the state and move towards ta
              *
@@ -519,7 +583,30 @@ object BlobActions {
                     }
                 }
             }
+            return false
         }
     }
-    val allActions = listOf(splitInTwo, searchForAndArriveAtFood, fleeTheLight)
+    val allActions = listOf(senseFood, moveTowardsFood, shootTheFood, fleeTheLight)
+}
+
+fun createSlimeEntity(body: Body): Entity {
+    val entity = engine().entity {
+        with<Box2d> {
+            this.body = body
+        }
+        with<TransformComponent>()
+    }
+    body.userData = entity
+    return entity
+}
+
+fun createSlimeNode(at: Vector2, radius: Float): Body {
+    return world().body {
+        type = BodyDef.BodyType.DynamicBody
+        position.set(at)
+        fixedRotation = false
+        circle(radius) {
+            density = .1f
+        }
+    }
 }

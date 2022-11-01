@@ -78,7 +78,6 @@ class FlashlightRayTracingSystem(private val world: World) : IteratingSystem(
                     if (Blob.has(hitEntity) && !Remove.has(hitEntity)) {
                         val health = PropsAndStuff.get(hitEntity).getHealth()
                         val memories = Memory.get(hitEntity)
-                        info { "So many memories" }
                         health.current -= deltaTime * inject<GameSettings>().LightDamage
                         memories.addGeneralMemory(MemoryEvent.HitByLight(hitPoint))
                     }

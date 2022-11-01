@@ -3,6 +3,7 @@ package dark.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import createBlob
+import dark.core.GameSettings
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.LogComponent
 import dark.ecs.components.PropsAndStuff
@@ -12,7 +13,7 @@ import ktx.ashley.allOf
 import ktx.ashley.exclude
 import ktx.log.info
 
-class DeathSystem: IteratingSystem(allOf(PropsAndStuff::class).exclude(Remove::class).get()) {
+class DeathSystem(private val gameSettings: GameSettings): IteratingSystem(allOf(PropsAndStuff::class).exclude(Remove::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if(PropsAndStuff.has(entity) && !LogComponent.has(entity)) {
             val health = PropsAndStuff.get(entity).getHealth()
@@ -20,7 +21,7 @@ class DeathSystem: IteratingSystem(allOf(PropsAndStuff::class).exclude(Remove::c
                 entity.addComponent<Remove>()
                 if(Blob.has(entity)) {
                     BlobGrouper.removeBlob(entity)
-                    if (BlobGrouper.blobCount < 10) {
+                    if (BlobGrouper.blobCount < gameSettings.MinBlobs) {
                         info { "Add a new, too few left" }
                         createBlob(BlobGrouper.blobPoints.random())
                     }

@@ -17,6 +17,7 @@ import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
 import dark.ecs.components.blobcomponents.Blob
+import dark.ecs.components.blobcomponents.Target
 import dark.injection.Assets
 import eater.ecs.ashley.components.Remove
 import eater.ecs.ashley.components.TransformComponent
@@ -111,6 +112,19 @@ class RenderSystem(
                 radius,
                 Color(0f, health.normalizedValue, 0.5f, 1f)
             )
+            for(rope in Blob.get(lonelyBlob).ropes) {
+                val nodePositions = rope.nodes.values.map { TransformComponent.get(it).position }
+                for((index, position) in nodePositions.withIndex()) {
+                    if(index == 0) {
+                        shapeDrawer.line(rope.from.position, position)
+                    }else if(index < nodePositions.lastIndex) {
+                        shapeDrawer.line(position, nodePositions[index + 1])
+                    } else {
+                        shapeDrawer.line(position, rope.to.position)
+                    }
+                }
+            }
+
             if (gameSettings.Debug && LogComponent.has(lonelyBlob)) {
                 shapeDrawer.setColor(Color.GREEN)
                 shapeDrawer.circle(blobPosition.x, blobPosition.y, gameSettings.BlobDetectionRadius)
@@ -118,6 +132,14 @@ class RenderSystem(
                 shapeDrawer.circle(blobPosition.x, blobPosition.y, health.detectionRadius)
                 shapeDrawer.setColor(Color.BLUE)
                 shapeDrawer.circle(blobPosition.x, blobPosition.y, 2.5f)
+
+                if(Target.MoveTowardsFoodTarget.has(lonelyBlob)) {
+                    val t = Target.MoveTowardsFoodTarget.get(lonelyBlob).target
+                    if(t != null) {
+                        val position = TransformComponent.get(t).position
+                        shapeDrawer.filledCircle(position, 2f, Color.RED)
+                    }
+                }
             }
         }
     }

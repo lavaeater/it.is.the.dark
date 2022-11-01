@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import dark.ai.BlobActions
 import dark.ai.HumanActions
+import dark.ai.getWanderSteering
 import dark.core.GameSettings
 import dark.ecs.components.*
 import dark.ecs.components.Map
@@ -27,6 +28,7 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.log.info
 import ktx.math.vec2
 
 fun createLight() {
@@ -197,19 +199,19 @@ fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: 
         }
         if (follow) {
             with<CameraFollow>()
-//            with<LogComponent> {
-//                logFunction = { entity ->
-//                    val aiComponent = AiComponent.get(entity)
-//                    info { "We ${if (BlobGrouper.canSplit) "can" else "cannot"} split" }
-//                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
-//                    info { "Top action: ${aiComponent.topAction(entity)?.name}" }
-//                    info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
-//                    info { "Messages: ${Blob.get(entity).messageCount}" }
-//                    info { "Blob count: ${BlobGrouper.blobCount}" }
-//                    info { "Top Message: ${Blob.get(entity).peekOldestMessage()}" }
-//                    info { "Neighbours: ${Blob.get(entity).neighbours.size}" }
-//                }
-//            }
+            with<LogComponent> {
+                logFunction = { entity ->
+                    val aiComponent = AiComponent.get(entity)
+                    info { "We ${if (BlobGrouper.canSplit) "can" else "cannot"} split" }
+                    info { "Health: ${PropsAndStuff.get(entity).getHealth().current}" }
+                    info { "Top action: ${aiComponent.topAction(entity)?.name}" }
+                    info { aiComponent.actions.joinToString { "${it.score} - ${it.name}\n" } }
+                    info { "Messages: ${Blob.get(entity).messageCount}" }
+                    info { "Blob count: ${BlobGrouper.blobCount}" }
+                    info { "Top Message: ${Blob.get(entity).peekOldestMessage()}" }
+                    info { "Neighbours: ${Blob.get(entity).neighbours.size}" }
+                }
+            }
         }
         with<Memory>()
         val b2Body = world().body {
@@ -242,6 +244,7 @@ fun createBlob(at: Vector2, health: Float = 100f, radius: Float = 3f, settings: 
             maxAngularAcceleration = 100f
             maxAngularSpeed = 10f
             boundingRadius = 5f
+            steeringBehavior = getWanderSteering(this@entity.entity, this)
         }
         with<AgentProperties>() {
             fieldOfView = 270f
