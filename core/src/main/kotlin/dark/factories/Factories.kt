@@ -38,9 +38,6 @@ fun createLights(points: List<Vector2>) {
 }
 
 fun createLight(lightPos: Vector2) {
-    val mapFamily = allOf(Map::class).get()
-    val mapEntity = engine().getEntitiesFor(mapFamily).firstOrNull()
-
     engine().entity {
         with<Light> {
             hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {

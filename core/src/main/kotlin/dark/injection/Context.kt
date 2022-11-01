@@ -58,7 +58,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(HackLightEngine(1f, 1f, 1f, 0.25f))
+            bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.05f))
             bindSingleton(
                 GameScreen(
                     inject(),
