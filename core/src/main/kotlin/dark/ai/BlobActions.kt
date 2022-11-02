@@ -293,10 +293,11 @@ object BlobActions {
                         val blob = Blob.get(entity)
 
                         val rope = SlimeRope(mutableMapOf(), mutableListOf())
-                        blob.ropes.add(rope)
+                        stateComponent.rope = rope
 
                         rope.from = Box2d.get(entity).body
                         rope.to = targetBody
+                        rope.toEntity = target
 
                         // Create some nice little nodes for this
                         val distance = rope.from.position.dst(rope.to.position)
@@ -339,23 +340,15 @@ object BlobActions {
                      * Aww, man, what do we do?
                      * We should pull the rope, and pull fast, somehow.
                      */
+
+
+
                 }
 
                 ShootAndEatState.IsEating -> {
                 }
 
                 ShootAndEatState.TotallyDone -> {
-                    val blob = Blob.get(entity)
-                    for (rope in blob.ropes) {
-                        for (joint in rope.joints) {
-                            world().destroyJoint(joint)
-                        }
-                        for (node in rope.nodes) {
-                            world().destroyBody(node.key)
-                            engine().removeEntity(node.value)
-                        }
-                    }
-                    blob.ropes.clear()
                     entity.remove<InRangeForShootingTarget>()
                 }
             }
