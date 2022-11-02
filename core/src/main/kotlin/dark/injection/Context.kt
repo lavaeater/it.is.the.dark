@@ -4,7 +4,6 @@ import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Audio
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -24,7 +23,6 @@ import eater.injection.InjectionContext
 import eater.physics.bothAreSensors
 import eater.physics.bothHaveComponent
 import eater.physics.getEntity
-import games.rednblack.miniaudio.MiniAudio
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -44,7 +42,8 @@ object Context : InjectionContext() {
             val gameSettings = GameSettings()
             bindSingleton(gameSettings)
             bindSingleton(game)
-            bindSingleton(MiniAudio())
+            //bindSingleton(MiniAudio())
+            bindSingleton(de.pottgames.tuningfork.Audio.init())
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())
             bindSingleton(
@@ -167,7 +166,7 @@ class CollisionManager : ContactListener {
                 /**
                  * So, if we are no longer in contact with... A blob, what do we do?
                  * We should only leave the group if we are actually no longer near ANYONE
-                 * in the blob swarm. So simply put, if we have NO neigbours, i.e our
+                 * in the blob swarm. So simply put, if we have NO neigbours, i.e. our
                  * blob proximity list is empty, we should leave the group
                  */
 //                val firstBlob = contactType.firstBlob

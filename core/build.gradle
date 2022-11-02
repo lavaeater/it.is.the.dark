@@ -49,6 +49,6 @@ dependencies {
 	api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxCoroutinesVersion"
 	api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 	api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
-	implementation 'com.github.Hangman:TuningFork:$tuningForkVersion'
+	api "com.github.Hangman:TuningFork:$tuningForkVersion"
 	implementation project(':gdx-lava')
 }
