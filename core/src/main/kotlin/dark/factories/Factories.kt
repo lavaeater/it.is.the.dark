@@ -155,7 +155,7 @@ fun createPlayer(at: Vector2, health: Float = 100f, follow: Boolean = false) {
         with<Flashlight> {
             light = HackLight(inject<Assets>().lights[1], 1f, 1f, 1f, 1f).apply {
                 setOriginCenter()
-                setOrigin(originX, 0f)
+                setOrigin(originX, originY / 5f)
             }
             inject<HackLightEngine>().addLight(light)
         }

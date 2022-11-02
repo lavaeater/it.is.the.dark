@@ -60,7 +60,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(HackLightEngine(0.7f, 0.7f, 0.7f, 0.7f))
+            bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.1f))
             bindSingleton(
                 GameScreen(
                     inject(),
@@ -130,7 +130,7 @@ class CollisionManager : ContactListener {
                  * They also become neighbours automatically
                  */
 //                val firstBlob = contactType.firstBlob
-//                val secondBlob = contactType.secondBlob
+//                val secondBlob = contactType.secondBlobRenders
 //
 //                val firstBlobC = Blob.get(firstBlob)
 //                val secondBlobC = Blob.get(secondBlob)
