@@ -1,10 +1,10 @@
 package dark.injection
 
 import com.aliasifkhan.hackLights.HackLightEngine
-import dark.ecs.components.Food
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Audio
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -14,18 +14,17 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse
 import com.badlogic.gdx.physics.box2d.ContactListener
 import com.badlogic.gdx.physics.box2d.Manifold
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import createFood
-import createHuman
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.components.Human
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.systems.*
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
-import eater.physics.*
-import ktx.ashley.allOf
+import eater.physics.bothAreSensors
+import eater.physics.bothHaveComponent
+import eater.physics.getEntity
+import games.rednblack.miniaudio.MiniAudio
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -45,6 +44,7 @@ object Context : InjectionContext() {
             val gameSettings = GameSettings()
             bindSingleton(gameSettings)
             bindSingleton(game)
+            bindSingleton(MiniAudio())
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())
             bindSingleton(

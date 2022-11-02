@@ -7,6 +7,7 @@ import eater.core.MainGame
 import eater.injection.InjectionContext.Companion.inject
 import ktx.async.KtxAsync
 
+
 class DarkGame : MainGame() {
     override fun create() {
         KtxAsync.initiate()
