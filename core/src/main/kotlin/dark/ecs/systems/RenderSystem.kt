@@ -84,11 +84,13 @@ class RenderSystem(
             renderBlobs()
             renderFood()
             renderHumans()
-            renderTopLayerMap()
         }
 
         lightsEngine.draw(camera.combined)
         renderShader(deltaTime)
+        batch.use {
+            renderTopLayerMap()
+        }
     }
 
     private fun renderHumans() {
