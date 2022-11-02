@@ -278,7 +278,17 @@ object BlobActions {
             when (stateComponent.state) {
                 ShootAndEatState.HasNotYetShot -> {
                     val target = InRangeForShootingTarget.get(entity).target
-                    if (target != null) {
+                    if (target != null &&
+                        TransformComponent
+                            .get(target)
+                            .position
+                            .dst2(
+                                TransformComponent
+                                    .get(entity)
+                                    .position
+                            ) < (gameSettings.BlobDetectionRadius / 2f)
+                            .pow(2)
+                    ) {
                         val targetBody = Box2d.get(target).body
                         val blob = Blob.get(entity)
 
