@@ -15,7 +15,7 @@ class GameSettings {
 
     val HumanLightDetectionRadius = 50f
 
-    val GameWidth = 128f
+    val GameWidth = 72f
     val AspectRatio = 16f / 9f
     val GameHeight = AspectRatio * GameWidth
     val PixelsPerMeter = 32f

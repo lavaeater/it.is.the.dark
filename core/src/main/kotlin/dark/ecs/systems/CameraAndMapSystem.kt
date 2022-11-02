@@ -12,7 +12,7 @@ import eater.ecs.ashley.components.TransformComponent
 import eater.injection.InjectionContext.Companion.inject
 import ktx.math.vec3
 
-class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val extendViewport: ExtendViewport, private val useMapBounds: Boolean = true) :
+class CameraAndMapSystem(camera: OrthographicCamera, alpha: Float, private val extendViewport: ExtendViewport, private val useMapBounds: Boolean = false) :
     CameraFollowSystem(camera, alpha) {
     private val mapFamily = allOf(Map::class).get()
     private val mapEntity get() = engine.getEntitiesFor(mapFamily).firstOrNull()
