@@ -2,6 +2,7 @@ package dark.core
 
 class GameSettings {
 
+    val BlobEatRate = 5f
     val BlobMaxAcceleration = 100f
     val BlobMaxSpeed = 10f
     val LightDamage = 10f

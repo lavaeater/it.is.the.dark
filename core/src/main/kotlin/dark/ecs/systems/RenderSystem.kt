@@ -113,15 +113,17 @@ class RenderSystem(
                 radius,
                 Color(0f, health.normalizedValue, 0.5f, 1f)
             )
-            for(rope in Blob.get(lonelyBlob).ropes) {
+            val ropes = Blob.get(lonelyBlob).ropes
+            Blob.get(lonelyBlob).ropes.removeAll(ropes.filter { it.destroyed })
+            for(rope in ropes) {
                 val nodePositions = rope.nodes.values.map { TransformComponent.get(it).position }
                 for((index, position) in nodePositions.withIndex()) {
                     if(index == 0) {
-                        shapeDrawer.line(rope.from.position, position)
+                        shapeDrawer.line(rope.from!!.position, position)
                     }else if(index < nodePositions.lastIndex) {
                         shapeDrawer.line(position, nodePositions[index + 1])
                     } else {
-                        shapeDrawer.line(position, rope.to.position)
+                        shapeDrawer.line(position, rope.to!!.position)
                     }
                 }
             }

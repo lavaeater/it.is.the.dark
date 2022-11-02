@@ -74,6 +74,7 @@ object Context : InjectionContext() {
 
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
+            addSystem(RemoveRopesSystem(inject()))
             addSystem(RemoveEntitySystem())
             addSystem(DeathSystem(inject()))
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))

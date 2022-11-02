@@ -286,30 +286,29 @@ object BlobActions {
                                 TransformComponent
                                     .get(entity)
                                     .position
-                            ) < (gameSettings.BlobDetectionRadius / 2f)
-                            .pow(2)
-                    ) {
+                            ) < (gameSettings.BlobDetectionRadius / 2f).pow(2)) {
                         val targetBody = Box2d.get(target).body
                         val blob = Blob.get(entity)
 
                         val rope = SlimeRope(mutableMapOf(), mutableListOf())
                         stateComponent.rope = rope
+                        blob.ropes.add(rope)
 
                         rope.from = Box2d.get(entity).body
                         rope.to = targetBody
                         rope.toEntity = target
 
                         // Create some nice little nodes for this
-                        val distance = rope.from.position.dst(rope.to.position)
-                        val segmentLength = 1f
+                        val distance = rope.from!!.position.dst(rope.to!!.position)
+                        val segmentLength = 3f
                         val segments = (distance / segmentLength).toInt()
                         lateinit var currentBody: Body
-                        var previousBody = rope.from
-                        val segmentVector = rope.to.position.cpy().sub(rope.from.position).nor().scl(segmentLength)
+                        var previousBody = rope.from!!
+                        val segmentVector = rope.to!!.position.cpy().sub(rope.from!!.position).nor().scl(segmentLength)
                         for (segment in 0 until segments) {
                             /**
                              */
-                            val newPos = rope.from.position.cpy().add(segmentVector)
+                            val newPos = rope.from!!.position.cpy().add(segmentVector)
                             currentBody = createRopeNodeBody(newPos, 0.5f)
                             val currentEntity = createRopeNodeEntity(currentBody)
                             rope.nodes[currentBody] = currentEntity
@@ -321,7 +320,7 @@ object BlobActions {
                             })
                             previousBody = currentBody
                             if (segment == segments - 1) {
-                                rope.joints.add(currentBody.distanceJointWith(rope.to) {
+                                rope.joints.add(currentBody.distanceJointWith(rope.to!!) {
                                     //localAnchorB.set(rope.to.getLocalPoint(endPosition))
                                     length = segmentLength / 4
                                     frequencyHz = gameSettings.outerShellHz
@@ -340,9 +339,28 @@ object BlobActions {
                      * Aww, man, what do we do?
                      * We should pull the rope, and pull fast, somehow.
                      */
-
-
-
+                    val target = stateComponent.rope!!.toEntity
+                    if (Box2d.has(target!!)) {
+                        val health = PropsAndStuff.get(entity).getHealth()
+                        val toAdd = deltaTime * gameSettings.BlobEatRate
+                        if (Human.has(target)) {
+                            val humanHealth = PropsAndStuff.get(target).getHealth()
+                            humanHealth.current -= toAdd
+                            health.current += toAdd
+                            if(health.current < 0f)
+                                stateComponent.rope?.destroy()
+                        } else if (Food.has(target)) {
+                            val food = Food.get(target)
+                            food.foodEnergy -= toAdd
+                            health.current += toAdd
+                            if (food.foodEnergy < 0f) {
+                                stateComponent.rope?.destroy()
+                                target.addComponent<Remove>()
+                                stateComponent.state = ShootAndEatState.TotallyDone
+                            }
+                        }
+                    } else
+                        stateComponent.state = ShootAndEatState.TotallyDone
                 }
 
                 ShootAndEatState.IsEating -> {
@@ -404,7 +422,7 @@ object BlobActions {
                 }
 
                 TargetState.IsSteering -> {
-                    if (stateComponent.target == null || !Box2d.has(stateComponent.target!!)) {
+                    if (stateComponent.target == null || !Box2d.has(stateComponent.target!!) || !TransformComponent.has(stateComponent.target!!)) {
                         stateComponent.state = TargetState.IsDoneWithTarget
                     }
                     /** DOH-OH!**/
@@ -584,7 +602,7 @@ object BlobActions {
                         } else {
                             Box2dSteerable.get(entity).steeringBehavior = null
                             val health = PropsAndStuff.get(entity).getHealth()
-                            val toAdd = deltaTime * 50f
+                            val toAdd = deltaTime * gameSettings.BlobEatRate
                             if (Human.has(stateComponent.target!!)) {
                                 val humanHealth = PropsAndStuff.get(stateComponent.target!!).getHealth()
                                 humanHealth.current -= toAdd

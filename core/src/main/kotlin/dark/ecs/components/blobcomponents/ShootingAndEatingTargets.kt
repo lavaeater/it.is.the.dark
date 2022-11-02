@@ -5,20 +5,17 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import eater.core.engine
 import eater.core.world
+import eater.ecs.ashley.components.Box2d
 import ktx.ashley.mapperFor
+import ktx.ashley.remove
 
 class ShootingAndEatingTargets : Component, Pool.Poolable {
     var state: ShootAndEatState = ShootAndEatState.HasNotYetShot
-    lateinit var rope: SlimeRope
+    var rope: SlimeRope? = null
     override fun reset() {
         state = ShootAndEatState.HasNotYetShot
-        for (joint in rope.joints) {
-            world().destroyJoint(joint)
-        }
-        for (node in rope.nodes) {
-            world().destroyBody(node.key)
-            engine().removeEntity(node.value)
-        }
+        rope?.destroy()
+        rope = null
     }
 
     companion object {

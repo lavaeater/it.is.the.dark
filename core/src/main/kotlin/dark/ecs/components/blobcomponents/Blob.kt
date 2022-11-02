@@ -6,10 +6,15 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.Queue
+import eater.core.engine
+import eater.core.world
+import eater.ecs.ashley.components.Box2d
 import ktx.ashley.mapperFor
+import ktx.ashley.remove
 
 
-class Blob: Component, Pool.Poolable {
+class Blob : Component, Pool.Poolable {
+    val ropes = mutableListOf<SlimeRope>()
     var blobGroup = -1
     var color = Color.GREEN
     var radius = 3f
@@ -27,7 +32,7 @@ class Blob: Component, Pool.Poolable {
     }
 
     fun getOldestMessage(): BlobMessage? {
-        return if(messageQueue.notEmpty()) messageQueue.removeFirst() else null
+        return if (messageQueue.notEmpty()) messageQueue.removeFirst() else null
     }
 
     fun peekOldestMessage(): BlobMessage? {
@@ -35,6 +40,10 @@ class Blob: Component, Pool.Poolable {
     }
 
     override fun reset() {
+        for (rope in ropes.filter { !it.destroyed }) {
+            rope.destroy()
+        }
+        ropes.clear()
         neighbours.clear()
         messageQueue.clear()
         blobGroup = -1
@@ -45,6 +54,7 @@ class Blob: Component, Pool.Poolable {
         fun has(entity: Entity): Boolean {
             return mapper.has(entity)
         }
+
         fun get(entity: Entity): Blob {
             return mapper.get(entity)
         }
