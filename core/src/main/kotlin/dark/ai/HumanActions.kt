@@ -24,7 +24,7 @@ import eater.injection.InjectionContext
 import ktx.ashley.allOf
 import ktx.ashley.exclude
 
-fun getArriveAtLightSteering(entity: Entity, owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
+fun getArriveAtLightSteering(owner: Steerable<Vector2>, target: Entity): SteeringBehavior<Vector2> {
     return BlendedSteering(owner).apply {
         add(Arrive(owner, Box2dLocation(TransformComponent.get(target).position)).apply {
             arrivalTolerance = 2.5f
@@ -38,7 +38,7 @@ fun getArriveAtLightSteering(entity: Entity, owner: Steerable<Vector2>, target: 
     }
 }
 
-fun getHumanWanderSteering(entity: Entity, owner: Steerable<Vector2>) : SteeringBehavior<Vector2> {
+fun getHumanWanderSteering(owner: Steerable<Vector2>) : SteeringBehavior<Vector2> {
     return PrioritySteering(owner).apply {
         add(Wander(owner).apply {
             wanderRate = .1f
@@ -84,7 +84,7 @@ object HumanActions {
                 TargetState.NeedsSteering -> {
                     if (Box2d.has(stateComponent.target!!)) {
                         val steerable = Box2dSteerable.get(entity)
-                        steerable.steeringBehavior = getArriveAtLightSteering(entity, steerable, stateComponent.target!!)
+                        steerable.steeringBehavior = getArriveAtLightSteering(steerable, stateComponent.target!!)
                         stateComponent.state = TargetState.IsSteering
                     } else {
                         stateComponent.state = TargetState.IsDoneWithTarget
@@ -157,7 +157,7 @@ object HumanActions {
                          */
                         if (Box2dSteerable.has(entity)) {
                             val steerable = Box2dSteerable.get(entity)
-                            steerable.steeringBehavior = getHumanWanderSteering(entity, steerable)
+                            steerable.steeringBehavior = getHumanWanderSteering(steerable)
                             stateComponent.state = WanderState.Running
                         }
 

@@ -8,8 +8,7 @@ import dark.ecs.components.blobcomponents.Blob
 import eater.ai.steering.box2d.Box2dSteerable
 
 class NeighbourProximity(
-    private var ownerEntity: Entity,
-    acceptFunction: (Steerable<Vector2>) -> Boolean = { _ -> true }
+    private var ownerEntity: Entity
 ) : Proximity<Vector2> {
     /** Returns the box2d world.  */
     override fun getOwner(): Steerable<Vector2> {

@@ -268,7 +268,7 @@ class MapManager {
         )
         if (!firstRoom) {
             incomingConnection!!.toRoom = room
-            room.connections.add(incomingConnection!!)
+            room.connections.add(incomingConnection)
             availableCardinalDirections.remove(incomingConnection.direction.end)
         }
         if (roomCounter.counter > 0) {

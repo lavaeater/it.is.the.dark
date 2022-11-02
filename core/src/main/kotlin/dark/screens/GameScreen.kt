@@ -15,6 +15,7 @@ import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.PointType
 import dark.ecs.systems.BlobGrouper
+import eater.injection.InjectionContext.Companion.context
 import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
@@ -51,9 +52,10 @@ class GameScreen(
 
     override fun show() {
         val map = createMap("two")
+        context.bindSingleton(map)
         BlobGrouper.blobPoints = map.points[PointType.BlobStart]!!
-        createFood(map.points[PointType.BlobStart]!!)
-        createHumans(map.points[PointType.HumanStart]!!)
+//        createFood(map.points[PointType.BlobStart]!!)
+//        createHumans(map.points[PointType.HumanStart]!!)
         createLights(map.points[PointType.Lights]!!)
 
         for (i in 0..gameSettings.MinBlobs)

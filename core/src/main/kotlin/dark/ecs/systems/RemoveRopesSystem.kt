@@ -9,13 +9,6 @@ import ktx.ashley.remove
 
 class RemoveRopesSystem(private val world: World):EntitySystem() {
     override fun update(deltaTime: Float) {
-//        if(JointsToDestroy.joints.any()) {
-//            val joints = JointsToDestroy.joints.toList()
-//            JointsToDestroy.joints.removeAll(joints)
-//            for (joint in joints) {
-//                world.destroyJoint(joint)
-//            }
-//        }
         if(JointsToDestroy.ropeNodes.any()) {
             val bodies = JointsToDestroy.ropeNodes.toList()
             for(ropeNode in bodies) {
@@ -24,8 +17,6 @@ class RemoveRopesSystem(private val world: World):EntitySystem() {
                     world.destroyBody(ropeNode.first)
                     ropeNode.second.remove<Box2d>()
                     engine.removeEntity(ropeNode.second)
-                } else {
-                    val thisIsIt = "THis is why it crashed"
                 }
             }
         }

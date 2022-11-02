@@ -16,5 +16,9 @@ class DarkGame : MainGame() {
         addScreen(inject<GameScreen>())
         setScreen<GameScreen>()
     }
+
+    fun gameOver() {
+        setScreen<MenuScreen>()
+    }
 }
 

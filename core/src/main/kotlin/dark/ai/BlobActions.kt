@@ -347,8 +347,10 @@ object BlobActions {
                             val humanHealth = PropsAndStuff.get(target).getHealth()
                             humanHealth.current -= toAdd
                             health.current += toAdd
-                            if(health.current < 0f)
+                            if(health.current < 0f) {
+                                stateComponent.state = ShootAndEatState.TotallyDone
                                 stateComponent.rope?.destroy()
+                            }
                         } else if (Food.has(target)) {
                             val food = Food.get(target)
                             food.foodEnergy -= toAdd
@@ -367,6 +369,7 @@ object BlobActions {
                 }
 
                 ShootAndEatState.TotallyDone -> {
+                    stateComponent.rope?.destroy()
                     entity.remove<InRangeForShootingTarget>()
                 }
             }
@@ -380,7 +383,7 @@ object BlobActions {
 
     private val moveTowardsFood = ConsideredActionWithState(
         "Move towards food - if we have a target!",
-        { entity, stateComponent, deltaTime ->
+        { entity, stateComponent, _ ->
             logIfNewHuntState(stateComponent.state)
             when (stateComponent.state) {
                 TargetState.NeedsTarget -> {

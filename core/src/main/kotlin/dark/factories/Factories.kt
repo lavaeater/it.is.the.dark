@@ -85,9 +85,13 @@ fun createFood(points: List<Vector2>) {
 }
 
 fun createHumans(points: MutableList<Vector2>) {
-    for (i in 0..10) {
+    for (i in 0..20) {
         createRegularHuman(points.random(), follow = false)
     }
+}
+
+fun createHuman() {
+    createRegularHuman(inject<Map>().points[PointType.HumanStart]!!.random())
 }
 
 fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = false) {
@@ -170,7 +174,7 @@ fun createPlayer(at: Vector2, health: Float = 100f, follow: Boolean = false) {
         }
         with<TransformComponent>()
         with<BlobsCanEatThis>()
-
+        with<Player>()
     }
 }
 
@@ -178,7 +182,6 @@ fun createBlob(
     at: Vector2,
     health: Float = 100f,
     radius: Float = 3f,
-    settings: GameSettings = inject(),
     follow: Boolean = false
 ) {
     BlobGrouper.addNewBlob(engine().entity {
@@ -256,7 +259,6 @@ fun createMap(key: String): Map {
     val mapAssets = assets().maps[key]!!
     val textureRegion = TextureRegion(mapAssets.first)
     val topTextureRegion = TextureRegion(mapAssets.third)
-    val returnList = mutableListOf<Vector2>()
     lateinit var map: Map
     engine().entity {
         map = with {

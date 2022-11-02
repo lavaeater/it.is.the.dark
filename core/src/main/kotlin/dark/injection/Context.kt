@@ -15,8 +15,10 @@ import com.badlogic.gdx.physics.box2d.ContactListener
 import com.badlogic.gdx.physics.box2d.Manifold
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createFood
+import createHuman
 import dark.core.DarkGame
 import dark.core.GameSettings
+import dark.ecs.components.Human
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.systems.*
 import dark.screens.GameScreen
@@ -58,7 +60,7 @@ object Context : InjectionContext() {
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.05f))
+            bindSingleton(HackLightEngine(0.7f, 0.7f, 0.7f, 0.7f))
             bindSingleton(
                 GameScreen(
                     inject(),
@@ -76,7 +78,7 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(RemoveRopesSystem(inject()))
             addSystem(RemoveEntitySystem())
-            addSystem(DeathSystem(inject()))
+            addSystem(DeathSystem(inject(), inject()))
             addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
@@ -88,7 +90,7 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(AshleyAiSystem())
-//            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Food::class).get(), 1) { createFood() }))
+//            addSystem(EnsureEntitySystem(EnsureEntityDef(allOf(Human::class).get(), 15) { createHuman() }))
             addSystem(BlobHealthSharingSystem())
             addSystem(BlobHealthDiminishingSystem(inject()))
             addSystem(RenderSystem(inject(), inject(), inject(), inject()))
