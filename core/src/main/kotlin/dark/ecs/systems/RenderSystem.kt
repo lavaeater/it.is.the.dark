@@ -1,5 +1,6 @@
 package dark.ecs.systems
 
+import box2dLight.RayHandler
 import com.aliasifkhan.hackLights.HackLightEngine
 import dark.ecs.components.Food
 import dark.ecs.components.Light
@@ -70,6 +71,7 @@ class RenderSystem(
     private val lights get() = engine.getEntitiesFor(lightsFamily)
     private val lightColor = Color(1f, 1f, 0f, 0.5f)
     private val lightsEngine by lazy { inject<HackLightEngine>() }
+    private val rayHandler by lazy { inject<RayHandler>() }
 
 
     override fun update(deltaTime: Float) {
@@ -86,11 +88,14 @@ class RenderSystem(
             renderHumans()
         }
 
-        lightsEngine.draw(camera.combined)
+        //lightsEngine.draw(camera.combined)
+
         renderShader(deltaTime)
         batch.use {
             renderTopLayerMap()
         }
+        rayHandler.setCombinedMatrix(camera)
+        rayHandler.updateAndRender()
     }
 
     private fun renderHumans() {
@@ -98,10 +103,10 @@ class RenderSystem(
         for (human in allHumans) {
             val position = TransformComponent.get(human).position
             batch.draw(t, position.x - t.regionWidth / 2f, position.y - t.regionHeight / 2f)
-            if (BodyControl.has(human)) {
-                val bc = BodyControl.get(human)
-                shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
-            }
+//            if (BodyControl.has(human)) {
+//                val bc = BodyControl.get(human)
+//                shapeDrawer.filledCircle(position + (bc.aimDirection * 10f), 2f, Color.RED)
+//            }
         }
     }
 

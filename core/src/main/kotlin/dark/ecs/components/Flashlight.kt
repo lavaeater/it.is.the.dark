@@ -1,5 +1,6 @@
 package dark.ecs.components
 
+import box2dLight.Light
 import com.aliasifkhan.hackLights.HackLight
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
@@ -9,8 +10,8 @@ import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class Flashlight: Component, Pool.Poolable {
-    lateinit var light: HackLight
-    var offset = 0.0f
+    lateinit var light: Light
+    var offset = 1f
     val direction = Vector2.X.cpy()
     var on = true
     override fun reset() {

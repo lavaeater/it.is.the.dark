@@ -16,6 +16,6 @@ class LightPositionUpdateSystem: IteratingSystem(
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val light = Light.get(entity)
         val transform = TransformComponent.get(entity)
-        light.hackLight.setOriginBasedPosition(transform.position.x, transform.position.y)
+        light.light.setPosition(transform.position.x, transform.position.y)
     }
 }

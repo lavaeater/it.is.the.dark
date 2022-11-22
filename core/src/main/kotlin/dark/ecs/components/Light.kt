@@ -1,6 +1,5 @@
 package dark.ecs.components
 
-import com.aliasifkhan.hackLights.HackLight
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
@@ -8,7 +7,7 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class Light: Component, Pool.Poolable {
-    lateinit var hackLight: HackLight
+    lateinit var light: box2dLight.Light
     var color = Color(1f, 1f, 0f, 0.5f)
     var radius = 15f
     override fun reset() {

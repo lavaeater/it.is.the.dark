@@ -23,8 +23,8 @@ class FlashlightDirectionSystem: IteratingSystem(
         val lightPos = TransformComponent.get(entity).position.cpy()
         light.direction.setAngleDeg(bodyControl.aimDirection.angleDeg())
         lightPos.add(light.direction * light.offset)
-        light.light.setOriginBasedPosition(lightPos.x, lightPos.y)
-        light.light.rotation = light.direction.angleDeg() - 90f
+        light.light.setPosition(lightPos.x, lightPos.y)
+        light.light.direction = light.direction.angleDeg()
     }
 }
 

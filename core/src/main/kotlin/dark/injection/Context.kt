@@ -1,5 +1,6 @@
 package dark.injection
 
+import box2dLight.RayHandler
 import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -56,10 +57,15 @@ object Context : InjectionContext() {
             bindSingleton(createWorld().apply {
                 setContactListener(CollisionManager())
             })
+            bindSingleton(RayHandler(inject()).apply {
+
+                setAmbientLight(.01f)
+                setBlurNum(3)
+            })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
-            bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.1f))
+            //bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.1f))
             bindSingleton(
                 GameScreen(
                     inject(),

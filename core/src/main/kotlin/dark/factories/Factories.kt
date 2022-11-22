@@ -1,5 +1,9 @@
+import box2dLight.ConeLight
+import box2dLight.PointLight
+import box2dLight.RayHandler
 import com.aliasifkhan.hackLights.HackLight
 import com.aliasifkhan.hackLights.HackLightEngine
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -39,12 +43,12 @@ fun createLights(points: List<Vector2>) {
 
 fun createLight(lightPos: Vector2) {
     engine().entity {
-        with<Light> {
-            hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
-                setOriginBasedPosition(lightPos.x, lightPos.y)
-            }
-            inject<HackLightEngine>().addLight(hackLight)
-        }
+//        with<Light> {
+//            hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
+//                setOriginBasedPosition(lightPos.x, lightPos.y)
+//            }
+//            inject<HackLightEngine>().addLight(hackLight)
+//        }
         with<Box2d> {
             body = world().body {
                 type = BodyDef.BodyType.DynamicBody
@@ -147,17 +151,11 @@ fun createPlayer(at: Vector2, health: Float = 100f, follow: Boolean = false) {
         }
         with<KeyboardAndMouseInput>()
         with<Light> {
-            hackLight = HackLight(inject<Assets>().lights[5], 1f, 2f, 1f, 1f).apply {
-                setOriginBasedPosition(at.x, at.y)
-            }
-            inject<HackLightEngine>().addLight(hackLight)
+            light = PointLight(inject<RayHandler>(),8, Color.WHITE, 15f, 0f, 0f)
         }
         with<Flashlight> {
-            light = HackLight(inject<Assets>().lights[1], 1f, 1f, 1f, 1f).apply {
-                setOriginCenter()
-                setOrigin(originX, originY / 5f)
-            }
-            inject<HackLightEngine>().addLight(light)
+            light = ConeLight(inject<RayHandler>(), 8, Color.WHITE,40f, at.x, at.y, 0f, 30f)
+            offset = 5f
         }
         with<Box2d> {
             body = world().body {

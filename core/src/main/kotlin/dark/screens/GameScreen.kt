@@ -43,7 +43,7 @@ class GameScreen(
     override fun resize(width: Int, height: Int) {
         viewPort.update(width, height)
         batch.projectionMatrix = camera.combined
-        inject<HackLightEngine>().update(width, height)
+//        inject<HackLightEngine>().update(width, height)
     }
 
     override fun resume() {
