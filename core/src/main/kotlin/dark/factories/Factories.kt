@@ -43,12 +43,9 @@ fun createLights(points: List<Vector2>) {
 
 fun createLight(lightPos: Vector2) {
     engine().entity {
-//        with<Light> {
-//            hackLight = HackLight(inject<Assets>().lights[0], 1f, 2f, 1f, 1f).apply {
-//                setOriginBasedPosition(lightPos.x, lightPos.y)
-//            }
-//            inject<HackLightEngine>().addLight(hackLight)
-//        }
+        with<Light> {
+            light = PointLight(inject<RayHandler>(), 8,Color.WHITE, 50f, lightPos.x, lightPos.y)
+        }
         with<Box2d> {
             body = world().body {
                 type = BodyDef.BodyType.DynamicBody
