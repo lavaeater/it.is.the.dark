@@ -48,7 +48,6 @@ object Context : InjectionContext() {
             val gameSettings = GameSettings()
             bindSingleton(gameSettings)
             bindSingleton(game)
-            //bindSingleton(MiniAudio())
             bindSingleton(de.pottgames.tuningfork.Audio.init())
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())
