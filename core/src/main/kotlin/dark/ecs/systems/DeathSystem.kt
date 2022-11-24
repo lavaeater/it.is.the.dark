@@ -9,6 +9,7 @@ import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.LogComponent
 import dark.ecs.components.Player
 import dark.ecs.components.PropsAndStuff
+import dark.ecs.systems.blob.BlobGrouper
 import eater.ecs.ashley.components.Remove
 import eater.physics.addComponent
 import ktx.ashley.allOf

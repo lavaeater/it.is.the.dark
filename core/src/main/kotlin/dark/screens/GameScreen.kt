@@ -1,22 +1,18 @@
 package dark.screens
 
-import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import createBlob
-import createFood
 import createLights
 import createMap
 import createPlayer
-import createHumans
 import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.PointType
-import dark.ecs.systems.BlobGrouper
+import dark.ecs.systems.blob.BlobGrouper
 import eater.injection.InjectionContext.Companion.context
-import eater.injection.InjectionContext.Companion.inject
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 

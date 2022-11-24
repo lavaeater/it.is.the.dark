@@ -1,4 +1,4 @@
-package dark.ecs.systems
+package dark.ecs.systems.stackai
 
 sealed class StackFoodState {
     object NeedsSteering: StackFoodState()
