@@ -124,7 +124,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
     private val selectedSamples = mutableSetOf<ListItem.SoundFile>()
 
-    fun setUpCommands() {
+    private fun setUpCommands() {
         commandMap.setUp(Keys.TAB, "Switch lists") {
             switchList()
         }
