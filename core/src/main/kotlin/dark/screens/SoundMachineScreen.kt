@@ -15,11 +15,16 @@ import eater.core.BasicScreen
 import eater.extensions.boundLabel
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
+import eater.music.ListItem
+import eater.music.MusicPlayer
+import eater.music.toPitch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import ktx.actors.stage
 import ktx.collections.lastIndex
 import ktx.collections.toGdxArray
 import ktx.scene2d.*
-import kotlin.math.pow
+import java.lang.Exception
 
 
 class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
@@ -31,12 +36,14 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
     val noteMin = 60
     val noteMax = 127
-    var currentNote = 60
+    var currentNote = 80
 
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
     private val sampleStore by lazy { getSamples() }
     private var currentDirectory = sampleStore
+
+    private val musicPlayer by lazy { MusicPlayer(inject()) }
 
     private fun getDirInfo(directory: ListItem.Directory) {
         val dirContents = Gdx.files.external(directory.path).list()
@@ -54,52 +61,68 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
 
     var currentListIsDirList = true
+    val currentListIsFileList get() = !currentListIsDirList
 
     private fun switchList() {
-        currentList = if(currentListIsDirList) fileList else dirList
+        currentList = if (currentListIsDirList) fileList else dirList
         currentListIsDirList = !currentListIsDirList
     }
 
     private fun goUpInCurrentList() {
         if (currentList.selectedIndex == 0)
             currentList.selectedIndex = 0
-        else if(currentList.selectedIndex >= 1)
+        else if (currentList.selectedIndex >= 1)
             currentList.selectedIndex--
     }
 
     private fun goDownInCurrentList() {
         if (currentList.selectedIndex == currentList.items.lastIndex)
             currentList.selectedIndex = currentList.items.lastIndex
-        else if(currentList.selectedIndex < currentList.items.lastIndex)
+        else if (currentList.selectedIndex < currentList.items.lastIndex)
             currentList.selectedIndex++
     }
 
     private val sounds = mutableMapOf<ListItem.SoundFile, SoundBuffer>()
-    private fun getSound(soundFile:ListItem.SoundFile):SoundBuffer {
-        if(!sounds.containsKey(soundFile)) {
-            sounds[soundFile] = WaveLoader.load(Gdx.files.external(currentList.selected.path))
-        }
-        return sounds[soundFile]!!
-    }
 
     private val audio by lazy { inject<Audio>() }
 
     private fun selectCurrentItemInList() {
-        when(currentList.selected) {
+        when (currentList.selected) {
             is ListItem.Directory -> {
                 currentDirectory = currentList.selected as ListItem.Directory
                 updateFilesAndFoldersLists()
             }
+
             is ListItem.SoundFile -> {
                 /*
                 Play this fudging sound, mate!
                  */
-                val sound = getSound(currentList.selected as ListItem.SoundFile)
-                val pitch = ((currentNote - 60) / 12f).pow(2f)
-                audio.play(sound,1f, pitch)
+                tryToPlay(currentList.selected as ListItem.SoundFile)
+
             }
         }
     }
+
+    private fun tryToPlay(soundFile: ListItem.SoundFile) {
+        var soundWorks = true
+
+        if (!sounds.containsKey(soundFile)) {
+            try {
+                sounds[soundFile] = WaveLoader.load(Gdx.files.external(currentList.selected.path))
+            } catch (e: Exception) {
+                soundWorks = false
+            }
+        }
+
+        if(soundWorks) {
+            val sound = sounds[soundFile]!!
+            audio.play(sound, 1f, currentNote.toPitch())
+        } else {
+            currentList.items.removeValue(currentList.selected, true)
+        }
+    }
+
+    private val selectedSamples = mutableSetOf<ListItem.SoundFile>()
 
     fun setUpCommands() {
         commandMap.setUp(Keys.TAB, "Switch lists") {
@@ -107,13 +130,13 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         }
         commandMap.setUp(Keys.LEFT, "Go Down a Note") {
             currentNote--
-            if(currentNote < noteMin) {
+            if (currentNote < noteMin) {
                 currentNote = noteMin
             }
         }
         commandMap.setUp(Keys.RIGHT, "Go Up a Note") {
             currentNote++
-            if(currentNote > noteMax) {
+            if (currentNote > noteMax) {
                 currentNote = noteMax
             }
         }
@@ -128,19 +151,46 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
             selectCurrentItemInList()
         }
         commandMap.setUp(Keys.BACKSPACE, "Go back one directory or switch back to previous list") {
-            if(!currentListIsDirList) {
+            if (currentListIsFileList) {
                 switchList()
             }
-            if(currentDirectory.parent != null) {
+            if (currentDirectory.parent != null) {
                 currentDirectory = currentDirectory.parent!!
                 updateFilesAndFoldersLists()
             }
         }
+        commandMap.setUp(Keys.SPACE, "Select this sample") {
+            if (currentListIsFileList) {
+                selectedSamples.add(currentList.selected as ListItem.SoundFile)
+                currentSamples.setItems(selectedSamples.toGdxArray())
+                currentSamples.refreshItems()
+            }
+        }
+
+        commandMap.setUp(Keys.S, "Save Instrument") {
+            if(selectedSamples.any()) {
+                saveInstrument()
+            }
+        }
+        commandMap.setUp(Keys.P, "Toggle Music") {
+            musicPlayer.toggle()
+        }
+    }
+
+    var instrumentCount = 0
+    private fun saveInstrument() {
+        val json = Json.encodeToString(selectedSamples)
+
+        instrumentCount++
+        Gdx.files.local("instrument-$instrumentCount.json").writeString(json, true)
+        selectedSamples.clear()
     }
 
     fun updateFilesAndFoldersLists() {
         dirList.setItems(currentDirectory.childDirs.toGdxArray())
         fileList.setItems(currentDirectory.files.toGdxArray())
+        if (currentDirectory.childDirs.isEmpty() && currentListIsDirList)
+            switchList()
         dirList.refreshItems()
         fileList.refreshItems()
     }
@@ -162,6 +212,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         super.render(delta)
         stage.act(delta)
         stage.draw()
+        musicPlayer.update(delta)
     }
 
 
@@ -169,6 +220,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private lateinit var dirList: KListWidget<ListItem>
     private lateinit var fileList: KListWidget<ListItem>
     private lateinit var currentList: KListWidget<ListItem>
+    private lateinit var currentSamples: KListWidget<ListItem>
     private fun getStage(): Stage {
         return stage(batch, viewport).apply {
             actors {
@@ -177,13 +229,12 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
                         setFontScale(4f)
                         setAlignment(Align.center)
                     }.cell(expandX = true, fillX = true, align = Align.center, colspan = 4, padTop = 25f)
-                    row()
-                    boundLabel({currentNote.toString()})
+                    boundLabel({ currentNote.toString() })
                     row()
                     dirList = listWidgetOf(currentDirectory.childDirs.toGdxArray())
-                    row()
                     fileList = listWidgetOf(currentDirectory.files.toGdxArray())
                     row()
+                    currentSamples = listWidgetOf(selectedSamples.toGdxArray())
                     setFillParent(true)
                 }.align(Align.top)
             }

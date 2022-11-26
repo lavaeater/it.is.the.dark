@@ -50,5 +50,6 @@ dependencies {
 	api "space.earlygrey:shapedrawer:$shapeDrawerVersion"
 	api "space.earlygrey:simple-graphs:$simpleGraphsVersion"
 	api "com.github.Hangman:TuningFork:$tuningForkVersion"
+	implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
 	implementation project(':gdx-lava')
 }
