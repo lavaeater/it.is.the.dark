@@ -2,15 +2,14 @@ package dark.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
+import com.badlogic.gdx.math.MathUtils.*
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import dark.core.DarkGame
-import de.pottgames.tuningfork.Audio
-import de.pottgames.tuningfork.SoundBuffer
-import de.pottgames.tuningfork.WaveLoader
+import de.pottgames.tuningfork.*
 import eater.core.BasicScreen
 import eater.extensions.boundLabel
 import eater.injection.InjectionContext.Companion.inject
@@ -44,6 +43,26 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private var currentDirectory = sampleStore
 
     private val musicPlayer by lazy { MusicPlayer(inject()) }
+
+    private val sampleRate = 44100
+    private val createdSound = PcmSoundSource(sampleRate, PcmFormat.MONO_8_BIT)
+
+    private val soundLengthSeconds = 1f
+    private val soundSamples = floor(sampleRate * soundLengthSeconds)
+
+    private var randomToneVal = (0..255).random()
+    private val aRandomSound = Array(soundSamples) {
+        if(it % 10 == 0)
+            randomToneVal = (0..255).random()
+//        val normalized = norm(0f, soundSamples.toFloat(), it.toFloat())
+//        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
+        randomToneVal.toByte()
+    }
+
+    fun playAGeneratedSound() {
+        createdSound.queueSamples(aRandomSound.toByteArray(), 0, soundSamples)
+        createdSound.play()
+    }
 
     private fun getDirInfo(directory: ListItem.Directory) {
         val dirContents = Gdx.files.external(directory.path).list()
@@ -171,6 +190,10 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
             if(selectedSamples.any()) {
                 saveInstrument()
             }
+        }
+
+        commandMap.setUp(Keys.O, "Play Random Sound") {
+            playAGeneratedSound()
         }
         commandMap.setUp(Keys.P, "Toggle Music") {
             musicPlayer.toggle()
