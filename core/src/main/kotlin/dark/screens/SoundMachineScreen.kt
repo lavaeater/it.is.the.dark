@@ -35,7 +35,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
     val noteMin = 60 //one octave lower
     val noteMax = 84 //one octave higher
-    var currentNote = 72 //72 should equal a pitch of around 1f, but I have no idea
+    var currentNote = 0 //72 should equal a pitch of around 1f, but I have no idea
 
     val pitchSpan = (60-72)..(84-72)
 
