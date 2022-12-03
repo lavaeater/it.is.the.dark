@@ -47,16 +47,29 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private val sampleRate = 44100
     private val createdSound = PcmSoundSource(sampleRate, PcmFormat.MONO_8_BIT)
 
-    private val soundLengthSeconds = 1f
-    private val soundSamples = floor(sampleRate * soundLengthSeconds)
+    private val soundLengthSeconds = 5f
+    private val soundSamples = floor(sampleRate * soundLengthSeconds) //Number of values / samples
 
     private var randomToneVal = (0..255).random()
+    private var frequency = 20f //per second
+
     private val aRandomSound = Array(soundSamples) {
-        if(it % 10 == 0)
-            randomToneVal = (0..255).random()
-//        val normalized = norm(0f, soundSamples.toFloat(), it.toFloat())
-//        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
-        randomToneVal.toByte()
+//        if(it % 10 == 0)
+//            randomToneVal = (0..255).random()
+//        randomToneVal.toByte()
+
+        //This is fucking retarded
+        /*
+        if frequency is 20 and sound length is 1 second, we are going to need
+        length * freq fluctuations
+         */
+        val fluxes = frequency * soundLengthSeconds //20 in this base case, lets do 40 instead
+        /*
+        This means our array should be divided into fluxes number of iterations, right?
+        Just divide it to begin with?
+         */
+        val normalized = norm(0f, soundSamples.toFloat() / fluxes, it.toFloat() / fluxes)
+        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
     }
 
     fun playAGeneratedSound() {
@@ -133,7 +146,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
             }
         }
 
-        if(soundWorks) {
+        if (soundWorks) {
             val sound = sounds[soundFile]!!
             audio.play(sound, 1f, currentNote.toPitch())
         } else {
@@ -187,7 +200,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         }
 
         commandMap.setUp(Keys.S, "Save Instrument") {
-            if(selectedSamples.any()) {
+            if (selectedSamples.any()) {
                 saveInstrument()
             }
         }
