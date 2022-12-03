@@ -1,1 +1,14 @@
-[{"name":"bass-one-shot-808-mini_C_major","path":"music-samples/808-bass/bass-one-shot-808-mini_C_major.wav"},{"name":"short-808-bass_D_major","path":"music-samples/808-bass/short-808-bass_D_major.wav"},{"name":"bass-one-shot-808-sicko_C_major","path":"music-samples/808-bass/bass-one-shot-808-sicko_C_major.wav"}]
+[
+  {
+    "name": "bass-one-shot-808-mini_C_major",
+    "path": "music-samples/808-bass/bass-one-shot-808-mini_C_major.wav"
+  },
+  {
+    "name": "short-808-bass_D_major",
+    "path": "music-samples/808-bass/short-808-bass_D_major.wav"
+  },
+  {
+    "name": "bass-one-shot-808-sicko_C_major",
+    "path": "music-samples/808-bass/bass-one-shot-808-sicko_C_major.wav"
+  }
+]
