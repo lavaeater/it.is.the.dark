@@ -52,11 +52,11 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
     private var randomToneVal = (0..255).random()
     private val aRandomSound = Array(soundSamples) {
-        if(it % 10 == 0)
-            randomToneVal = (0..255).random()
-//        val normalized = norm(0f, soundSamples.toFloat(), it.toFloat())
-//        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
-        randomToneVal.toByte()
+//        if(it % 10 == 0)
+//            randomToneVal = (0..255).random()
+        val normalized = norm(0f, soundSamples.toFloat(), it.toFloat() / 10f)
+        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
+//        randomToneVal.toByte()
     }
 
     fun playAGeneratedSound() {
