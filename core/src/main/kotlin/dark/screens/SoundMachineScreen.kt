@@ -33,9 +33,15 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         return root
     }
 
-    val noteMin = 60
-    val noteMax = 127
-    var currentNote = 80
+    val noteMin = 60 //one octave lower
+    val noteMax = 84 //one higher
+    var currentNote = 72 //72 should equal a pitch of around 1f, but I have no idea
+
+    /*
+    I have an idea.
+
+    The min pitch is 0.5, the max 2.0. This equals... it's so low, like the root from 2
+     */
 
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
