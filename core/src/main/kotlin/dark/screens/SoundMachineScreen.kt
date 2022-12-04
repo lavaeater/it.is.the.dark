@@ -2,7 +2,10 @@ package dark.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils.*
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Align
@@ -23,6 +26,7 @@ import ktx.actors.stage
 import ktx.collections.lastIndex
 import ktx.collections.toGdxArray
 import ktx.scene2d.*
+import space.earlygrey.shapedrawer.ShapeDrawer
 import java.lang.Exception
 
 
@@ -265,24 +269,43 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private lateinit var fileList: KListWidget<ListItem>
     private lateinit var currentList: KListWidget<ListItem>
     private lateinit var currentSamples: KListWidget<ListItem>
+    private val shapeDrawer by lazy {inject<ShapeDrawer>()}
+    fun get16th(timeBars:Float) = floor(timeBars * 16f) % 16
+
     private fun getStage(): Stage {
         return stage(batch, viewport).apply {
             actors {
                 table {
-                    label("Sample Discovery") {
-                        setFontScale(4f)
-                        setAlignment(Align.center)
-                    }.cell(expandX = true, fillX = true, align = Align.center, colspan = 4, padTop = 25f)
-                    boundLabel({ currentNote.toString() })
+                    table {
+                        boundLabel({musicPlayer.metronome.timeBars.toString()})
+                        row()
+                        for(i in 0..15) {
+                            boundLabel({
+                                if(get16th(musicPlayer.metronome.timeBars) == i)
+                                    if(i == 15) "${get16th(musicPlayer.metronome.timeBars)}:$i|" else " :$i|"
+                                else
+                                    " :$i|"
+                            })
+                         }
+                    }
                     row()
-                    dirList = listWidgetOf(currentDirectory.childDirs.toGdxArray())
-                    fileList = listWidgetOf(currentDirectory.files.toGdxArray())
-                    row()
-                    currentSamples = listWidgetOf(selectedSamples.toGdxArray())
+                    table {
+                        label("Sample Discovery") {
+                            setFontScale(4f)
+                            setAlignment(Align.center)
+                        }.cell(expandX = true, fillX = true, align = Align.center, colspan = 4, padTop = 25f)
+                        row()
+                        boundLabel({ currentNote.toString() })
+                        row()
+                        dirList = listWidgetOf(currentDirectory.childDirs.toGdxArray())
+                        fileList = listWidgetOf(currentDirectory.files.toGdxArray())
+                        row()
+                        currentSamples = listWidgetOf(selectedSamples.toGdxArray())
+                    }.align(Align.top)
+                    currentList = dirList
                     setFillParent(true)
-                }.align(Align.top)
-            }
-            currentList = dirList
+                }
+                }
         }
     }
 
