@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.math.MathUtils.floor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -94,11 +95,25 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
-                        boundLabel({ "Beat: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
+                        boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
-                        boundLabel({ "Last 16th: ${signalMetronome.last16th}" })
-                        row()
-                        boundLabel({ "This 16th: ${signalMetronome.this16th}" })
+                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell().apply {
+                            background = object: BaseDrawable(), IMusicSignalReceiver {
+                                var lastSixteenth = 0
+                                override fun signal(
+                                    beat: Int,
+                                    sixteenth: Int,
+                                    timeBars: Float,
+                                    hitTime: Float,
+                                    intensity: Float
+                                ) {
+                                    if(sixteenth != lastSixteenth) {
+                                        lastSixteenth = sixteenth
+                                        
+                                    }
+                                }
+                            }
+                        }
                         row()
                         boundLabel({ "Playing: ${signalMetronome.playing}" })
 //                        boundLabel({ get16th(musicPlayer.metronome.timeBars).toString() })
