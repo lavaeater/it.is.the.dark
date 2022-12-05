@@ -16,6 +16,7 @@ import dark.core.DarkGame
 import de.pottgames.tuningfork.Audio
 import eater.core.BasicScreen
 import eater.extensions.boundLabel
+import eater.extensions.boundProgressBar
 import eater.injection.InjectionContext
 import eater.input.CommandMap
 import eater.music.*
@@ -37,8 +38,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalMetronome =
         SignalMetronome(
             120f, mutableListOf(
-                Instrument(kick, generateBeat(-2..0, 1,1)),
-                Instrument(snare, generateBeat(-4..0, 1,2)),
+                Instrument(kick, generateBeat(-2..0, 4,4)),
+                Instrument(snare, generateBeat(-4..0, 4,16)),
                 Instrument(hat, generateBeat(0..4, 1,6)),
             )
         )
@@ -97,6 +98,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
+                        boundProgressBar({ signalMetronome.intensity}).cell(pad = 5f)
+                        row()
                         boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
                         boundLabel({ "TimeSeconds: ${signalMetronome.timeSeconds.toInt()}: ${signalMetronome.timeQuarters.toInt()}" })
@@ -158,7 +161,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 //                            }
 //                        }
                         row()
-                    }.align(Align.center or Align.top)
+                    }.align(Align.center)
                     row()
                     setFillParent(true)
                 }
