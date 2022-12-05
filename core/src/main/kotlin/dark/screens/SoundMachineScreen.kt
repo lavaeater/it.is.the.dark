@@ -2,10 +2,7 @@ package dark.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils.*
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Align
@@ -27,8 +24,6 @@ import ktx.collections.lastIndex
 import ktx.collections.toGdxArray
 import ktx.scene2d.*
 import space.earlygrey.shapedrawer.ShapeDrawer
-import java.lang.Exception
-
 
 class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
     private fun getSamples(): ListItem.Directory {
@@ -41,7 +36,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     val noteMax = 84 //one octave higher
     var currentNote = 0 //72 should equal a pitch of around 1f, but I have no idea
 
-    val pitchSpan = (60-72)..(84-72)
+    val pitchSpan = (60 - 72)..(84 - 72)
 
     /*
     I have an idea.
@@ -269,25 +264,32 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private lateinit var fileList: KListWidget<ListItem>
     private lateinit var currentList: KListWidget<ListItem>
     private lateinit var currentSamples: KListWidget<ListItem>
-    private val shapeDrawer by lazy {inject<ShapeDrawer>()}
-    fun get16th(timeBars:Float) = floor(timeBars * 16f) % 16
+    private val shapeDrawer by lazy { inject<ShapeDrawer>() }
+    fun get16th(timeBars: Float) = floor(timeBars * 16f) % 16
 
     private fun getStage(): Stage {
         return stage(batch, viewport).apply {
             actors {
                 table {
                     table {
-                        boundLabel({musicPlayer.metronome.timeBars.toString()})
+                        boundLabel({ floor(musicPlayer.metronome.timeQuarters).toString() })
                         row()
-                        for(i in 0..15) {
+                        boundLabel({floor(musicPlayer.metronome.timeBars).toString()})
+                        row()
+                        for (i in 0..15) {
                             boundLabel({
-                                if(get16th(musicPlayer.metronome.timeBars) == i)
-                                    if(i == 15) "${get16th(musicPlayer.metronome.timeBars)}:$i|" else " :$i|"
+                                if (get16th(musicPlayer.metronome.timeBars) == i)
+                                    "POP|"
                                 else
-                                    " :$i|"
-                            })
-                         }
-                    }
+                                    "   |"
+                            }).cell(width = 20f)
+                        }
+                        row()
+                        for (j in 0 until 64) {
+                            label("$j")
+                        }
+                        row()
+                    }.align(Align.center or Align.top)
                     row()
                     table {
                         label("Sample Discovery") {
@@ -301,11 +303,11 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
                         fileList = listWidgetOf(currentDirectory.files.toGdxArray())
                         row()
                         currentSamples = listWidgetOf(selectedSamples.toGdxArray())
-                    }.align(Align.top)
+                    }.align(Align.center or Align.top)
                     currentList = dirList
                     setFillParent(true)
                 }
-                }
+            }
         }
     }
 
