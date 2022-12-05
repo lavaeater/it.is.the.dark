@@ -39,9 +39,9 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalMetronome =
         SignalMetronome(
             120f, mutableListOf(
-                Instrument(kick, generateBeat(-2..0, 4, 4)),
-                Instrument(snare, generateBeat(-4..0, 4, 16)),
-                Instrument(hat, generateBeat(0..4, 1, 6)),
+                Instrument("kick", kick, generateBeat(-2..0, 4, 4)),
+                Instrument("snare", snare, generateBeat(-4..0, 4, 16)),
+                Instrument("hat",hat, generateBeat(0..4, 1, 6)),
             )
         )
 
@@ -108,50 +108,59 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         boundLabel({ "TimeBars: ${signalMetronome.timeBars.toInt()}: ${signalMetronome.lastTimeBars.toInt()}" })
                         row()
                         table {
-                            (0..15).forEach {
-                                label(" $it ").cell(pad = 3f, grow = false, width = 16f).apply {
-                                    background = object: BaseDrawable(), IMusicSignalReceiver {
-                                        val index = it
-                                        var lastSixteenth = 0
-                                        var on = false
-                                        val color = Color.RED
-
-                                        override fun signal(
-                                            beat: Int,
-                                            sixteenth: Int,
-                                            timeBars: Float,
-                                            hitTime: Float,
-                                            intensity: Float
-                                        ) {
-                                            if (sixteenth == index) {
-                                                on = true
-                                            }
+                            (0..16).forEach { i ->
+                                if (i == 0) {
+                                    table {
+                                        for(instrument in signalMetronome.receivers) {
+                                            label(instrument.toString())
                                         }
+                                    }
+                                } else {
+                                    container { label(" $i ") }
+                                        .apply {
+                                            background = object : BaseDrawable(), IMusicSignalReceiver {
+                                                val index = i
+                                                var on = false
+                                                val color = Color(0f, 0f, 0f, 0f)
 
-                                        override fun draw(
-                                            batch: Batch,
-                                            x: Float,
-                                            y: Float,
-                                            width: Float,
-                                            height: Float
-                                        ) {
-                                            if (on) {
-                                                color.set(Color.GREEN)
-                                                on = false
-                                            } else {
-                                                color.set(
-                                                    clamp(color.r + 0.2f, 0f, 1f),
-                                                    clamp(color.g - 0.2f, 0f, 1f),
-                                                    0f,
-                                                    1f
-                                                )
-                                            }
-                                            shapeDrawer.filledRectangle(x, y, width, height, color)
+                                                override fun signal(
+                                                    beat: Int,
+                                                    sixteenth: Int,
+                                                    timeBars: Float,
+                                                    hitTime: Float,
+                                                    intensity: Float
+                                                ) {
+                                                    if (sixteenth == index) {
+                                                        on = true
+                                                    }
+                                                }
+
+                                                override fun draw(
+                                                    batch: Batch,
+                                                    x: Float,
+                                                    y: Float,
+                                                    width: Float,
+                                                    height: Float
+                                                ) {
+                                                    if (on) {
+                                                        color.set(Color.GREEN)
+                                                        on = false
+                                                    } else {
+                                                        color.set(
+                                                            clamp(color.r + 0.2f, 0f, 1f),
+                                                            clamp(color.g - 0.2f, 0f, 1f),
+                                                            0f,
+                                                            clamp(color.a - 0.3f, 0f, 1f)
+                                                        )
+                                                    }
+                                                    shapeDrawer.filledRectangle(x, y, width, height, color)
+                                                }
+                                            }.apply { signalMetronome.receivers.add(this) }
                                         }
-                                    }.apply { signalMetronome.receivers.add(this) }
                                 }
                             }
                         }
+                        row()
                         boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell(pad = 1f)
                         row()
                         boundLabel({ "Playing: ${signalMetronome.playing}" })
