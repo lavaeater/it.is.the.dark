@@ -2,13 +2,10 @@ package dark.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.math.MathUtils.floor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -18,8 +15,6 @@ import eater.core.BasicScreen
 import eater.extensions.boundLabel
 import eater.injection.InjectionContext
 import eater.input.CommandMap
-import eater.input.command
-import eater.messaging.MessageHandler
 import eater.music.*
 import ktx.actors.stage
 import ktx.scene2d.*
@@ -33,21 +28,26 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     val pitchSpan = (60 - 72)..(84 - 72)
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
-
-    private val musicPlayer by lazy { MusicPlayer(InjectionContext.inject()) }
-    private val kickdrum by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
-     private val signalMetronome = SignalMetronome(120f, mutableListOf(Instrument(kickdrum)))
+    private val kick by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
+    private val snare by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
+    private val hat by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
+    private val signalMetronome =
+        SignalMetronome(
+            120f, mutableListOf(
+                Instrument(kick, generateBeat(-2..0, 1,1)),
+                Instrument(snare, generateBeat(-4..0, 1,2)),
+                Instrument(hat, generateBeat(0..4, 1,6)),
+            )
+        )
 
     private val sampleRate = 44100
 
     private val audio by lazy { InjectionContext.inject<Audio>() }
+    private val timePiece by lazy { GdxAI.getTimepiece() }
 
     private fun setUpCommands() {
-        commandMap.setUp(Input.Keys.P, "Toggle Music") {
-            musicPlayer.toggle()
-        }
         commandMap.setUp(Input.Keys.SPACE, "Toggle signalplayer") {
-            if(signalMetronome.notPlaying)
+            if (signalMetronome.notPlaying)
                 signalMetronome.play()
             else
                 signalMetronome.stop()
@@ -69,10 +69,19 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
     override fun render(delta: Float) {
         super.render(delta)
+        timePiece.update(delta)
         stage.act(delta)
         stage.draw()
-        musicPlayer.update(delta)
         signalMetronome.update()
+        playMusic()
+    }
+
+    private fun playMusic() {
+        val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
+        ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
+        for (sound in soundsToPlayRightNowIGuess) {
+            audio.play(sound.soundBuffer, 1f, sound.pitch)
+        }
     }
 
 
@@ -85,34 +94,41 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
-                        boundLabel({ get16th(musicPlayer.metronome.timeBars).toString() })
-                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeQuarters).toString() })
+                        boundLabel({ "Beat: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
-                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeBars).toString() })
+                        boundLabel({ "Last 16th: ${signalMetronome.last16th}" })
                         row()
-                        (0..15).forEach { i ->
-                            table {
-                                label(" ") {
-                                }.cell(width = 10f, pad = 1f).apply {
-                                    background = object: BaseDrawable() {
-                                        override fun draw(
-                                            batch: Batch,
-                                            x: Float,
-                                            y: Float,
-                                            width: Float,
-                                            height: Float
-                                        ) {
-                                            val c = if(get16th(musicPlayer.metronome.timeBars) == i) Color.BROWN else Color.BLUE
-                                            shapeDrawer.filledRectangle(x,y,width,height, c)
-                                        }
-                                    }
-                                }
-                                row()
-                                for (j in 0 until 4) {
-                                    label("$j").cell(grow = true)
-                                }
-                            }
-                        }
+                        boundLabel({ "This 16th: ${signalMetronome.this16th}" })
+                        row()
+                        boundLabel({ "Playing: ${signalMetronome.playing}" })
+//                        boundLabel({ get16th(musicPlayer.metronome.timeBars).toString() })
+//                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeQuarters).toString() })
+//                        row()
+//                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeBars).toString() })
+//                        row()
+//                        (0..15).forEach { i ->
+//                            table {
+//                                label(" ") {
+//                                }.cell(width = 10f, pad = 1f).apply {
+//                                    background = object: BaseDrawable() {
+//                                        override fun draw(
+//                                            batch: Batch,
+//                                            x: Float,
+//                                            y: Float,
+//                                            width: Float,
+//                                            height: Float
+//                                        ) {
+//                                            val c = if(get16th(musicPlayer.metronome.timeBars) == i) Color.BROWN else Color.BLUE
+//                                            shapeDrawer.filledRectangle(x,y,width,height, c)
+//                                        }
+//                                    }
+//                                }
+//                                row()
+//                                for (j in 0 until 4) {
+//                                    label("$j").cell(grow = true)
+//                                }
+//                            }
+//                        }
                         row()
                     }.align(Align.center or Align.top)
                     row()
