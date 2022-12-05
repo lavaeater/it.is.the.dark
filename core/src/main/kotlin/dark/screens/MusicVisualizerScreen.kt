@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.math.MathUtils.clamp
 import com.badlogic.gdx.math.MathUtils.floor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
@@ -38,9 +39,9 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalMetronome =
         SignalMetronome(
             120f, mutableListOf(
-                Instrument(kick, generateBeat(-2..0, 4,4)),
-                Instrument(snare, generateBeat(-4..0, 4,16)),
-                Instrument(hat, generateBeat(0..4, 1,6)),
+                Instrument(kick, generateBeat(-2..0, 4, 4)),
+                Instrument(snare, generateBeat(-4..0, 4, 16)),
+                Instrument(hat, generateBeat(0..4, 1, 6)),
             )
         )
 
@@ -98,7 +99,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
-                        boundProgressBar({ signalMetronome.intensity}).cell(pad = 5f)
+                        boundProgressBar({ signalMetronome.intensity }).cell(pad = 5f)
                         row()
                         boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
@@ -106,30 +107,52 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         row()
                         boundLabel({ "TimeBars: ${signalMetronome.timeBars.toInt()}: ${signalMetronome.lastTimeBars.toInt()}" })
                         row()
-                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell(pad = 1f).apply {
-                            background = object: BaseDrawable(), IMusicSignalReceiver {
-                                var lastSixteenth = 0
-                                var on = false
-                                override fun signal(
-                                    beat: Int,
-                                    sixteenth: Int,
-                                    timeBars: Float,
-                                    hitTime: Float,
-                                    intensity: Float
-                                ) {
-                                    if(sixteenth != lastSixteenth) {
-                                        lastSixteenth = sixteenth
-                                        on = true
-                                    } else {
-                                        on = false
-                                    }
-                                }
+                        table {
+                            (0..15).forEach {
+                                label(" $it ").cell(pad = 3f, grow = false, width = 16f).apply {
+                                    background = object: BaseDrawable(), IMusicSignalReceiver {
+                                        val index = it
+                                        var lastSixteenth = 0
+                                        var on = false
+                                        val color = Color.RED
 
-                                override fun draw(batch: Batch, x: Float, y: Float, width: Float, height: Float) {
-                                    shapeDrawer.filledRectangle(x, y, width, height, if(on) Color.GREEN else Color.RED)
+                                        override fun signal(
+                                            beat: Int,
+                                            sixteenth: Int,
+                                            timeBars: Float,
+                                            hitTime: Float,
+                                            intensity: Float
+                                        ) {
+                                            if (sixteenth == index) {
+                                                on = true
+                                            }
+                                        }
+
+                                        override fun draw(
+                                            batch: Batch,
+                                            x: Float,
+                                            y: Float,
+                                            width: Float,
+                                            height: Float
+                                        ) {
+                                            if (on) {
+                                                color.set(Color.GREEN)
+                                                on = false
+                                            } else {
+                                                color.set(
+                                                    clamp(color.r + 0.2f, 0f, 1f),
+                                                    clamp(color.g - 0.2f, 0f, 1f),
+                                                    0f,
+                                                    1f
+                                                )
+                                            }
+                                            shapeDrawer.filledRectangle(x, y, width, height, color)
+                                        }
+                                    }.apply { signalMetronome.receivers.add(this) }
                                 }
                             }
                         }
+                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell(pad = 1f)
                         row()
                         boundLabel({ "Playing: ${signalMetronome.playing}" })
 //                        boundLabel({ get16th(musicPlayer.metronome.timeBars).toString() })
