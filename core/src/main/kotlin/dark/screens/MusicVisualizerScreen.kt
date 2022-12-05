@@ -3,6 +3,8 @@ package dark.screens
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.ai.GdxAI
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils.floor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
@@ -74,10 +76,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         stage.act(delta)
         stage.draw()
         signalMetronome.update()
-        playMusic()
+        playSounds()
     }
 
-    private fun playMusic() {
+    private fun playSounds() {
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
         ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
         for (sound in soundsToPlayRightNowIGuess) {
@@ -97,9 +99,14 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     table {
                         boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
-                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell().apply {
+                        boundLabel({ "TimeSeconds: ${signalMetronome.timeSeconds.toInt()}: ${signalMetronome.timeQuarters.toInt()}" })
+                        row()
+                        boundLabel({ "TimeBars: ${signalMetronome.timeBars.toInt()}: ${signalMetronome.lastTimeBars.toInt()}" })
+                        row()
+                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell(pad = 1f).apply {
                             background = object: BaseDrawable(), IMusicSignalReceiver {
                                 var lastSixteenth = 0
+                                var on = false
                                 override fun signal(
                                     beat: Int,
                                     sixteenth: Int,
@@ -109,8 +116,14 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                 ) {
                                     if(sixteenth != lastSixteenth) {
                                         lastSixteenth = sixteenth
-                                        
+                                        on = true
+                                    } else {
+                                        on = false
                                     }
+                                }
+
+                                override fun draw(batch: Batch, x: Float, y: Float, width: Float, height: Float) {
+                                    shapeDrawer.filledRectangle(x, y, width, height, if(on) Color.GREEN else Color.RED)
                                 }
                             }
                         }
