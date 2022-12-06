@@ -20,7 +20,7 @@ class DarkGame : MainGame() {
         addScreen(MusicVisualizerScreen(this))
         addScreen(SoundMachineScreen(this))
         addScreen(inject<GameScreen>())
-        setScreen<SoundMachineScreen>()
+        setScreen<MusicVisualizerScreen>()
     }
 
     fun gameOver() {

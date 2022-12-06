@@ -37,6 +37,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
     private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
     private val bassSampler by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json")}
+    private val leadSampler by lazy { loadSampler("80s_OberLead_C2", "leads-1.json") }
     private val signalMetronome =
         SignalMetronome(
             120f,
@@ -45,33 +46,34 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 4)),
                 SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 8, 2)),
                 SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 8,2)),
-                SignalBass("bass", bassSampler)
+                SignalBass("bass", bassSampler),
+                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Up)
             ),
             mutableListOf(
                 Chord(0f,
                     listOf(
-                        Note(0, 0.75f),
-                        Note(1, 0.65f),
-                        Note(2, 0.95f),
-                        Note(4, 0.25f),
+                        Note(-1, 0.75f),
+                        Note(0, 0.65f),
+                        Note(1, 0.95f),
+                        Note(2, 0.25f),
                         )),
                 Chord(1f,
                     listOf(
-                        Note(4, 0.65f),
-                        Note(2, 0.35f),
+                        Note(2, 0.65f),
+                        Note(1, 0.35f),
                         Note(0, 0.25f),
                     )),
                 Chord(2f,
                     listOf(
-                        Note(4, .5f),
-                        Note(8, 0.05f),
+                        Note(2, .5f),
+                        Note(4, 0.05f),
                     )),
                 Chord(3f,
                     listOf(
                         Note(0, 1f),
-                        Note(2, 0.75f),
-                        Note(4, 0.5f),
-                        Note(8, 0.25f),
+                        Note(1, 0.75f),
+                        Note(2, 0.5f),
+                        Note(4, 0.25f),
                     )))
         )
 

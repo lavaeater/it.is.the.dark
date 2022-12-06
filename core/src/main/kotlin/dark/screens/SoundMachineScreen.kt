@@ -145,10 +145,19 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
             }
         }
 
-        commandMap.setUp(Keys.UP, "Go up in dirlist") {
+        commandMap.setUp(Keys.PAGE_UP, "Go ten up") {
+            goTenUpInCurrentList()
+        }
+
+        commandMap.setUp(Keys.PAGE_DOWN, "Go ten down") {
+            goTenDownInCurrentList()
+        }
+
+
+        commandMap.setDown(Keys.UP, "Go up in dirlist") {
             goUpInCurrentList()
         }
-        commandMap.setUp(Keys.DOWN, "Go up in dirlist") {
+        commandMap.setDown(Keys.DOWN, "Go up in dirlist") {
             goDownInCurrentList()
         }
         commandMap.setUp(Keys.ENTER, "Select ITem in dirlist") {
@@ -176,6 +185,24 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
                 saveInstrument()
             }
         }
+    }
+
+    private fun goTenDownInCurrentList() {
+        if (currentList.selectedIndex == currentList.items.lastIndex)
+            currentList.selectedIndex = currentList.items.lastIndex
+        else if (currentList.selectedIndex - 10 < 0)
+            currentList.selectedIndex = 0
+        else
+            currentList.selectedIndex -= 10
+    }
+
+    private fun goTenUpInCurrentList() {
+        if (currentList.selectedIndex == 0)
+            currentList.selectedIndex = 0
+        else if (currentList.selectedIndex + 10 > currentList.items.lastIndex)
+            currentList.selectedIndex = currentList.items.lastIndex
+        else
+            currentList.selectedIndex += 10
     }
 
     var instrumentCount = 0
