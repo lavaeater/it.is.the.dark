@@ -36,14 +36,14 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
     private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
     private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
-    private val bassSampler by lazy { loadSampler("short-808-bass_D_major", "bass-1.json")}
+    private val bassSampler by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json")}
     private val signalMetronome =
         SignalMetronome(
             120f,
             2f,
             mutableListOf(
-                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 4)),
-                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 12)),
+                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 8)),
+                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 8)),
                 SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 16)),
                 SignalBass("bass", bassSampler)
             ),
@@ -52,6 +52,9 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     listOf(
                         Note(-2, 1f),
                         Note(0, 0.75f),
+                        Note(0, 0.5f),
+                        Note(2, 0.5f),
+                        Note(-1, 0.5f),
                         Note(1, 0.5f),
                         Note(-2, 0.25f),
                         )),
