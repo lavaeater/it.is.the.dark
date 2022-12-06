@@ -39,9 +39,9 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalMetronome =
         SignalMetronome(
             120f, mutableListOf(
-                Instrument("kick", kick, generateBeat(-2..0, 4, 4)),
-                Instrument("snare", snare, generateBeat(-4..0, 4, 16)),
-                Instrument("hat", hat, generateBeat(0..4, 1, 6)),
+                SignalDrummer("kick", kick, generateBeat(-2..0, 1, 4)),
+                SignalDrummer("snare", snare, generateBeat(-4..0, 1, 12)),
+                SignalDrummer("hat", hat, generateBeat(0..4, 1, 16)),
             )
         )
 
@@ -103,10 +103,6 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         row()
                         boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
                         row()
-                        boundLabel({ "TimeSeconds: ${signalMetronome.timeSeconds.toInt()}: ${signalMetronome.timeQuarters.toInt()}" })
-                        row()
-                        boundLabel({ "TimeBars: ${signalMetronome.timeBars.toInt()}: ${signalMetronome.lastTimeBars.toInt()}" })
-                        row()
                         table {
                             for (r in 0..signalMetronome.instruments.size) {
                                 if (r == 0) {
@@ -133,6 +129,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             if (sixteenth == index) {
                                                                 on = true
                                                             }
+                                                        }
+
+                                                        override fun setChord(chord: Chord) {
+
                                                         }
 
                                                         override fun draw(
@@ -188,6 +188,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             }
                                                         }
 
+                                                        override fun setChord(chord: Chord) {
+
+                                                        }
+
                                                         override fun draw(
                                                             batch: Batch,
                                                             x: Float,
@@ -221,38 +225,6 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                 row()
                             }
                         }
-                        row()
-                        boundLabel({ "This 16th: ${signalMetronome.this16th}" }).cell(pad = 1f)
-                        row()
-                        boundLabel({ "Playing: ${signalMetronome.playing}" })
-//                        boundLabel({ get16th(musicPlayer.metronome.timeBars).toString() })
-//                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeQuarters).toString() })
-//                        row()
-//                        boundLabel({ MathUtils.floor(musicPlayer.metronome.timeBars).toString() })
-//                        row()
-//                        (0..15).forEach { i ->
-//                            table {
-//                                label(" ") {
-//                                }.cell(width = 10f, pad = 1f).apply {
-//                                    background = object: BaseDrawable() {
-//                                        override fun draw(
-//                                            batch: Batch,
-//                                            x: Float,
-//                                            y: Float,
-//                                            width: Float,
-//                                            height: Float
-//                                        ) {
-//                                            val c = if(get16th(musicPlayer.metronome.timeBars) == i) Color.BROWN else Color.BLUE
-//                                            shapeDrawer.filledRectangle(x,y,width,height, c)
-//                                        }
-//                                    }
-//                                }
-//                                row()
-//                                for (j in 0 until 4) {
-//                                    label("$j").cell(grow = true)
-//                                }
-//                            }
-//                        }
                         row()
                     }.align(Align.center)
                     row()
