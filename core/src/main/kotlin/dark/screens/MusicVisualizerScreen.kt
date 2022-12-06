@@ -41,7 +41,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             120f, mutableListOf(
                 Instrument("kick", kick, generateBeat(-2..0, 4, 4)),
                 Instrument("snare", snare, generateBeat(-4..0, 4, 16)),
-                Instrument("hat",hat, generateBeat(0..4, 1, 6)),
+                Instrument("hat", hat, generateBeat(0..4, 1, 6)),
             )
         )
 
@@ -108,56 +108,117 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         boundLabel({ "TimeBars: ${signalMetronome.timeBars.toInt()}: ${signalMetronome.lastTimeBars.toInt()}" })
                         row()
                         table {
-                            (0..16).forEach { i ->
-                                if (i == 0) {
-                                    table {
-                                        for(instrument in signalMetronome.receivers) {
-                                            label(instrument.toString())
-                                        }
+                            for (r in 0..signalMetronome.instruments.size) {
+                                if (r == 0) {
+                                    (0..16).forEach { c ->
+                                        if (c == 0)
+                                            label("Instrument")
+                                        else
+                                            container { label(" $c ") }
+                                                .apply {
+                                                    background = object : BaseDrawable(), IMusicSignalReceiver {
+                                                        val index = c - 1
+                                                        var on = false
+                                                        val color = Color(0f, 0f, 0f, 0f)
+                                                        override val receiverName: String
+                                                            get() = "Color changing background"
+
+                                                        override fun signal(
+                                                            beat: Int,
+                                                            sixteenth: Int,
+                                                            timeBars: Float,
+                                                            hitTime: Float,
+                                                            intensity: Float
+                                                        ) {
+                                                            if (sixteenth == index) {
+                                                                on = true
+                                                            }
+                                                        }
+
+                                                        override fun draw(
+                                                            batch: Batch,
+                                                            x: Float,
+                                                            y: Float,
+                                                            width: Float,
+                                                            height: Float
+                                                        ) {
+                                                            if (on) {
+                                                                color.set(Color.GREEN)
+                                                                on = false
+                                                            } else {
+                                                                color.set(
+                                                                    clamp(color.r + 0.01f, 0f, 1f),
+                                                                    clamp(color.g - 0.01f, 0f, 1f),
+                                                                    0f,
+                                                                    clamp(color.a - 0.01f, 0f, 1f)
+                                                                )
+                                                            }
+                                                            shapeDrawer.filledRectangle(x, y, width, height, color)
+                                                        }
+                                                    }.apply { signalMetronome.instruments.add(this) }
+                                                }
                                     }
                                 } else {
-                                    container { label(" $i ") }
-                                        .apply {
-                                            background = object : BaseDrawable(), IMusicSignalReceiver {
-                                                val index = i
-                                                var on = false
-                                                val color = Color(0f, 0f, 0f, 0f)
+                                    val instrument = signalMetronome.instruments[r - 1]
+                                    (0..16).forEach { c ->
+                                        if (c == 0)
+                                            label(instrument.receiverName)
+                                        else
+                                            container { label("  ") }
+                                                .apply {
+                                                    background = object : BaseDrawable(), IMusicSignalReceiver {
+                                                        val index = c - 1
+                                                        var on = false
+                                                        val color = Color(0f, 0f, 0f, 0f)
+                                                        override val receiverName: String
+                                                            get() = "Color changing background"
 
-                                                override fun signal(
-                                                    beat: Int,
-                                                    sixteenth: Int,
-                                                    timeBars: Float,
-                                                    hitTime: Float,
-                                                    intensity: Float
-                                                ) {
-                                                    if (sixteenth == index) {
-                                                        on = true
-                                                    }
-                                                }
+                                                        override fun signal(
+                                                            beat: Int,
+                                                            sixteenth: Int,
+                                                            timeBars: Float,
+                                                            hitTime: Float,
+                                                            intensity: Float
+                                                        ) {
+                                                            if (index == sixteenth && instrument is Instrument) {
+                                                                val note = instrument.notes[sixteenth]
+                                                                if (note != null && note.strength > 1f - intensity) {
+                                                                    on = true
+                                                                }
+                                                            }
+                                                        }
 
-                                                override fun draw(
-                                                    batch: Batch,
-                                                    x: Float,
-                                                    y: Float,
-                                                    width: Float,
-                                                    height: Float
-                                                ) {
-                                                    if (on) {
-                                                        color.set(Color.GREEN)
-                                                        on = false
-                                                    } else {
-                                                        color.set(
-                                                            clamp(color.r + 0.2f, 0f, 1f),
-                                                            clamp(color.g - 0.2f, 0f, 1f),
-                                                            0f,
-                                                            clamp(color.a - 0.3f, 0f, 1f)
-                                                        )
-                                                    }
-                                                    shapeDrawer.filledRectangle(x, y, width, height, color)
+                                                        override fun draw(
+                                                            batch: Batch,
+                                                            x: Float,
+                                                            y: Float,
+                                                            width: Float,
+                                                            height: Float
+                                                        ) {
+                                                            if (on) {
+                                                                color.set(Color.GREEN)
+                                                                on = false
+                                                            } else {
+                                                                color.set(
+                                                                    clamp(color.r + 0.01f, 0f, 1f),
+                                                                    clamp(color.g - 0.01f, 0f, 1f),
+                                                                    0f,
+                                                                    clamp(color.a - 0.01f, 0f, 1f)
+                                                                )
+                                                            }
+                                                            shapeDrawer.filledRectangle(
+                                                                x,
+                                                                y,
+                                                                width,
+                                                                height,
+                                                                color
+                                                            )
+                                                        }
+                                                    }.apply { signalMetronome.instruments.add(this) }
                                                 }
-                                            }.apply { signalMetronome.receivers.add(this) }
-                                        }
+                                    }
                                 }
+                                row()
                             }
                         }
                         row()
