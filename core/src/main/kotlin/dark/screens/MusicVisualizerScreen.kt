@@ -40,44 +40,38 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalMetronome =
         SignalMetronome(
             120f,
-            2f,
+            3f,
             mutableListOf(
-                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 8)),
-                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 8)),
-                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 16)),
+                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 4)),
+                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 8, 2)),
+                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 8,2)),
                 SignalBass("bass", bassSampler)
             ),
             mutableListOf(
                 Chord(0f,
                     listOf(
-                        Note(-2, 1f),
                         Note(0, 0.75f),
-                        Note(0, 0.5f),
-                        Note(2, 0.5f),
-                        Note(-1, 0.5f),
-                        Note(1, 0.5f),
-                        Note(-2, 0.25f),
+                        Note(0, 0.65f),
+                        Note(0, 0.95f),
+                        Note(2, 0.25f),
                         )),
                 Chord(1f,
                     listOf(
-                        Note(-1, 0.9f),
-                        Note(2, 0.65f),
-                        Note(0, 0.35f),
-                        Note(-3, 0.25f),
+                        Note(6, 0.65f),
+                        Note(6, 0.35f),
+                        Note(-6, 0.25f),
                     )),
                 Chord(2f,
                     listOf(
-                        Note(-2, .5f),
-                        Note(0, 0.15f),
-                        Note(1, 0.25f),
-                        Note(2, 0.05f),
+                        Note(-8, .5f),
+                        Note(-12, 0.05f),
                     )),
-                Chord(4f,
+                Chord(3f,
                     listOf(
-                        Note(-2, 1f),
-                        Note(1, 0.75f),
-                        Note(2, 0.5f),
-                        Note(-1, 0.25f),
+                        Note(12, 1f),
+                        Note(12, 0.75f),
+                        Note(12, 0.5f),
+                        Note(12, 0.25f),
                     )))
         )
 
