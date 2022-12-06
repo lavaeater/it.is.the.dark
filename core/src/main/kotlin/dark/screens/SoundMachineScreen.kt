@@ -49,41 +49,6 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     private val sampleStore by lazy { getSamples() }
     private var currentDirectory = sampleStore
 
-    private val musicPlayer by lazy { MusicPlayer(inject()) }
-
-    private val sampleRate = 44100
-    private val createdSound = PcmSoundSource(sampleRate, PcmFormat.MONO_8_BIT)
-
-    private val soundLengthSeconds = 5f
-    private val soundSamples = floor(sampleRate * soundLengthSeconds) //Number of values / samples
-
-    private var randomToneVal = (0..255).random()
-    private var frequency = 20f //per second
-
-    private val aRandomSound = Array(soundSamples) {
-//        if(it % 10 == 0)
-//            randomToneVal = (0..255).random()
-//        randomToneVal.toByte()
-
-        //This is fucking retarded
-        /*
-        if frequency is 20 and sound length is 1 second, we are going to need
-        length * freq fluctuations
-         */
-        val fluxes = frequency * soundLengthSeconds //20 in this base case, lets do 40 instead
-        /*
-        This means our array should be divided into fluxes number of iterations, right?
-        Just divide it to begin with?
-         */
-        val normalized = norm(0f, soundSamples.toFloat() / fluxes, it.toFloat() / fluxes)
-        (norm(-1f, 1f, sin(normalized * PI2)) * 255f).toInt().toByte()
-    }
-
-    fun playAGeneratedSound() {
-        createdSound.queueSamples(aRandomSound.toByteArray(), 0, soundSamples)
-        createdSound.play()
-    }
-
     private fun getDirInfo(directory: ListItem.Directory) {
         val dirContents = Gdx.files.external(directory.path).list()
         val dirs = dirContents.filter { it.isDirectory }
@@ -99,8 +64,8 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
     }
 
 
-    var currentListIsDirList = true
-    val currentListIsFileList get() = !currentListIsDirList
+    private var currentListIsDirList = true
+    private val currentListIsFileList get() = !currentListIsDirList
 
     private fun switchList() {
         currentList = if (currentListIsDirList) fileList else dirList
@@ -155,7 +120,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
         if (soundWorks) {
             val sound = sounds[soundFile]!!
-            audio.play(sound, 1f, currentNote.toPitch())
+            audio.play(sound, 1f, 1f)
         } else {
             currentList.items.removeValue(currentList.selected, true)
         }
@@ -211,13 +176,6 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
                 saveInstrument()
             }
         }
-
-        commandMap.setUp(Keys.O, "Play Random Sound") {
-            playAGeneratedSound()
-        }
-        commandMap.setUp(Keys.P, "Toggle Music") {
-            musicPlayer.toggle()
-        }
     }
 
     var instrumentCount = 0
@@ -255,7 +213,6 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         super.render(delta)
         stage.act(delta)
         stage.draw()
-        musicPlayer.update(delta)
     }
 
 
@@ -271,26 +228,6 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         return stage(batch, viewport).apply {
             actors {
                 table {
-                    table {
-                        boundLabel({ floor(musicPlayer.metronome.timeQuarters).toString() })
-                        row()
-                        boundLabel({floor(musicPlayer.metronome.timeBars).toString()})
-                        row()
-                        for (i in 0..15) {
-                            boundLabel({
-                                if (get16th(musicPlayer.metronome.timeBars) == i)
-                                    "POP|"
-                                else
-                                    "   |"
-                            }).cell(width = 20f)
-                        }
-                        row()
-                        for (j in 0 until 64) {
-                            label("$j")
-                        }
-                        row()
-                    }.align(Align.center or Align.top)
-                    row()
                     table {
                         label("Sample Discovery") {
                             setFontScale(4f)

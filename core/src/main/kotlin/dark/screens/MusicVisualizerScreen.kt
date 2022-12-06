@@ -51,27 +51,27 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 Chord(0f,
                     listOf(
                         Note(0, 0.75f),
-                        Note(0, 0.65f),
-                        Note(0, 0.95f),
-                        Note(2, 0.25f),
+                        Note(1, 0.65f),
+                        Note(2, 0.95f),
+                        Note(4, 0.25f),
                         )),
                 Chord(1f,
                     listOf(
-                        Note(6, 0.65f),
-                        Note(6, 0.35f),
-                        Note(-6, 0.25f),
+                        Note(4, 0.65f),
+                        Note(2, 0.35f),
+                        Note(0, 0.25f),
                     )),
                 Chord(2f,
                     listOf(
-                        Note(-8, .5f),
-                        Note(-12, 0.05f),
+                        Note(4, .5f),
+                        Note(8, 0.05f),
                     )),
                 Chord(3f,
                     listOf(
-                        Note(12, 1f),
-                        Note(12, 0.75f),
-                        Note(12, 0.5f),
-                        Note(12, 0.25f),
+                        Note(0, 1f),
+                        Note(2, 0.75f),
+                        Note(4, 0.5f),
+                        Note(8, 0.25f),
                     )))
         )
 

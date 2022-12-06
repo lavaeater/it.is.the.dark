@@ -1,5 +1,6 @@
 package dark.core
 
+import com.badlogic.gdx.audio.Sound
 import dark.injection.Context
 import dark.screens.GameScreen
 import dark.screens.MenuScreen
@@ -17,8 +18,9 @@ class DarkGame : MainGame() {
 
         addScreen(MenuScreen(this))
         addScreen(MusicVisualizerScreen(this))
+        addScreen(SoundMachineScreen(this))
         addScreen(inject<GameScreen>())
-        setScreen<MusicVisualizerScreen>()
+        setScreen<SoundMachineScreen>()
     }
 
     fun gameOver() {
