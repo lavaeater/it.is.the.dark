@@ -33,16 +33,49 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     val pitchSpan = (60 - 72)..(84 - 72)
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
-    private val kick by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
-    private val snare by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
-    private val hat by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
+    private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
+    private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
+    private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
+    private val bassSampler by lazy { loadSampler("short-808-bass_D_major", "bass-1.json")}
     private val signalMetronome =
         SignalMetronome(
-            120f, mutableListOf(
-                SignalDrummer("kick", kick, generateBeat(-2..0, 1, 4)),
-                SignalDrummer("snare", snare, generateBeat(-4..0, 1, 12)),
-                SignalDrummer("hat", hat, generateBeat(0..4, 1, 16)),
-            )
+            120f,
+            2f,
+            mutableListOf(
+                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 4)),
+                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 12)),
+                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 16)),
+                SignalBass("bass", bassSampler)
+            ),
+            mutableListOf(
+                Chord(0f,
+                    listOf(
+                        Note(-2, 1f),
+                        Note(0, 0.75f),
+                        Note(1, 0.5f),
+                        Note(-2, 0.25f),
+                        )),
+                Chord(1f,
+                    listOf(
+                        Note(-1, 0.9f),
+                        Note(2, 0.65f),
+                        Note(0, 0.35f),
+                        Note(-3, 0.25f),
+                    )),
+                Chord(2f,
+                    listOf(
+                        Note(-2, .5f),
+                        Note(0, 0.15f),
+                        Note(1, 0.25f),
+                        Note(2, 0.05f),
+                    )),
+                Chord(4f,
+                    listOf(
+                        Note(-2, 1f),
+                        Note(1, 0.75f),
+                        Note(2, 0.5f),
+                        Note(-1, 0.25f),
+                    )))
         )
 
     private val sampleRate = 44100
@@ -181,10 +214,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             intensity: Float
                                                         ) {
                                                             if (index == sixteenth && instrument is Instrument) {
-                                                                val note = instrument.notes[sixteenth]
-                                                                if (note != null && note.strength > 1f - intensity) {
-                                                                    on = true
-                                                                }
+                                                                on = instrument.willPlay(sixteenth, intensity)
                                                             }
                                                         }
 
