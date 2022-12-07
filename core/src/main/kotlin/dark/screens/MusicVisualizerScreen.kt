@@ -22,6 +22,7 @@ import eater.injection.InjectionContext
 import eater.input.CommandMap
 import eater.music.*
 import ktx.actors.stage
+import ktx.collections.toGdxArray
 import ktx.scene2d.*
 import space.earlygrey.shapedrawer.ShapeDrawer
 
@@ -37,45 +38,72 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
     private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
     private val bassSampler by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json")}
-    private val leadSampler by lazy { loadSampler("80s_OberLead_C2", "leads-1.json") }
+    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json") }
     private val signalMetronome =
         SignalMetronome(
-            120f,
-            3f,
+            60f,
             mutableListOf(
-                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 4)),
-                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 8, 2)),
-                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 8,2)),
+//                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 8)),
+//                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 16, 2)),
+//                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 8,3)),
                 SignalBass("bass", bassSampler),
                 ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Up)
             ),
-            mutableListOf(
-                Chord(0f,
-                    listOf(
-                        Note(-1, 0.75f),
-                        Note(0, 0.65f),
-                        Note(1, 0.95f),
-                        Note(2, 0.25f),
-                        )),
-                Chord(1f,
-                    listOf(
-                        Note(2, 0.65f),
-                        Note(1, 0.35f),
-                        Note(0, 0.25f),
-                    )),
-                Chord(2f,
-                    listOf(
-                        Note(2, .5f),
-                        Note(4, 0.05f),
-                    )),
-                Chord(3f,
-                    listOf(
-                        Note(0, 1f),
-                        Note(1, 0.75f),
-                        Note(2, 0.5f),
-                        Note(4, 0.25f),
-                    )))
+            generateChords()
         )
+
+    private fun generateNotes(numberOfNotes:Int): List<Note> {
+        val noteRange = (-1..1).toGdxArray()
+        val notes = mutableListOf<Note>()
+        (0 until numberOfNotes).forEach {
+            notes.add(Note(noteRange.random(), (3..7).randomToFloat(10f)))
+        }
+        return notes
+    }
+
+    private fun generateChords() : MutableList<Chord> {
+        val chords = mutableListOf<Chord>()
+        val randomRange = 12..18
+        (0..12).forEach {
+            chords.add(Chord(it.toFloat(), generateNotes(randomRange.random())))
+        }
+        return chords
+//        return mutableListOf(
+//            Chord(
+//                0f,
+//                listOf(
+//                    Note(-1, 0.75f),
+//                    Note(0, 0.65f),
+//                    Note(1, 0.95f),
+//                    Note(2, 0.25f),
+//                )
+//            ),
+//            Chord(
+//                1f,
+//                listOf(
+//                    Note(2, 0.65f),
+//                    Note(1, 0.35f),
+//                    Note(0, 0.25f),
+//                )
+//            ),
+//            Chord(
+//                2f,
+//                listOf(
+//                    Note(2, .5f),
+//                    Note(4, 0.05f),
+//                )
+//            ),
+//            Chord(
+//                3f,
+//                listOf(
+//                    Note(0, 1f),
+//                    Note(1, 0.75f),
+//                    Note(2, 0.5f),
+//                    Note(4, 0.25f),
+//                )
+//            )
+//        )
+    }
 
     private val sampleRate = 44100
 
@@ -88,6 +116,13 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 signalMetronome.play()
             else
                 signalMetronome.stop()
+        }
+
+        commandMap.setUp(Input.Keys.RIGHT, "Intensity UP") {
+            signalMetronome.intensity = clamp(signalMetronome.intensity + 0.1f, 0f, 1f)
+        }
+        commandMap.setUp(Input.Keys.LEFT, "Intensity DOWN") {
+            signalMetronome.intensity = clamp(signalMetronome.intensity - 0.1f, 0f, 1f)
         }
     }
 
@@ -134,6 +169,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         boundProgressBar({ signalMetronome.intensity }).cell(pad = 5f)
                         row()
                         boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
+                        row()
+                        boundLabel({ "Chord: ${signalMetronome.currentChord.barPos}: ${signalMetronome.chords.size}" })
                         row()
                         table {
                             for (r in 0..signalMetronome.instruments.size) {
@@ -263,4 +300,12 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         }
     }
 
+}
+
+fun IntRange.randomToFloat(factor: Float):Float {
+    return this.random() / factor
+}
+
+fun Int.normalizedRandom(): Float {
+    return (0..this).randomToFloat(this.toFloat())
 }
