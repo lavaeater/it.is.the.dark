@@ -1,8 +1,6 @@
 import box2dLight.ConeLight
 import box2dLight.PointLight
 import box2dLight.RayHandler
-import com.aliasifkhan.hackLights.HackLight
-import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
@@ -16,8 +14,7 @@ import dark.ecs.components.*
 import dark.ecs.components.Map
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.BlobsCanEatThis
-import dark.ecs.systems.BlobGrouper
-import dark.injection.Assets
+import dark.ecs.systems.blob.BlobGrouper
 import dark.injection.assets
 import eater.ai.ashley.AiComponent
 import eater.ai.steering.box2d.Box2dSteerable
@@ -25,7 +22,6 @@ import eater.core.engine
 import eater.core.world
 import eater.ecs.ashley.components.*
 import eater.injection.InjectionContext.Companion.inject
-import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body

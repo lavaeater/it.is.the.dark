@@ -1,4 +1,4 @@
-package dark.ecs.systems
+package dark.ecs.systems.blob
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IntervalIteratingSystem

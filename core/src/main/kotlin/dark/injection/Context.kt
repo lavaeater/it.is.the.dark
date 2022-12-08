@@ -1,7 +1,6 @@
 package dark.injection
 
 import box2dLight.RayHandler
-import com.aliasifkhan.hackLights.HackLightEngine
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
@@ -18,6 +17,12 @@ import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.systems.*
+import dark.ecs.systems.blob.BlobHealthDiminishingSystem
+import dark.ecs.systems.blob.BlobHealthSharingSystem
+import dark.ecs.systems.blob.BlobMessageHandlingSystem
+import dark.ecs.systems.blob.BlobNeighbourSystem
+import dark.ecs.systems.stackai.AiTimePieceSystem
+import dark.ecs.systems.stackai.SteerSystem
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
@@ -43,7 +48,6 @@ object Context : InjectionContext() {
             val gameSettings = GameSettings()
             bindSingleton(gameSettings)
             bindSingleton(game)
-            //bindSingleton(MiniAudio())
             bindSingleton(de.pottgames.tuningfork.Audio.init())
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera())

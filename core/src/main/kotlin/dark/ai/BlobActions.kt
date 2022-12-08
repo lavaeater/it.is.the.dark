@@ -16,8 +16,8 @@ import dark.ecs.components.*
 import dark.ecs.components.Food
 import dark.ecs.components.blobcomponents.*
 import dark.ecs.components.blobcomponents.Target
-import dark.ecs.systems.BlobGrouper
-import dark.ecs.systems.MemoryEvent
+import dark.ecs.systems.blob.BlobGrouper
+import dark.ecs.systems.stackai.MemoryEvent
 import dark.ecs.systems.log
 import eater.ai.ashley.*
 import eater.ai.steering.box2d.Box2dLocation

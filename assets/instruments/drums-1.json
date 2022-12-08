@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Shaker",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Shaker.wav"
+  },
+  {
+    "name": "Tom[Lo]",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Tom[Lo].wav"
+  },
+  {
+    "name": "OpHat",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-OpHat.wav"
+  },
+  {
+    "name": "Crash01",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Crash01.wav"
+  },
+  {
+    "name": "Tom[Hi]",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Tom[Hi].wav"
+  },
+  {
+    "name": "Tom[Mid]",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Tom[Mid].wav"
+  },
+  {
+    "name": "Crash02",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Crash02.wav"
+  },
+  {
+    "name": "Tamb",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Tamb.wav"
+  },
+  {
+    "name": "Cowbell",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Cowbell.wav"
+  },
+  {
+    "name": "Ride",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Ride.wav"
+  },
+  {
+    "name": "Clap",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Clap.wav"
+  },
+  {
+    "name": "Snare",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Snare.wav"
+  },
+  {
+    "name": "Kick",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Kick.wav"
+  },
+  {
+    "name": "ClHat",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-ClHat.wav"
+  },
+  {
+    "name": "Cabasa",
+    "path": "80s Pop Drums/Kit D/80PD_KitD-Cabasa.wav"
+  }
+]

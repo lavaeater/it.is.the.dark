@@ -1,4 +1,4 @@
-package dark.ecs.systems
+package dark.ecs.systems.stackai
 
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.ai.GdxAI
