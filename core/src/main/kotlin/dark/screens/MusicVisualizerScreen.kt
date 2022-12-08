@@ -14,7 +14,6 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import dark.core.DarkGame
-import de.pottgames.tuningfork.Audio
 import eater.core.BasicScreen
 import eater.extensions.boundLabel
 import eater.extensions.boundProgressBar
@@ -40,7 +39,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val snareSampler by lazy { loadSampler("Snare", "drums-1.json", sampleBaseDir) }
     private val hatSampler by lazy { loadSampler("ClHat", "drums-1.json", sampleBaseDir) }
     private val bassSampler by lazy { loadSampler("lofi-bass", "lo-fi-1.json", sampleBaseDir) }
-    private val leadSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
+    private val leadSampler by lazy { loadSampler("rythm-guitar-c", "guitar-1.json", sampleBaseDir) }
     private val soloSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, -1f, -1f, 0.1f,
@@ -87,7 +86,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
                 SignalBass("bass", bassSampler),
-//                ChimeyChimeChime("lead", soloSampler, ArpeggioMode.Down),
+                ChimeyChimeChime("guitar", leadSampler, ArpeggioMode.Up),
                 SoloMusician("soolooo", soloSampler)
             ),
             generateChords()
@@ -157,10 +156,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         }
 
         commandMap.setUp(Input.Keys.RIGHT, "Intensity UP") {
-            signalConductor.intensity = clamp(signalConductor.intensity + 0.1f, 0f, 1f)
+            signalConductor.baseIntensity = clamp(signalConductor.baseIntensity + 0.1f, 0f, 1f)
         }
         commandMap.setUp(Input.Keys.LEFT, "Intensity DOWN") {
-            signalConductor.intensity = clamp(signalConductor.intensity - 0.1f, 0f, 1f)
+            signalConductor.baseIntensity = clamp(signalConductor.baseIntensity - 0.1f, 0f, 1f)
         }
     }
 
@@ -210,7 +209,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
-                        boundProgressBar({ signalConductor.intensity }).cell(pad = 5f)
+                        boundProgressBar({ signalConductor.baseIntensity }).cell(pad = 5f)
                         row()
                         boundLabel({ "Bar: ${signalConductor.thisBar}: ${signalConductor.lastBar}" })
                         row()
@@ -237,7 +236,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             sixteenth: Int,
                                                             timeBars: Float,
                                                             hitTime: Float,
-                                                            intensity: Float
+                                                            baseIntensity: Float
                                                         ) {
                                                             if (sixteenth == index) {
                                                                 on = true
@@ -291,10 +290,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             sixteenth: Int,
                                                             timeBars: Float,
                                                             hitTime: Float,
-                                                            intensity: Float
+                                                            baseIntensity: Float
                                                         ) {
                                                             if (index == sixteenth && instrument is Musician) {
-                                                                on = instrument.willPlay(sixteenth, intensity)
+                                                                on = instrument.willPlay(sixteenth, baseIntensity)
                                                             }
                                                         }
 
