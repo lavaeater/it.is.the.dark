@@ -19,7 +19,7 @@ class DarkGame : MainGame() {
         addScreen(MusicVisualizerScreen(this))
         addScreen(SampleExplorerScreen(this))
         addScreen(inject<GameScreen>())
-        setScreen<MusicVisualizerScreen>()
+        setScreen<SampleExplorerScreen>()
     }
 
     fun gameOver() {
