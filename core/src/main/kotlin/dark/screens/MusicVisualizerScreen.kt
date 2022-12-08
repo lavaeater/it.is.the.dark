@@ -39,9 +39,9 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val kickSampler by lazy { loadSampler("Kick", "drums-1.json", sampleBaseDir) }
     private val snareSampler by lazy { loadSampler("Snare", "drums-1.json", sampleBaseDir) }
     private val hatSampler by lazy { loadSampler("ClHat", "drums-1.json", sampleBaseDir) }
-
-    //    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
-//    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json", sampleBaseDir) }
+    private val bassSampler by lazy { loadSampler("lofi-bass", "lo-fi-1.json", sampleBaseDir) }
+    private val leadSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
+    private val soloSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, -1f, -1f, 0.1f,
         0.4f, -1f, 0.4f, -1f,
@@ -70,15 +70,25 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         1f, 0.4f, 0.7f, 0.1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
+    private val scaleNotes = listOf(Note(-1, 1f),
+        Note(1, 0.2f),
+        Note(3, 0.6f),
+        Note(4, 0.5f),
+        Note(6, 0.7f),
+        Note(8, 0.4f),
+        Note(9, 0f),
+    )
+
     private val signalConductor =
         SignalConductor(
-            100f,
+            120f,
             mutableListOf(
-//                SignalDrummer("kick", kickSampler, kickBeat),
+                SignalDrummer("kick", kickSampler, kickBeat),
                 SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
-//                SignalBass("bass", bassSampler),
-//                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Down)
+                SignalBass("bass", bassSampler),
+//                ChimeyChimeChime("lead", soloSampler, ArpeggioMode.Down),
+                SoloMusician("soolooo", soloSampler)
             ),
             generateChords()
         )
@@ -102,7 +112,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(3, 0.25f),
                     Note(7, 0.5f),
                     Note(11, 0f),
-                )
+                ),scaleNotes
+
             ),
             Chord(
                 1f,
@@ -111,7 +122,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(1, 0.25f),
                     Note(4, 0.5f),
                     Note(7, 0f),
-                )
+                ),scaleNotes
             ),
             Chord(
                 2f,
@@ -120,7 +131,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(-1, 0.25f),
                     Note(2, 0.5f),
                     Note(5, 0f),
-                )
+                ),scaleNotes
             ),
             Chord(
                 3f,
@@ -129,14 +140,12 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(2, 0.25f),
                     Note(4, 0.5f),
                     Note(6, 0f),
-                )
+                ),scaleNotes
             ),
         )
     }
 
     private val sampleRate = 44100
-
-    private val audio by lazy { InjectionContext.inject<Audio>() }
     private val timePiece by lazy { GdxAI.getTimepiece() }
 
     private fun setUpCommands() {
@@ -177,6 +186,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         playSounds()
     }
 
+    private var volume = 0.5f
+
     private fun playSounds() {
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
         ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
@@ -184,6 +195,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             if (sound.soundSource.isPlaying)
                 sound.soundSource.stop()
             sound.soundSource.setPitch(sound.pitch)
+            sound.soundSource.setVolume(volume)
             sound.soundSource.play()
         }
     }
