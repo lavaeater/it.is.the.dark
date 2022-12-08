@@ -27,7 +27,7 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 
 class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
 
-    val sampleBaseDir = "projects/games/music-samples"
+    val sampleBaseDir = "projects/games/music-samples-explorer"
 
     val noteMin = 60 //one octave lower
     val noteMax = 84 //one octave higher
@@ -36,11 +36,11 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     val pitchSpan = (60 - 72)..(84 - 72)
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
-    private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json", sampleBaseDir) }
-    private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json", sampleBaseDir) }
-    private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json", sampleBaseDir) }
-    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
-    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json", sampleBaseDir) }
+    private val kickSampler by lazy { loadSampler("Kick", "drums-1.json", sampleBaseDir) }
+    private val snareSampler by lazy { loadSampler("Snare", "drums-1.json", sampleBaseDir) }
+    private val hatSampler by lazy { loadSampler("ClHat", "drums-1.json", sampleBaseDir) }
+//    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
+//    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, 0f, 0f, 0.1f,
         0.4f, 0f, 0.4f, 0f,
@@ -76,8 +76,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 SignalDrummer("kick", kickSampler, kickBeat),
                 SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
-                SignalBass("bass", bassSampler),
-                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Down)
+//                SignalBass("bass", bassSampler),
+//                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Down)
             ),
             generateChords()
         )

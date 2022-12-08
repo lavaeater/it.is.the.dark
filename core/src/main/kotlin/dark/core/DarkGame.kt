@@ -16,10 +16,10 @@ class DarkGame : MainGame() {
         Context.initialize(this)
 
         addScreen(MenuScreen(this))
-//        addScreen(MusicVisualizerScreen(this))
+        addScreen(MusicVisualizerScreen(this))
         addScreen(SampleExplorerScreen(this))
         addScreen(inject<GameScreen>())
-        setScreen<SampleExplorerScreen>()
+        setScreen<MusicVisualizerScreen>()
     }
 
     fun gameOver() {
