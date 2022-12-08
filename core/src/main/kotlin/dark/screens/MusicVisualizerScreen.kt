@@ -39,13 +39,14 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val kickSampler by lazy { loadSampler("Kick", "drums-1.json", sampleBaseDir) }
     private val snareSampler by lazy { loadSampler("Snare", "drums-1.json", sampleBaseDir) }
     private val hatSampler by lazy { loadSampler("ClHat", "drums-1.json", sampleBaseDir) }
-//    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
+
+    //    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
 //    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
-        1f, 0f, 0f, 0.1f,
-        0.4f, 0f, 0.4f, 0f,
-        0.9f, 0f, 0f, 0.2f,
-        0.5f, 0f, 0.3f, 0f
+        1f, -1f, -1f, 0.1f,
+        0.4f, -1f, 0.4f, -1f,
+        0.9f, -1f, -1f, 0.2f,
+        0.5f, -1f, 0.3f, -1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
     private val superBassBeat = floatArrayOf(
@@ -56,10 +57,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
     private val snareBeat = floatArrayOf(
-        0f, 0.1f, 0f, 0.2f,
-        1f, 0f, 0.5f, 0f,
-        0f, 0.2f, 0f, 0.2f,
-        1f, 0f, 0.25f, 0.1f
+        -1f, 0.1f, -1f, 0.2f,
+        1f, -1f, 0.5f, -1f,
+        -1f, 0.2f, -1f, 0.2f,
+        1f, -1f, 0.25f, 0.1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
     private val hatBeat = floatArrayOf(
@@ -73,7 +74,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         SignalConductor(
             100f,
             mutableListOf(
-                SignalDrummer("kick", kickSampler, kickBeat),
+//                SignalDrummer("kick", kickSampler, kickBeat),
                 SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
 //                SignalBass("bass", bassSampler),
@@ -81,10 +82,6 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             ),
             generateChords()
         )
-
-
-
-
 
 
     private fun generateNotes(numberOfNotes: Int, index: Int): List<Note> {
@@ -184,7 +181,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
         ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
         for (sound in soundsToPlayRightNowIGuess) {
-            audio.play(sound.soundBuffer, 1f, sound.pitch)
+            if (sound.soundSource.isPlaying)
+                sound.soundSource.stop()
+            sound.soundSource.setPitch(sound.pitch)
+            sound.soundSource.play()
         }
     }
 
