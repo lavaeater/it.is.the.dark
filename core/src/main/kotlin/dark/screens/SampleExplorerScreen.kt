@@ -17,8 +17,6 @@ import eater.extensions.boundLabel
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
 import eater.music.ListItem
-import eater.music.MusicPlayer
-import eater.music.toPitch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import ktx.actors.stage
@@ -27,9 +25,13 @@ import ktx.collections.toGdxArray
 import ktx.scene2d.*
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
+class SampleExplorerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
+
+    private val sampleBaseDir = "projects/games/music-samples-explorer"
     private fun getSamples(): ListItem.Directory {
-        val root = ListItem.Directory("music-samples", "music-samples", null)
+        val root = ListItem.Directory(
+            "music-samples",
+            sampleBaseDir, null)
         getDirInfo(root)
         return root
     }
@@ -128,7 +130,7 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
 
         if (!sounds.containsKey(soundFile)) {
             try {
-                sounds[soundFile] = WaveLoader.load(Gdx.files.external(currentList.selected.path))
+                sounds[soundFile] = WaveLoader.load(Gdx.files.external(soundFile.path))
             } catch (e: Exception) {
                 soundWorks = false
             }
@@ -162,10 +164,18 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         }
 
         commandMap.setUp(Keys.A, "Previous Sample") {
-            currentNote++
-            if (currentNote > noteMax) {
-                currentNote = noteMax
-            }
+            allSamples.previousItem()
+        }
+        commandMap.setUp(Keys.D, "Next Sample") {
+            allSamples.nextItem()
+        }
+
+        commandMap.setUp(Keys.W, "Play current sample") {
+            tryToPlay(allSamples.selectedItem)
+        }
+
+        commandMap.setUp(Keys.Q, "Add current Sample") {
+            selectedSamples.add(allSamples.selectedItem)
         }
 
         commandMap.setUp(Keys.PAGE_UP, "Go ten up") {
@@ -283,6 +293,8 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
                             setFontScale(4f)
                             setAlignment(Align.center)
                         }.cell(expandX = true, fillX = true, align = Align.center, colspan = 4, padTop = 25f)
+                        row()
+                        boundLabel({allSamples.selectedItem.name})
                         row()
                         boundLabel({ currentNote.toString() })
                         row()

@@ -22,11 +22,13 @@ import eater.injection.InjectionContext
 import eater.input.CommandMap
 import eater.music.*
 import ktx.actors.stage
-import ktx.collections.toGdxArray
 import ktx.scene2d.*
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
+
+    val sampleBaseDir = "projects/games/music-samples"
+
     val noteMin = 60 //one octave lower
     val noteMax = 84 //one octave higher
     var currentNote = 0 //72 should equal a pitch of around 1f, but I have no idea
@@ -34,12 +36,11 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     val pitchSpan = (60 - 72)..(84 - 72)
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
-    private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
-    private val superBassDrum by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json") }
-    private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
-    private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
-    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json") }
-    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json") }
+    private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json", sampleBaseDir) }
+    private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json", sampleBaseDir) }
+    private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json", sampleBaseDir) }
+    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json", sampleBaseDir) }
+    private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, 0f, 0f, 0.1f,
         0.4f, 0f, 0.4f, 0f,
@@ -68,8 +69,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         1f, 0.4f, 0.7f, 0.1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
-    private val signalMetronome =
-        SignalMetronome(
+    private val signalConductor =
+        SignalConductor(
             100f,
             mutableListOf(
                 SignalDrummer("kick", kickSampler, kickBeat),
@@ -143,17 +144,17 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
     private fun setUpCommands() {
         commandMap.setUp(Input.Keys.SPACE, "Toggle signalplayer") {
-            if (signalMetronome.notPlaying)
-                signalMetronome.play()
+            if (signalConductor.notPlaying)
+                signalConductor.play()
             else
-                signalMetronome.stop()
+                signalConductor.stop()
         }
 
         commandMap.setUp(Input.Keys.RIGHT, "Intensity UP") {
-            signalMetronome.intensity = clamp(signalMetronome.intensity + 0.1f, 0f, 1f)
+            signalConductor.intensity = clamp(signalConductor.intensity + 0.1f, 0f, 1f)
         }
         commandMap.setUp(Input.Keys.LEFT, "Intensity DOWN") {
-            signalMetronome.intensity = clamp(signalMetronome.intensity - 0.1f, 0f, 1f)
+            signalConductor.intensity = clamp(signalConductor.intensity - 0.1f, 0f, 1f)
         }
     }
 
@@ -175,7 +176,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         timePiece.update(delta)
         stage.act(delta)
         stage.draw()
-        signalMetronome.update()
+        signalConductor.update()
         playSounds()
     }
 
@@ -197,14 +198,14 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             actors {
                 table {
                     table {
-                        boundProgressBar({ signalMetronome.intensity }).cell(pad = 5f)
+                        boundProgressBar({ signalConductor.intensity }).cell(pad = 5f)
                         row()
-                        boundLabel({ "Bar: ${signalMetronome.thisBar}: ${signalMetronome.lastBar}" })
+                        boundLabel({ "Bar: ${signalConductor.thisBar}: ${signalConductor.lastBar}" })
                         row()
-                        boundLabel({ "Chord: ${signalMetronome.currentChord.barPos}: ${signalMetronome.chords.size}" })
+                        boundLabel({ "Chord: ${signalConductor.currentChord.barPos}: ${signalConductor.chords.size}" })
                         row()
                         table {
-                            for (r in 0..signalMetronome.instruments.size) {
+                            for (r in 0..signalConductor.instruments.size) {
                                 if (r == 0) {
                                     (0..16).forEach { c ->
                                         if (c == 0)
@@ -255,11 +256,11 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             }
                                                             shapeDrawer.filledRectangle(x, y, width, height, color)
                                                         }
-                                                    }.apply { signalMetronome.instruments.add(this) }
+                                                    }.apply { signalConductor.instruments.add(this) }
                                                 }
                                     }
                                 } else {
-                                    val instrument = signalMetronome.instruments[r - 1]
+                                    val instrument = signalConductor.instruments[r - 1]
                                     (0..16).forEach { c ->
                                         if (c == 0)
                                             label(instrument.receiverName)
@@ -280,7 +281,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                             hitTime: Float,
                                                             intensity: Float
                                                         ) {
-                                                            if (index == sixteenth && instrument is Instrument) {
+                                                            if (index == sixteenth && instrument is Musician) {
                                                                 on = instrument.willPlay(sixteenth, intensity)
                                                             }
                                                         }
@@ -315,7 +316,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                                 color
                                                             )
                                                         }
-                                                    }.apply { signalMetronome.instruments.add(this) }
+                                                    }.apply { signalConductor.instruments.add(this) }
                                                 }
                                     }
                                 }
