@@ -35,25 +35,59 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
     private val kickSampler by lazy { loadSampler("80PD_KitB-Kick01", "drumkit-1.json") }
+    private val superBassDrum by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json") }
     private val snareSampler by lazy { loadSampler("80PD_KitB-Snare02", "drumkit-1.json") }
     private val hatSampler by lazy { loadSampler("80PD_KitB-OpHat02", "drumkit-1.json") }
-    private val bassSampler by lazy { loadSampler("bass-one-shot-808-mini_C_major", "bass-1.json")}
+    private val bassSampler by lazy { loadSampler("80s_DXbassA-D#2", "bass-3.json") }
     private val leadSampler by lazy { loadSampler("80s_DXbassA-C4", "lead-2.json") }
+    private val kickBeat = floatArrayOf(
+        1f, 0f, 0f, 0.1f,
+        0.4f, 0f, 0.4f, 0f,
+        0.9f, 0f, 0f, 0.2f,
+        0.5f, 0f, 0.3f, 0f
+    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
+
+    private val superBassBeat = floatArrayOf(
+        1f, 0f, 0f, 0.1f,
+        0.4f, 0f, 0.4f, 0f,
+        0.9f, 0f, 0f, 0.2f,
+        0.5f, 0f, 0.3f, 0f
+    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
+
+    private val snareBeat = floatArrayOf(
+        0f, 0.1f, 0f, 0.2f,
+        1f, 0f, 0.5f, 0f,
+        0f, 0.2f, 0f, 0.2f,
+        1f, 0f, 0.25f, 0.1f
+    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
+
+    private val hatBeat = floatArrayOf(
+        1f, 0.1f, 0.9f, 0.3f,
+        1f, 0.5f, 0.7f, 0.4f,
+        1f, 0.2f, 0.8f, 0.3f,
+        1f, 0.4f, 0.7f, 0.1f
+    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
+
     private val signalMetronome =
         SignalMetronome(
-            60f,
+            100f,
             mutableListOf(
-//                SignalDrummer("kick", kickSampler, generateBeat(-2..2, 1, 8)),
-//                SignalDrummer("snare", snareSampler, generateBeat(-2..2, 1, 16, 2)),
-//                SignalDrummer("hat", hatSampler, generateBeat(-2..2, 1, 8,3)),
+                SignalDrummer("kick", kickSampler, kickBeat),
+                SignalDrummer("snare", snareSampler, snareBeat),
+                SignalDrummer("hat", hatSampler, hatBeat),
                 SignalBass("bass", bassSampler),
-                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Up)
+                ChimeyChimeChime("lead", leadSampler, ArpeggioMode.Down)
             ),
             generateChords()
         )
 
-    private fun generateNotes(numberOfNotes:Int): List<Note> {
-        val noteRange = (-1..1).toGdxArray()
+
+
+
+
+
+    private fun generateNotes(numberOfNotes: Int, index: Int): List<Note> {
+        val noteRange = (-6..12)
         val notes = mutableListOf<Note>()
         (0 until numberOfNotes).forEach {
             notes.add(Note(noteRange.random(), (3..7).randomToFloat(10f)))
@@ -61,48 +95,45 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         return notes
     }
 
-    private fun generateChords() : MutableList<Chord> {
-        val chords = mutableListOf<Chord>()
-        val randomRange = 12..18
-        (0..12).forEach {
-            chords.add(Chord(it.toFloat(), generateNotes(randomRange.random())))
-        }
-        return chords
-//        return mutableListOf(
-//            Chord(
-//                0f,
-//                listOf(
-//                    Note(-1, 0.75f),
-//                    Note(0, 0.65f),
-//                    Note(1, 0.95f),
-//                    Note(2, 0.25f),
-//                )
-//            ),
-//            Chord(
-//                1f,
-//                listOf(
-//                    Note(2, 0.65f),
-//                    Note(1, 0.35f),
-//                    Note(0, 0.25f),
-//                )
-//            ),
-//            Chord(
-//                2f,
-//                listOf(
-//                    Note(2, .5f),
-//                    Note(4, 0.05f),
-//                )
-//            ),
-//            Chord(
-//                3f,
-//                listOf(
-//                    Note(0, 1f),
-//                    Note(1, 0.75f),
-//                    Note(2, 0.5f),
-//                    Note(4, 0.25f),
-//                )
-//            )
-//        )
+    private fun generateChords(): MutableList<Chord> {
+        return mutableListOf(
+            Chord(
+                0f,
+                listOf(
+                    Note(-1, 1f),
+                    Note(3, 0.25f),
+                    Note(7, 0.5f),
+                    Note(11, 0f),
+                )
+            ),
+            Chord(
+                1f,
+                listOf(
+                    Note(-3, 1f),
+                    Note(1, 0.25f),
+                    Note(4, 0.5f),
+                    Note(7, 0f),
+                )
+            ),
+            Chord(
+                2f,
+                listOf(
+                    Note(-5, 1f),
+                    Note(-1, 0.25f),
+                    Note(2, 0.5f),
+                    Note(5, 0f),
+                )
+            ),
+            Chord(
+                3f,
+                listOf(
+                    Note(0, 1f),
+                    Note(2, 0.25f),
+                    Note(4, 0.5f),
+                    Note(6, 0f),
+                )
+            ),
+        )
     }
 
     private val sampleRate = 44100
@@ -216,10 +247,10 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                                                 on = false
                                                             } else {
                                                                 color.set(
-                                                                    clamp(color.r + 0.01f, 0f, 1f),
-                                                                    clamp(color.g - 0.01f, 0f, 1f),
+                                                                    clamp(color.r + 0.1f, 0f, 1f),
+                                                                    clamp(color.g - 0.1f, 0f, 1f),
                                                                     0f,
-                                                                    clamp(color.a - 0.01f, 0f, 1f)
+                                                                    clamp(color.a - 0.1f, 0f, 1f)
                                                                 )
                                                             }
                                                             shapeDrawer.filledRectangle(x, y, width, height, color)
@@ -302,7 +333,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
 }
 
-fun IntRange.randomToFloat(factor: Float):Float {
+fun IntRange.randomToFloat(factor: Float): Float {
     return this.random() / factor
 }
 

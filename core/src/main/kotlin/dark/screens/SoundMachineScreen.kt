@@ -11,6 +11,8 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import dark.core.DarkGame
 import de.pottgames.tuningfork.*
 import eater.core.BasicScreen
+import eater.core.SelectedItemList
+import eater.core.selectedItemListOf
 import eater.extensions.boundLabel
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
@@ -107,6 +109,20 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
         }
     }
 
+    fun getFiles(output: MutableList<ListItem.SoundFile>, input: ListItem.Directory) {
+        for(dir in input.childDirs)
+            getFiles(output, dir)
+        output.addAll(input.files)
+    }
+
+    private fun flattenAllSamples(): SelectedItemList<ListItem.SoundFile> {
+        val list = mutableListOf<ListItem.SoundFile>()
+        getFiles(list, sampleStore)
+        return selectedItemListOf(*list.toTypedArray())
+    }
+
+    private val allSamples by lazy { flattenAllSamples() }
+
     private fun tryToPlay(soundFile: ListItem.SoundFile) {
         var soundWorks = true
 
@@ -139,6 +155,13 @@ class SoundMachineScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyComma
             }
         }
         commandMap.setUp(Keys.RIGHT, "Go Up a Note") {
+            currentNote++
+            if (currentNote > noteMax) {
+                currentNote = noteMax
+            }
+        }
+
+        commandMap.setUp(Keys.A, "Previous Sample") {
             currentNote++
             if (currentNote > noteMax) {
                 currentNote = noteMax
