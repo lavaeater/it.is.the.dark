@@ -5,8 +5,8 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.World
 import dark.core.GameSettings
-import dark.ecs.components.Flashlight
-import dark.ecs.components.PropsAndStuff
+import eater.ecs.ashley.components.Flashlight
+import eater.ecs.ashley.components.PropsAndStuff
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.systems.stackai.MemoryEvent
 import eater.ecs.ashley.components.Memory

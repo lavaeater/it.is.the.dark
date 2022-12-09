@@ -12,23 +12,19 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import createBlob
 import dark.core.GameSettings
-import dark.ecs.components.*
 import dark.ecs.components.Food
 import dark.ecs.components.blobcomponents.*
 import dark.ecs.components.blobcomponents.Target
 import dark.ecs.systems.blob.BlobGrouper
 import dark.ecs.systems.stackai.MemoryEvent
-import dark.ecs.systems.log
+import eater.ecs.ashley.systems.log
 import eater.ai.ashley.*
 import eater.ai.steering.box2d.Box2dLocation
 import eater.ai.steering.box2d.Box2dRaycastCollisionDetector
 import eater.ai.steering.box2d.Box2dSteerable
 import eater.core.engine
 import eater.core.world
-import eater.ecs.ashley.components.Box2d
-import eater.ecs.ashley.components.Memory
-import eater.ecs.ashley.components.Remove
-import eater.ecs.ashley.components.TransformComponent
+import eater.ecs.ashley.components.*
 import eater.injection.InjectionContext.Companion.inject
 import eater.physics.addComponent
 import ktx.ashley.allOf
@@ -531,17 +527,16 @@ object BlobActions {
                 }
 
                 TargetState.NeedsTarget -> {
-                    val health = PropsAndStuff.get(entity).getHealth()
                     val position = TransformComponent.get(entity).position
                     val potentialHumanTarget = engine().getEntitiesFor(humanFamily)
                         .filter {
-                            TransformComponent.get(it).position.dst(position) < health.detectionRadius
+                            TransformComponent.get(it).position.dst(position) < PropsAndStuff.get(entity).getDetectionRadius().current
                         }.randomOrNull()
 
 
                     val potentialTarget = engine().getEntitiesFor(foodFamily)
                         .filter {
-                            TransformComponent.get(it).position.dst(position) < health.detectionRadius
+                            TransformComponent.get(it).position.dst(position) < PropsAndStuff.get(entity).getDetectionRadius().current
                         }.randomOrNull()
                     if (potentialHumanTarget != null) {
                         stateComponent.previousDistance =

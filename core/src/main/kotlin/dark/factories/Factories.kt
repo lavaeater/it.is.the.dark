@@ -11,7 +11,7 @@ import dark.ai.HumanActions
 import dark.ai.getWanderSteering
 import dark.core.GameSettings
 import dark.ecs.components.*
-import dark.ecs.components.Map
+import eater.ecs.ashley.components.Map
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.BlobsCanEatThis
 import dark.ecs.systems.blob.BlobGrouper
@@ -39,7 +39,7 @@ fun createLights(points: List<Vector2>) {
 
 fun createLight(lightPos: Vector2) {
     engine().entity {
-        with<Light> {
+        with<LightComponent> {
             light = PointLight(inject<RayHandler>(), 8,Color.WHITE, 50f, lightPos.x, lightPos.y)
         }
         with<Box2d> {
@@ -143,7 +143,7 @@ fun createPlayer(at: Vector2, health: Float = 100f, follow: Boolean = false) {
             maxForce = 1000f
         }
         with<KeyboardAndMouseInput>()
-        with<Light> {
+        with<LightComponent> {
             light = PointLight(inject<RayHandler>(),8, Color.WHITE, 15f, 0f, 0f)
         }
         with<Flashlight> {

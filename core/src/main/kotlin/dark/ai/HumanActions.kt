@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.steer.behaviors.*
 import com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration
 import com.badlogic.gdx.math.Vector2
 import dark.core.GameSettings
-import dark.ecs.components.Light
+import eater.ecs.ashley.components.LightComponent
 import dark.ecs.components.blobcomponents.Target
 import dark.ecs.components.blobcomponents.TargetState
 import eater.ai.ashley.AiAction
@@ -59,7 +59,7 @@ object HumanActions {
             val position = TransformComponent.get(entity).position
             return if (Target.GenericTarget.has(entity))
                 0.8f
-            else if (engine().getEntitiesFor(lightFamily)
+            else if (engine().getEntitiesFor(lightComponentFamily)
                     .any { TransformComponent.get(it).position.dst(position) < gameSettings.HumanLightDetectionRadius }
             )
                 0.8f
@@ -69,7 +69,7 @@ object HumanActions {
         override fun abortFunction(entity: Entity) {
         }
 
-        val lightFamily = allOf(Light::class, TransformComponent::class).exclude(Remove::class).get()
+        val lightComponentFamily = allOf(LightComponent::class, TransformComponent::class).exclude(Remove::class).get()
         val gameSettings by lazy { InjectionContext.inject<GameSettings>() }
 
 
@@ -98,7 +98,7 @@ object HumanActions {
 
                 TargetState.NeedsTarget -> {
                     val position = TransformComponent.get(entity).position
-                    val potentialTarget = engine().getEntitiesFor(lightFamily)
+                    val potentialTarget = engine().getEntitiesFor(lightComponentFamily)
                         .minByOrNull {
                             TransformComponent.get(it).position.dst(position)
                         }

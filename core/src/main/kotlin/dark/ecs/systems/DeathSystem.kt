@@ -6,9 +6,9 @@ import createBlob
 import dark.core.DarkGame
 import dark.core.GameSettings
 import dark.ecs.components.blobcomponents.Blob
-import dark.ecs.components.LogComponent
-import dark.ecs.components.Player
-import dark.ecs.components.PropsAndStuff
+import eater.ecs.ashley.components.LogComponent
+import eater.ecs.ashley.components.Player
+import eater.ecs.ashley.components.PropsAndStuff
 import dark.ecs.systems.blob.BlobGrouper
 import eater.ecs.ashley.components.Remove
 import eater.physics.addComponent
@@ -16,7 +16,8 @@ import ktx.ashley.allOf
 import ktx.ashley.exclude
 import ktx.log.info
 
-class DeathSystem(private val gameSettings: GameSettings, private val game: DarkGame): IteratingSystem(allOf(PropsAndStuff::class).exclude(Remove::class).get()) {
+class DeathSystem(private val gameSettings: GameSettings, private val game: DarkGame): IteratingSystem(allOf(
+    PropsAndStuff::class).exclude(Remove::class).get()) {
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if(PropsAndStuff.has(entity) && !LogComponent.has(entity)) {
             val health = PropsAndStuff.get(entity).getHealth()

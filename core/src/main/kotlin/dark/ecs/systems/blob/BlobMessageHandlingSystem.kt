@@ -6,6 +6,7 @@ import dark.ecs.components.*
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.Target
 import dark.ecs.components.blobcomponents.BlobMessage
+import eater.ecs.ashley.components.PropsAndStuff
 import eater.ecs.ashley.components.Remove
 import ktx.ashley.allOf
 import ktx.ashley.exclude

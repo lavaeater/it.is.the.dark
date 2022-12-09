@@ -48,15 +48,4 @@ class StackAiComponent : Component, Pool.Poolable {
     override fun reset() {
         actionStack.clear()
     }
-
-    companion object {
-        val mapper = mapperFor<StackAiComponent>()
-        fun has(entity: Entity): Boolean {
-            return mapper.has(entity)
-        }
-
-        fun get(entity: Entity): StackAiComponent {
-            return mapper.get(entity)
-        }
-    }
 }

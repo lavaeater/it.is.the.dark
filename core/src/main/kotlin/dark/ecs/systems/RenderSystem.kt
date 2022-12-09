@@ -3,7 +3,6 @@ package dark.ecs.systems
 import box2dLight.RayHandler
 import com.aliasifkhan.hackLights.HackLightEngine
 import dark.ecs.components.Food
-import dark.ecs.components.Light
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -15,20 +14,16 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
-import dark.ecs.components.*
-import dark.ecs.components.Map
+import eater.ecs.ashley.components.Map
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.Target
 import dark.injection.Assets
-import eater.ecs.ashley.components.Remove
-import eater.ecs.ashley.components.TransformComponent
+import eater.ecs.ashley.components.*
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.ashley.exclude
 import ktx.assets.toInternalFile
 import ktx.graphics.use
-import ktx.math.plus
-import ktx.math.times
 import ktx.math.vec2
 import ktx.math.vec3
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -67,7 +62,7 @@ class RenderSystem(
     private val allHumans get() = engine.getEntitiesFor(humanFamily)
     private val assets by lazy { inject<Assets>() }
 
-    private val lightsFamily = allOf(Light::class, TransformComponent::class).exclude(Remove::class).get()
+    private val lightsFamily = allOf(LightComponent::class, TransformComponent::class).exclude(Remove::class).get()
     private val lights get() = engine.getEntitiesFor(lightsFamily)
     private val lightColor = Color(1f, 1f, 0f, 0.5f)
     private val lightsEngine by lazy { inject<HackLightEngine>() }
@@ -139,7 +134,7 @@ class RenderSystem(
                 shapeDrawer.setColor(Color.GREEN)
                 shapeDrawer.circle(blobPosition.x, blobPosition.y, gameSettings.BlobDetectionRadius)
                 shapeDrawer.setColor(Color.RED)
-                shapeDrawer.circle(blobPosition.x, blobPosition.y, health.detectionRadius)
+                shapeDrawer.circle(blobPosition.x, blobPosition.y, PropsAndStuff.get(lonelyBlob).getDetectionRadius().current)
                 shapeDrawer.setColor(Color.BLUE)
                 shapeDrawer.circle(blobPosition.x, blobPosition.y, 2.5f)
 

@@ -21,8 +21,8 @@ import dark.ecs.systems.blob.BlobHealthDiminishingSystem
 import dark.ecs.systems.blob.BlobHealthSharingSystem
 import dark.ecs.systems.blob.BlobMessageHandlingSystem
 import dark.ecs.systems.blob.BlobNeighbourSystem
-import dark.ecs.systems.stackai.AiTimePieceSystem
-import dark.ecs.systems.stackai.SteerSystem
+import eater.ecs.ashley.systems.AiTimePieceSystem
+import eater.ecs.ashley.systems.SteerSystem
 import dark.screens.GameScreen
 import eater.ecs.ashley.systems.*
 import eater.injection.InjectionContext
@@ -88,7 +88,7 @@ object Context : InjectionContext() {
             addSystem(RemoveRopesSystem(inject()))
             addSystem(RemoveEntitySystem())
             addSystem(DeathSystem(inject(), inject()))
-            addSystem(CameraAndMapSystem(inject(), 0.75f, inject()))
+            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(),inject<GameSettings>().AspectRatio))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject()))

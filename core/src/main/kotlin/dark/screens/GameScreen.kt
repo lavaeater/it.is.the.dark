@@ -10,7 +10,7 @@ import createMap
 import createPlayer
 import dark.core.DarkGame
 import dark.core.GameSettings
-import dark.ecs.components.PointType
+import eater.ecs.ashley.components.PointType
 import dark.ecs.systems.blob.BlobGrouper
 import eater.injection.InjectionContext.Companion.context
 import ktx.app.KtxInputAdapter
