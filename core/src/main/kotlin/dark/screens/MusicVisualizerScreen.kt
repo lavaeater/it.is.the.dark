@@ -76,7 +76,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
     private val signalConductor =
         SignalConductor(
-            120f,
+            80f,
             4f,
             4f,
             mutableListOf(
