@@ -6,7 +6,6 @@ import com.badlogic.gdx.ai.GdxAI
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils.clamp
-import com.badlogic.gdx.math.MathUtils.floor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable
@@ -26,13 +25,8 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 
 class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCommands")) {
 
-    val sampleBaseDir = "projects/games/music-samples-explorer"
+    private val sampleBaseDir = "projects/games/music-samples-explorer"
 
-    val noteMin = 60 //one octave lower
-    val noteMax = 84 //one octave higher
-    var currentNote = 0 //72 should equal a pitch of around 1f, but I have no idea
-
-    val pitchSpan = (60 - 72)..(84 - 72)
     override val viewport: Viewport = ExtendViewport(400f, 600f)
 
     private val kickSampler by lazy { loadSampler("Kick", "drums-1.json", sampleBaseDir) }
@@ -49,12 +43,12 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         0.5f, -1f, 0.3f, -1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
-    private val superBassBeat = floatArrayOf(
-        1f, 0f, 0f, 0.1f,
-        0.4f, 0f, 0.4f, 0f,
-        0.9f, 0f, 0f, 0.2f,
-        0.5f, 0f, 0.3f, 0f
-    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
+//    private val superBassBeat = floatArrayOf(
+//        1f, 0f, 0f, 0.1f,
+//        0.4f, 0f, 0.4f, 0f,
+//        0.9f, 0f, 0f, 0.2f,
+//        0.5f, 0f, 0.3f, 0f
+//    ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
     private val snareBeat = floatArrayOf(
         -1f, 0.1f, -1f, 0.2f,
@@ -70,7 +64,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         1f, 0.4f, 0.7f, 0.1f
     ).mapIndexed { i, s -> i to Note(0, s) }.toMap().toMutableMap()
 
-    private val scaleNotes = listOf(Note(-1, 1f),
+    private val scaleNotes = listOf(
+        Note(-1, 1f),
         Note(1, 0.2f),
         Note(3, 0.6f),
         Note(4, 0.5f),
@@ -82,6 +77,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val signalConductor =
         SignalConductor(
             120f,
+            4f,
+            4f,
             mutableListOf(
                 SignalDrummer("kick", kickSampler, kickBeat),
                 SignalDrummer("snare", snareSampler, snareBeat),
@@ -93,16 +90,6 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
             generateChords()
         )
 
-
-    private fun generateNotes(numberOfNotes: Int, index: Int): List<Note> {
-        val noteRange = (-6..12)
-        val notes = mutableListOf<Note>()
-        (0 until numberOfNotes).forEach {
-            notes.add(Note(noteRange.random(), (3..7).randomToFloat(10f)))
-        }
-        return notes
-    }
-
     private fun generateChords(): MutableList<Chord> {
         return mutableListOf(
             Chord(
@@ -112,7 +99,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(3, 0.25f),
                     Note(7, 0.5f),
                     Note(11, 0f),
-                ),scaleNotes
+                ), scaleNotes
 
             ),
             Chord(
@@ -122,7 +109,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(1, 0.25f),
                     Note(4, 0.5f),
                     Note(7, 0f),
-                ),scaleNotes
+                ), scaleNotes
             ),
             Chord(
                 2f,
@@ -131,7 +118,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(-1, 0.25f),
                     Note(2, 0.5f),
                     Note(5, 0f),
-                ),scaleNotes
+                ), scaleNotes
             ),
             Chord(
                 3f,
@@ -140,12 +127,11 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                     Note(2, 0.25f),
                     Note(4, 0.5f),
                     Note(6, 0f),
-                ),scaleNotes
+                ), scaleNotes
             ),
         )
     }
 
-    private val sampleRate = 44100
     private val timePiece by lazy { GdxAI.getTimepiece() }
 
     private fun setUpCommands() {
@@ -203,7 +189,6 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
     private lateinit var stage: Stage
     private val shapeDrawer by lazy { InjectionContext.inject<ShapeDrawer>() }
-    private fun get16th(timeBars: Float) = floor(timeBars * 16f) % 16
 
     private fun getStage(): Stage {
         return stage(batch, viewport).apply {
@@ -219,7 +204,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                         table {
                             for (r in 0..signalConductor.instruments.size) {
                                 if (r == 0) {
-                                    (0..16).forEach { c ->
+                                    (0..signalConductor.notesPerMeasure).forEach { c ->
                                         if (c == 0)
                                             label("Instrument")
                                         else
@@ -234,17 +219,24 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
                                                         override fun signal(
                                                             beat: Int,
-                                                            sixteenth: Int,
+                                                            thisNoteIndex: Int,
                                                             timeBars: Float,
                                                             hitTime: Float,
                                                             baseIntensity: Float
                                                         ) {
-                                                            if (sixteenth == index) {
+                                                            if (thisNoteIndex == index) {
                                                                 on = true
                                                             }
                                                         }
 
                                                         override fun setChord(chord: Chord) {
+
+                                                        }
+
+                                                        override fun updateSignature(
+                                                            beatsPerMeasure: Float,
+                                                            beatDuration: Float
+                                                        ) {
 
                                                         }
 
@@ -273,7 +265,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                                     }
                                 } else {
                                     val instrument = signalConductor.instruments[r - 1]
-                                    (0..16).forEach { c ->
+                                    (0..signalConductor.notesPerMeasure).forEach { c ->
                                         if (c == 0)
                                             label(instrument.receiverName)
                                         else
@@ -288,17 +280,24 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
 
                                                         override fun signal(
                                                             beat: Int,
-                                                            sixteenth: Int,
+                                                            thisNoteIndex: Int,
                                                             timeBars: Float,
                                                             hitTime: Float,
                                                             baseIntensity: Float
                                                         ) {
-                                                            if (index == sixteenth && instrument is Musician) {
-                                                                on = instrument.willPlay(sixteenth, baseIntensity)
+                                                            if (index == thisNoteIndex && instrument is Musician) {
+                                                                on = instrument.willPlay(thisNoteIndex, baseIntensity)
                                                             }
                                                         }
 
                                                         override fun setChord(chord: Chord) {
+
+                                                        }
+
+                                                        override fun updateSignature(
+                                                            beatsPerMeasure: Float,
+                                                            beatDuration: Float
+                                                        ) {
 
                                                         }
 
@@ -344,12 +343,4 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
         }
     }
 
-}
-
-fun IntRange.randomToFloat(factor: Float): Float {
-    return this.random() / factor
-}
-
-fun Int.normalizedRandom(): Float {
-    return (0..this).randomToFloat(this.toFloat())
 }
