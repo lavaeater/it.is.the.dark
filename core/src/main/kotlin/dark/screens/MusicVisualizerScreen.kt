@@ -41,6 +41,7 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
     private val bassSampler by lazy { loadSampler("lofi-bass", "lo-fi-1.json", sampleBaseDir) }
     private val rythmGuitarSampler by lazy { loadSampler("rythm-guitar-c", "guitar-1.json", sampleBaseDir) }
     private val soloSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
+    private val leadSampler by lazy { loadSampler("fxpad", "lo-fi-1.json", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, -1f, -1f, 0.1f,
         0.4f, -1f, 0.4f, -1f,
@@ -86,9 +87,8 @@ class MusicVisualizerScreen(game: DarkGame) : BasicScreen(game, CommandMap("MyCo
                 SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
                 SignalBass("bass", bassSampler),
-//                ChimeyChimeChime("guitar", rythmGuitarSampler, ArpeggioMode.Up),
-//                SoloMusician("soolooo", rythmGuitarSampler),
-                SoloMusician("soolo2", soloSampler)
+                SoloMusician("soolooo", listOf(leadSampler)),
+                SoloMusician("soolooo", listOf(soloSampler, rythmGuitarSampler)),
             ),
             generateChords()
         )
