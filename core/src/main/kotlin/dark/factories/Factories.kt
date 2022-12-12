@@ -11,7 +11,7 @@ import dark.ai.HumanActions
 import dark.ai.getWanderSteering
 import dark.core.GameSettings
 import dark.ecs.components.*
-import eater.ecs.ashley.components.Map
+import eater.ecs.ashley.components.LDtkMap
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.BlobsCanEatThis
 import dark.ecs.systems.blob.BlobGrouper
@@ -88,7 +88,7 @@ fun createHumans(points: MutableList<Vector2>) {
 }
 
 fun createHuman() {
-    createRegularHuman(inject<Map>().points[PointType.HumanStart]!!.random())
+    createRegularHuman(inject<LDtkMap>().points[PointType.HumanStart]!!.random())
 }
 
 fun createRegularHuman(at: Vector2, health: Float = 100f, follow: Boolean = false) {
@@ -241,7 +241,7 @@ fun createBlob(
     })
 }
 
-fun createMap(key: String): Map {
+fun createMap(key: String): LDtkMap {
     var scaleFactor = 1f
     if (key == "two")
         scaleFactor = 2f
@@ -250,9 +250,9 @@ fun createMap(key: String): Map {
     val mapAssets = assets().maps[key]!!
     val textureRegion = TextureRegion(mapAssets.first)
     val topTextureRegion = TextureRegion(mapAssets.third)
-    lateinit var map: Map
+    lateinit var LDtkMap: LDtkMap
     engine().entity {
-        map = with {
+        LDtkMap = with {
             mapTextureRegion = textureRegion
             mapTopLayerRegion = topTextureRegion
             mapScale = scaleFactor
@@ -264,12 +264,12 @@ fun createMap(key: String): Map {
                 textureRegion.regionHeight.toFloat() - 2 * gridSize
             )
         }
-        createBounds(mapAssets.second, gridSize, mapOffset, map)
+        createBounds(mapAssets.second, gridSize, mapOffset, LDtkMap)
     }
-    return map
+    return LDtkMap
 }
 
-fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map) {
+fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, LDtkMap: LDtkMap) {
     /*
     To make it super easy, we just create a square per int-tile in the layer.
      */
@@ -277,10 +277,10 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
         l.split(',').forEachIndexed { x, c ->
             if (PointType.allTypes.containsKey(c)) {
                 val pointType = PointType.allTypes[c]!!
-                if (!map.points.containsKey(pointType)) {
-                    map.points[pointType] = mutableListOf()
+                if (!LDtkMap.points.containsKey(pointType)) {
+                    LDtkMap.points[pointType] = mutableListOf()
                 }
-                map.points[pointType]!!.add(
+                LDtkMap.points[pointType]!!.add(
                     vec2(
                         x * tileSize + mapOffset.x + tileSize / 2f,
                         y * tileSize + mapOffset.y - tileSize / 2f
@@ -290,8 +290,8 @@ fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, map: Map
         }
     }
 
-    for (bound in map.points[PointType.Impassable]!!) {
-        map.mapBodies.add(world().body {
+    for (bound in LDtkMap.points[PointType.Impassable]!!) {
+        LDtkMap.mapBodies.add(world().body {
             type = BodyDef.BodyType.StaticBody
             position.set(
                 bound.x,

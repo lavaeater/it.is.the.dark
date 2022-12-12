@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.MathUtils
 import dark.core.GameSettings
-import eater.ecs.ashley.components.Map
+import eater.ecs.ashley.components.LDtkMap
 import dark.ecs.components.blobcomponents.Blob
 import dark.ecs.components.blobcomponents.Target
 import dark.injection.Assets
@@ -41,8 +41,8 @@ class RenderSystem(
         ShaderProgram.pedantic = false
         ShaderProgram(vertexShader, fragmentShader)
     }
-    private val mapFamily = allOf(Map::class).get()
-    private val mapEntity get() = engine.getEntitiesFor(mapFamily).first() //Should always be one
+    private val LDtkMapFamily = allOf(LDtkMap::class).get()
+    private val mapEntity get() = engine.getEntitiesFor(LDtkMapFamily).first() //Should always be one
     private val foodFamily = allOf(Food::class, TransformComponent::class).get()
     private val allBlobs = allOf(Blob::class, TransformComponent::class).exclude(Remove::class).get()
     private val fbo by lazy {
@@ -150,20 +150,20 @@ class RenderSystem(
     }
 
     private fun renderMap() {
-        val map = Map.get(mapEntity)
+        val LDtkMap = LDtkMap.get(mapEntity)
         batch.draw(
-            map.mapTextureRegion,
-            map.mapOrigin.x,
-            map.mapOrigin.y
+            LDtkMap.mapTextureRegion,
+            LDtkMap.mapOrigin.x,
+            LDtkMap.mapOrigin.y
         )
     }
 
     private fun renderTopLayerMap() {
-        val map = Map.get(mapEntity)
+        val LDtkMap = LDtkMap.get(mapEntity)
         batch.draw(
-            map.mapTopLayerRegion,
-            map.mapOrigin.x,
-            map.mapOrigin.y
+            LDtkMap.mapTopLayerRegion,
+            LDtkMap.mapOrigin.x,
+            LDtkMap.mapOrigin.y
         )
 
     }
